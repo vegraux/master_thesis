@@ -1,0 +1,28 @@
+\documentclass{standalone}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\begin{document}
+
+    \begin{circuitikz}[scale=2.0]
+   \draw
+          (0,0) to [short, o-] (1,0)
+          (6,0) to [short, o-] (0,0)
+          (6,0) to [open, v_<=$V_{2}$] (6,2) % load voltage
+          (5,2) to [short, l=$P_{2}+jQ_{2}$, -o] (6,2) % load power
+          
+
+          (0,0) to [open, v^<=$V_{1}$] (0,2) % generator voltage
+          (0,2) to [short, o-, l^=$P_{1}+jQ_{1}$] (1,2) % generator power
+          (1,2) to [C, l^=$j\frac{Y}{2}$] (1,0) % shunt susceptance
+          (1,2) to [R, l=$R$] (3,2) % line resistance
+          (3,2) to [L, l=$jX$] (5,2) % line reactance
+          (5,2) to [C, l_=$j\frac{Y}{2}$] (5,0); % shunt susceptance
+
+    %\draw [-latex] (5,2.5) -- (6,2.5);
+    \draw[-latex] (5,2.1) -- (6,2.1);
+    \draw[-latex] (0,2.1) -- (1,2.1);
+
+    \end{circuitikz}
+\end{document}

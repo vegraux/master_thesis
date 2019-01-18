@@ -1,0 +1,52 @@
+\documentclass{book}
+\usepackage[margin=1.3in,bottom=1in,top=1in]{geometry}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\usepackage[sorting = none,
+            doi = true  %lesedato for url-adresse
+            ]{biblatex} %none gir bibliografi i sitert rekkefølge
+\addbibresource{reference.bib}
+
+
+
+\begin{document}
+\title{Master thesis}
+\author{Vegard Solberg}
+ 
+\maketitle
+\tableofcontents
+
+
+\chapter{Theory}
+\section{Electrical power system}
+An electrical power system consists of a set of nodes which can be thought of as the connection points in the system. These nodes are commonly referred to as buses. The connections or branches between the buses are power lines, cables, transformers or other power electronics equipment. The buses and branches defines the topology of the electrical power system. 
+
+
+\subsection{Types of buses}
+There are three types of buses in a power system\cite{opf_intro}.
+
+\begin{itemize}
+  \item Slack bus / reference bus
+\end{itemize}
+
+
+
+\begin{itemize}
+  \item Slack bus / reference bus
+\end{itemize}
+Its voltage angle is defined to be 0 and the angles at other buses are relative to the slack bus. There is only one slack bus in an electrical power system.
+
+\begin{itemize}
+  \item Load bus
+\end{itemize}
+A load bus is the most common bus in an electrical grid. The load buses can not control the flow of active and reactive power, as this is predetermined by the demand in the marked. As a result, it is also called PQ bus.
+
+\begin{itemize}
+  \item Voltage controlled bus
+\end{itemize}
+The voltage magnitude and active power are known for the voltage controlled bus, while the voltage angle and reactive power can vary. 
+
+
+%\printbibliography
+\end{document}

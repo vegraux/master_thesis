@@ -1,0 +1,32 @@
+\documentclass{book}
+\usepackage[subpreambles=true]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[sorting = none,
+            doi = true  %lesedato for url-adresse
+            ]{biblatex} %none gir bibliografi i sitert rekkefølge
+\addbibresource{reference.bib}
+\usepackage{csquotes}
+
+
+\usepackage{import}
+ 
+\title{Reinforcement learning in an electrical power system}
+\author{Vegard Solberg}
+\date{May 2019}
+ 
+\begin{document}
+ 
+    \maketitle
+    \tableofcontents
+ 
+    \chapter{Power system}
+    \import{chapters/}{power_system}
+ 
+    \chapter{Reinforcement learning}
+    \import{chapters/}{reinforcement_learning}
+    
+    \printbibliography
+ 
+\end{document}

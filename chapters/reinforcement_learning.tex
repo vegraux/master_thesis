@@ -1,0 +1,13 @@
+\documentclass[class=book, crop=false]{standalone}
+\usepackage[subpreambles=true]{standalone}
+\usepackage{import}
+
+\begin{document}
+%\chapter{Reinforcement learning}
+Reinforcement learning is an algorithm that learns through trial and error. The system consists of an agent that observes a state and responds to that by taking an action. Simply put, the agent will get a positive reward when it takes good actions and negative rewards for bad actions. When the agent takes a bad action, it will be less likely to chose that action again later. Similarly, when it gets a reward it will likely chose a similar action given the same observed state. By letting the agent see many states and explore different actions, it can eventually learn a policy that maximises expected future rewards. 
+
+This algorithm is similar to how humans and animals learn. Imagine a dog seeing its owner holding a bag of treats. Obviously, the dog is keen on getting the treats, but is not sure what to do. The dog sees that the owner is putting his hand in front of its nose and yelling some command, but does not quit understand what to do. So it simply tries doing something. First, it might try to lean forward and smell the hand. Sadly, this does not result in any treat. Therefore, it continuous to try different actions, until it eventually happens to lift its front paw in the hand of the owner. At last, it receives a tasty treat from the owner. It has learned what action to take to get a treat. Next, the owner might rotate its arm in front of the dog. The dog might try to lift its front paw again, since that worked last time. Sadly, it does not get a reward this times. Therefore, it starts to explore new actions until it after some time tries to spin around. Again, it receives a treat. It has now learned that simply raising its front paw does not always result in a treat. It has to evaluate its observation before taking an action. 
+
+The dog training is similar to an reinforcement learning algorithm. The dog is the agent that tries to figure own what actions to do, while the owner is the reward system. The advantage of the reinforcement algorithm is that it does not need a physical reward, and the agent can experiment much more quickly than a dog can. 
+\end{document}
+
