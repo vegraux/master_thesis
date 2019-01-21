@@ -1,0 +1,27 @@
+\documentclass{standalone}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\begin{document}
+
+
+\begin{circuitikz} \draw
+    (0,0) to[sV,  l=$U$] (0,4) 
+    to[short,i=$I$] (4,4)
+    to [short,i=$I_2$] (8,4)
+    to[R,l=$R_2$] (8,0)
+
+    to[short] (0,0)
+
+    (4,4) to[R,l=$R_1$] (4,0)
+    (4,4) to[short,i=$I_1$] (4,3)
+    ;
+    \draw[thin, <-, >=triangle 45] (2,2)node{$C_1$}  ++(-60:0.5) arc (-60:190:0.5);
+    \draw[thin, <-, >=triangle 45] (6,2)node{$C_2$}  ++(-60:0.5) arc (-60:190:0.5);
+\end{circuitikz}
+
+
+\end{document}
+
+
