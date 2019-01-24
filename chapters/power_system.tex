@@ -166,11 +166,11 @@ P_{1} =  \frac{|U_{1}||U_{2}|}{|Z|}sin(\delta)
 \end{equation}
 where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, $|Z|$ is the impedance magnitude of the line and $\delta$ is the phase angle at bus 1 with respect to bus 2. The takeaway from this analysis is that the direction of the active power flow is determined by the phase angle $\delta$ of the voltages between the buses. In a two bus system, the bus with the leading voltage is supplying active power, while the lagging voltage is receiving. Another thing to note is that for an AC power system the voltage magnitude between the buses may differ in size, and active power can still flow in both directions. This would not be possible in DC power system. Figure \ref{fig:theory:active_power_flow} shows the relation between a loss free power line and a sample line in pandapower. We see that the active power $P$ for a line with resistive losses is also mainly controlled by the voltage angle $\delta$.
 
+
 \begin{figure}[ht!]
     \center
-    \includegraphics[width=12cm]{figures/active_power_flow.png}
-    \caption[size = 9]{Active power flow between two buses with no losses and typical loss angle $\alpha$ of 0.13}
-	\label{fig:theory:active_power_flow}
+    \subimport{../}{circuits/plot_active_power_flow.tex}
+    \caption[size = 9]{Active power flow \textit{P} between two buses as a function of voltage angle with no losses ($\alpha=0$) a and typical loss angle $\alpha$ of 0.13} \label{fig:theory:active_power_flow}
 \end{figure}
 
 A similar argument will give that the reactive power flow $Q_{1}$ at bus 1 for a line without resistive losses is given by 
@@ -208,7 +208,7 @@ where $I_{bus}$ are n-dimensional vectors whose j-th component is the current fl
 A common way to model a transmission line is by using a $\pi$-equivalent circuit, as shown in figure \ref{fig:theory:PI_model}
 
 \begin{figure}[ht!]
-    \subimport{../}{circuits/diagram.tex}
+    \subimport{../}{circuits/pi_model.tex}
     \caption{$\pi$-equivalant model for a transmission line.}
     \label{fig:theory:PI_model}
 \end{figure}
