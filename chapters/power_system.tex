@@ -20,7 +20,7 @@ The reinforcement agent is working within an electrical power system and it is t
 
 \section{Electric circuit theory}
 \subsection{Voltage, current and power}
-A model of a simple electric circuit is shown in figure \ref{fig:theory:simple_circuit}.
+An electric circuit is a model that describes how electrical power is transferred from a electrical source unit to a load. An example of a source is a power socket on the wall and a load can be a light bulb or a vacuum cleaner. A model of a simple electric circuit is shown in figure \ref{fig:theory:simple_circuit}, where \textit{U} is placed next to the electrical source and \textit{R} next to the load. 
 
 \begin{figure}[ht!]
     \centering
@@ -31,26 +31,25 @@ A model of a simple electric circuit is shown in figure \ref{fig:theory:simple_c
 
 
 
-
-\textit{U} is the voltage in the circuit and is a measure of the potential energy between charges at each end of the voltage source. volt $V$ is the unit for voltage, which is equivalent to joule per coulomb. The current \textit{I} flowing in the wire is a measure for the amount of charges passing through a cross section of the circuit wire per second. The unit for current is ampere \textit{A} or coulomb per second. The resistance \textit{R} is a measure for how much an electric load resistor, such as a light bulb, resists the flow of electric charges. The unit for resistance is ohm denoted by $\Omega$. The magnitudes of the voltage, current and resistance are governed by Ohm's law
+\textit{U} is the voltage in the circuit and is a measure of the potential energy between charges at each end of the voltage source. Volt $V$ is the unit for voltage, which is equivalent to joule per coulomb. The current \textit{I} flowing in the wire is a measure for the amount of charges passing through a cross section of the circuit wire per second. The unit for current is ampere \textit{A} or coulomb per second. The resistance \textit{R} is a measure for how much an electric load, such as a light bulb, resists the flow of electric charges. The unit for resistance is ohm denoted by $\Omega$. The magnitudes of the voltage, current and resistance are governed by Ohm's law
 
 \begin{equation}\label{eq:theory:ohm_simple}
     U = RI
 \end{equation}
 
-where  \textit{U} is the voltage, \textit{R} is the resistance and \textit{I} is the current flowing. Another version of this is equation is found by introducing the adittance $Y$ which is defined as the inverse of the resistance $R$, i.e  $Y = 1/R$. The admittance $Y$ is a measure for how a load allows the flow charges in a circuit. The unit for admittance is siemens $S$. By using the admittance $Y$, Ohm's law can be expressed as
+where  \textit{U} is the voltage, \textit{R} is the resistance and \textit{I} is the current flowing. Another version of this is equation is found by introducing the admittance $Y$ which is defined as the inverse of the resistance $R$, i.e  $Y = 1/R$. The admittance $Y$ is a measure for how a load allows the flow charges in a circuit. The unit for admittance is siemens $S$. By using the admittance $Y$, Ohm's law can be expressed as
 \begin{equation}\label{eq:theory:ohm_simple_inverse}
     I = UY
 \end{equation}
 
 The power $P$ an electric load consumes can be found easily by multiplying the current \textit{I} and voltage drop \textit{U} over the load
-\begin{equation}\label{eq:theory:simple_powerflow}
+\begin{equation}\label{eq:theory:apparent_power}
     P = UI
 \end{equation}
 The unit for power is watt \textit{W} or joule per second.
 
 \subsection{Kirchoff's laws}
-Figure shows a circuit with several branches and resistors 
+Figure shows a circuit with several branches and loads 
 
 \begin{figure}[ht!]
     \centering
@@ -59,12 +58,12 @@ Figure shows a circuit with several branches and resistors
     \label{fig:theory:simple_circuit_branches}
 \end{figure}
 
-The current \textit{I} will split when it reaches and intersection, in such a way that the total current flowing into the node equal the total total current flowing out from a node. Referring to figure \ref{fig:theory:simple_circuit_branches} we have that $I = I_1 + I_2$. This conservation of current is called Kirchoff's 1st law or simply kirchhoff current law (KCL). With the introduction of branches in a circuit, there will also be closed loops. In figure \ref{fig:theory:simple_circuit_branches} there are two closed loops $C_{1}$ and $C_{2}$. Kirchoff's 2nd law , aslo known as Kirchoffs's voltage law (KVL), states that the voltage drop over the components in a closed loop $C$ is equal to zero. 
+The current \textit{I} will split when it reaches and intersection, in such a way that the total current flowing into the node equal the total total current flowing out from a node. Referring to figure \ref{fig:theory:simple_circuit_branches} we have that $I = I_1 + I_2$. This conservation of current is called Kirchoff's 1st law or simply kirchhoff current law (KCL). With the introduction of branches in a circuit, there will also be closed loops. In figure \ref{fig:theory:simple_circuit_branches} there are two closed loops $C_{1}$ and $C_{2}$. Kirchoff's 2nd law , aslo known as Kirchoffs's voltage law (KVL), states that the voltage \textit{U} over the components in a closed loop $C$ is equal to zero. 
 
 \begin{equation}\label{eq:theory:kirchoffs_2nd_integral}
     \sum_{i}^{N} V_{i} = 0, \;\; V_{i} \in C
 \end{equation}
-For the two loops $C_1,C_2$ in figure \ref{fig:theory:simple_circuit_branches} we will have 
+For the two loops $C_1,C_2$ in figure \ref{fig:theory:simple_circuit_branches} we have 
 
 
 \begin{equation}
@@ -75,7 +74,87 @@ For the two loops $C_1,C_2$ in figure \ref{fig:theory:simple_circuit_branches} w
 \end{aligned} 
 \end{equation}
 
+\section{Reactive components}
+There are electrical loads that cause a phase shift between the current and voltage in an electric circuit. For instance, the circuit shown in figure has a capacitor as load. A capacitor is a component that can store an electrical charge \textit{Q} when a direct current (DC) voltage source \textit{U} is applied over it. A capacitor is characterised by how much charge \textit{Q} it can hold for a given DC voltage \textit{U}. This quantity is called the capacitance \textit{C} of the component and is given by 
 
+\begin{equation}
+   \begin{aligned}\label{eq:theory:capacitance}
+C = \frac{Q}{U}
+\end{aligned} 
+\end{equation}
+where \textit{Q} is the charge carried by the capacitor and \textit{V} is the applied DC voltage. The units for capacitance is farad \textit{F}. Applying Kirchoff's voltage law to this circuit when the source is a sinusoidal signal $Usin(\omega t)$ and using equation \eqref{eq:theory:capacitance} gives
+
+
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:capacitance_diffeq}
+U\sin{(\omega t)} - \frac{Q(t)}{C} = 0, \;\;\; Q(0) = 0
+\end{aligned} 
+\end{equation}
+
+Recognising that the current \textit{I} is the derivative of \textit{Q} with respect to time reveals that the the current is given as
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:capacitance_diffeq_solved}
+I(t) = U\omega C \sin{(\omega t + \pi/2)}
+\end{aligned} 
+\end{equation}
+The solution shows that the current \textit{I} is phase shifted 90 degrees ahead of the voltage \textit{U}. It is convenient to introduce the capacitive reactance $X_{c}$ as
+
+
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:reactance_capacitive}
+X_{c} = \frac{1}{\omega C}
+\end{aligned} 
+\end{equation}
+where $\omega$ is the angualar frequency of the signal and \textit{C} is the capacitance of the capacitor. The circuit current can now be expressed on the same form as Ohm's law
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:capacitance_diffeq_solved_ohm}
+I(t) = \frac{U}{X_{c}} \cdot sin(\omega t + \pi/2)
+\end{aligned} 
+\end{equation}
+
+The circuit shown in figure is another example of a reactive component that phase shifts the current. The load is an electromagnetic coil, also called an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the circuit and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:inductance_diffeq}
+U\sin{(\omega t)} - LI'(t) = 0, \;\;\; I(0) = 0
+\end{aligned} 
+\end{equation}
+The solution of equation \eqref{eq:theory:inductance_diffeq} is
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:inductancee_diffeq_solved}
+I(t) = \frac{U}{\omega L} \cdot sin(\omega t - \pi/2)
+\end{aligned} 
+\end{equation}
+
+
+The current is shifted 90 degrees behind the voltage in this case. We see that both inductors and capacitor shift the current by 90 degrees, but in different direction. The inductive reactance is defined as
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:reactance_inductive}
+X_{c} = \omega L
+\end{aligned} 
+\end{equation}
+where $\omega$ is the angular frequency of the voltage and $L$ is the inductance of the coil. 
+
+\section{Reactive power}
+The phase shift between current and voltage results in a pulsating power between the source and the load. For a purely resistive load with no phase shift, the power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. 
+
+
+
+\section{Voltage, current and power as complex numbers}
+Physical quantities in a steady state alternating current (AC) power system are commonly expressed as a phasor in the complex plane. The voltage $U$ at time \textit{t} in an AC power grid is a sinusoidal signal $U = sin(\omega t)$ where $\omega$ is the angular frequency of the signal. Euler's formula states that a complex number $A$ can be expressed by
+
+\begin{equation}\label{eq:eulers_equation}
+    A = e^{j\omega t} = cos(\omega t) + jsin(\omega t)
+\end{equation}
+where $e$ is the base of the natural logarithm and $j$ is the imaginary unit. The voltage signal could therefore be expressed as $U(t) = Im(A(t))$. The observation making it easy to work with complex numbers in an AC power system is that the angular frequency $\omega$ of the voltages are the same. The frequency of a generator's voltage is directly proportional to the rotational speed of the turbine. If a generator in power system tries to gain speed, it will naturally be slowed down by the other generators in the system, bringing all of the different voltage to the same frequency. Adding two synchronous signals will give a new signal that inherits their frequency. There will be some phase shift to the new signal, but it does not depend on the frequency. As a results, it is possible to treat the sinusoidal signals (such as voltage and current) as a number in the complex plane.  
+
+where \textit{U} is the voltage difference between the two buses which the line is connecting, \textit{Z} is the impedance of the line and \textit{I} is the current flowing in the line. The impedance of a power line is mainly inductive, which results in phase shift between the sinusoidal  current and the voltage difference. 
 
 
 \section{Components in the power system}
@@ -100,15 +179,7 @@ A load bus is the most common bus in an electrical grid. The load buses can not 
 \end{itemize}
 The voltage magnitude and active power are known for the voltage controlled bus, while the voltage angle and reactive power can vary.
 
-\section{Voltage, current and power as complex numbers}
-Physical quantities in an alternating current (AC) power system are commonly expressed as a phasor. The voltage $U$ at time \textit{t} in an AC power grid is a sinusoidal signal $U = sin(\omega t)$ where $\omega$ is the angular frequency of the signal. Euler's formula states that a complex number $A$ can be expressed by
 
-\begin{equation}\label{eq:eulers_equation}
-    A = e^{j\omega t} = cos(\omega t) + jsin(\omega t)
-\end{equation}
-where $e$ is the base of the natural logarithm and $j$ is the imaginary unit. The voltage signal could therefore be expressed as $U(t) = Im(A(t))$. The observation making it easy to work with complex numbers in an AC power system is that the angular frequency $\omega$ of the voltages are the same. The frequency of a generator's voltage is directly proportional to the rotational speed of the turbine. If a generator in power system tries to gain speed, it will naturally be slowed down by the other generators in the system, bringing all of the different voltage to the same frequency. Adding two synchronous signals will give a new signal that inherits their frequency. There will be some phase shift to the new signal, but it does not depend on the frequency. As a results, it is possible to treat the sinusoidal signals (such as voltage and current) as a number in the complex plane.  
-
-where \textit{U} is the voltage difference between the two buses which the line is connecting, \textit{Z} is the impedance of the line and \textit{I} is the current flowing in the line. The impedance of a power line is mainly inductive, which results in phase shift between the sinusoidal  current and the voltage difference. 
 
 \section{Two bus system}
 
@@ -164,7 +235,7 @@ A line without resistive losses can now be examined simply by setting $\alpha = 
 \begin{equation}\label{eq:two_port_active_power_lossless}
 P_{1} =  \frac{|U_{1}||U_{2}|}{|Z|}sin(\delta)
 \end{equation}
-where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, $|Z|$ is the impedance magnitude of the line and $\delta$ is the phase angle at bus 1 with respect to bus 2. The takeaway from this analysis is that the direction of the active power flow is determined by the phase angle $\delta$ of the voltages between the buses. In a two bus system, the bus with the leading voltage is supplying active power, while the lagging voltage is receiving. Another thing to note is that for an AC power system the voltage magnitude between the buses may differ in size, and active power can still flow in both directions. This would not be possible in DC power system. Figure \ref{fig:theory:active_power_flow} shows the relation between a loss free power line and a sample line in pandapower. We see that the active power $P$ for a line with resistive losses is also mainly controlled by the voltage angle $\delta$.
+where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, $|Z|$ is the impedance magnitude of the line and $\delta$ is the phase angle at bus 1 with respect to bus 2. The takeaway from this analysis is that the direction of the active power flow is determined by the phase angle $\delta$ of the voltages between the buses. In a two bus system, the bus with the leading voltage is supplying active power, while the lagging voltage is receiving. Another thing to note is that for an AC power system the voltage magnitude between the buses may differ in size, and active power can still flow in both directions. This would not be possible in DC power system. Figure \ref{fig:theory:active_power_flow} shows the relation between a loss free power line and a sample line in pandapower. We see that the active power $P$ for a line with resistive losses is also mainly controlled by the voltage angle $\delta$. This is especially true around 0 voltage angle $\delta$, which is the region it generally is located. 
 
 
 \begin{figure}[ht!]

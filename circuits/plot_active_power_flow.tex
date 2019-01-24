@@ -8,8 +8,8 @@
     axis y line=middle, 
     samples=100,
     ymin=-1.5, ymax=1.5,
-    xmin=-7.0, xmax=7.0,
-    domain=-2*pi:2*pi
+    xmin=-3.2, xmax=3.2,
+    domain=-pi:pi
 }}
 
 \begin{document}
@@ -17,16 +17,18 @@
 \begin{axis}[
     Axis Style,
     xtick={
-        -6.28318, -4.7123889, -3.14159, -1.5708,
-        1.5708, 3.14159, 4.7123889, 6.28318
+        -3.14159, -1.5708,
+        1.5708, 3.14159
     },
     xticklabels={
-        $-2\pi$, $-\frac{3\pi}{2}$, $-\pi$, $-\frac{\pi}{2}$,
-        $\frac{\pi}{2}$, $\pi$, $\frac{3\pi}{2}$, $2\pi$
+        $-\pi$, $-\frac{\pi}{2}$,
+        $\frac{\pi}{2}$, $\pi$
     },
+    every axis x label/.style={at={(current axis.right of origin)},anchor=west},
     xlabel={$\delta$},
-    ylabel={$P$}
-]
+    ylabel={$P$},
+    legend pos=north west
+ ]
 \addplot [mark=none, thin, black] {sin(deg(x))}
         %node[pos=.83, below] {Real power flow}
         ;
