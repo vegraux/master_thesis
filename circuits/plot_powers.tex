@@ -1,0 +1,94 @@
+\documentclass[crop=false]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
+% Grouping the common style settings here to make the code below easier to read
+
+
+\begin{document}
+\begin{tikzpicture}
+\pgfkeys{/pgfplots/Axis Style/.style={
+    width=13.5cm, height=5cm,
+    axis x line=center, 
+    axis y line=middle, 
+    samples=100,
+    ymin=-1.5, ymax=1.5,
+    xmin=0, xmax=7.0,
+    domain=0:2*pi
+}}
+\begin{axis}[legend style={draw=none},
+    Axis Style,
+    xtick={
+        -6.28318, -4.7123889, -3.14159, -1.5708,
+        1.5708, 3.14159, 4.7123889, 6.28318
+    },
+    xticklabels={
+        $-2\pi$, $-\frac{3\pi}{2}$, $-\pi$, $-\frac{\pi}{2}$,
+        $\frac{\pi}{2}$, $\pi$, $\frac{3\pi}{2}$, $2\pi$
+    },
+    every axis x label/.style={at={(current axis.right of origin)},anchor=west},
+    ylabel = P,
+    xlabel = $\omega t$
+]
+\addplot [mark=none, blue] {(sin(deg(x)))^2};
+\legend{Resisitive load}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\pgfkeys{/pgfplots/Axis Style/.style={
+    width=13.5cm, height=5cm,
+    axis x line=center, 
+    axis y line=middle, 
+    samples=100,
+    ymin=-1.5, ymax=1.5,
+    xmin=0, xmax=7.0,
+    domain=0:2*pi
+}}
+\begin{axis}[legend style={draw=none},
+    Axis Style,
+    xtick={
+        -6.28318, -4.7123889, -3.14159, -1.5708,
+        1.5708, 3.14159, 4.7123889, 6.28318
+    },
+    xticklabels={
+        $-2\pi$, $-\frac{3\pi}{2}$, $-\pi\hspace{0.30cm}$, $-\frac{\pi}{2}$,
+        $\frac{\pi}{2}$, $\pi\hspace{0.10cm}$, $\frac{3\pi}{2}$, $\hspace{0.25cm} 2\pi$
+    },
+    every axis x label/.style={at={(current axis.right of origin)},anchor=west},
+        ylabel = P,
+    xlabel = $\omega t$
+]
+\addplot [mark=none, blue] {sin(deg(x))*sin(deg(x + pi/2))};
+\legend{Capacitive load}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\pgfkeys{/pgfplots/Axis Style/.style={
+    width=13.5cm, height=5cm,
+    axis x line=center, 
+    axis y line=middle, 
+    samples=100,
+    ymin=-1.5, ymax=1.5,
+    xmin=0, xmax=7.0,
+    domain=0:2*pi
+}}
+\begin{axis}[legend style={draw=none},
+    Axis Style,
+    xtick={
+        -6.28318, -4.7123889, -3.14159, -1.5708,
+        1.5708, 3.14159, 4.7123889, 6.28318
+    },
+    xticklabels={
+        $-2\pi$, $-\frac{3\pi}{2}$, $-\pi\hspace{0.30cm}$, $-\frac{\pi}{2}$,
+        $\frac{\pi}{2}$, $\pi\hspace{0.10cm}$, $\frac{3\pi}{2}$, $\hspace{0.25cm} 2\pi$
+    },
+    every axis x label/.style={at={(current axis.right of origin)},anchor=west},
+    ylabel = P,
+    xlabel = $\omega t$
+]
+\addplot [mark=none, blue] {sin(deg(x))*sin(deg(x - pi/2))};
+\legend{Inductive load}
+\end{axis}
+\end{tikzpicture}
+\end{document}

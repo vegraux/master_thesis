@@ -1,0 +1,26 @@
+\documentclass[crop=false]{standalone}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\begin{document}
+
+
+\begin{circuitikz} \draw
+    (0,0) to[sV,  l=$U$] (0,4) 
+    to[short,i=$I$] (4,4)
+    to [short,i=$I_q$] (8,4)
+    to[L,l=$L$] (8,0)
+
+    to[short] (0,0)
+
+    (4,4) to[R,l=$R$] (4,0)
+    (4,4) to[short,i=$I_p$] (4,3)
+    ;
+
+\end{circuitikz}
+
+
+\end{document}
+
+

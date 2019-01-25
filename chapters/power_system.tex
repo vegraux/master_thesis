@@ -75,14 +75,14 @@ For the two loops $C_1,C_2$ in figure \ref{fig:theory:simple_circuit_branches} w
 \end{equation}
 
 \section{Reactive components}
-There are electrical loads that cause a phase shift between the current and voltage in an electric circuit. For instance, the circuit shown in figure has a capacitor as load. A capacitor is a component that can store an electrical charge \textit{Q} when a direct current (DC) voltage source \textit{U} is applied over it. A capacitor is characterised by how much charge \textit{Q} it can hold for a given DC voltage \textit{U}. This quantity is called the capacitance \textit{C} of the component and is given by 
+There are electrical loads that cause a phase shift between the current and voltage in an electric circuit. For instance, the circuit shown in figure has a capacitor as load. A capacitor is a component that can store an electrical charge \textit{Q} when a direct current (DC) voltage source \textit{U} is applied over it. A capacitor is characterised by how much charge \textit{Q} it can hold for a given DC voltage \textit{U}. This quantity is called the capacitance \textit{C} of the capacitor and is given by 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:capacitance}
 C = \frac{Q}{U}
 \end{aligned} 
 \end{equation}
-where \textit{Q} is the charge carried by the capacitor and \textit{V} is the applied DC voltage. The units for capacitance is farad \textit{F}. Applying Kirchoff's voltage law to this circuit when the source is a sinusoidal signal $Usin(\omega t)$ and using equation \eqref{eq:theory:capacitance} gives
+where \textit{Q} is the charge stored by the capacitor and \textit{V} is the applied DC voltage. The units for capacitance is farad \textit{F}. Applying Kirchoff's voltage law to this circuit when the source is a sinusoidal signal $Usin(\omega t)$ and using equation \eqref{eq:theory:capacitance} gives
 
 
 
@@ -142,17 +142,90 @@ X_{c} = \omega L
 where $\omega$ is the angular frequency of the voltage and $L$ is the inductance of the coil. 
 
 \section{Reactive power}
-The phase shift between current and voltage results in a pulsating power between the source and the load. For a purely resistive load with no phase shift, the power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. 
+For a purely resistive load with no phase shift, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the reactive power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power drain. 
 
+\begin{figure}[ht!]
+    \center
+    \subimport{../}{circuits/plot_powers.tex}
+    \caption[size = 9]
+    {Power transferred to the load in a circuit with a pure resistive, inductive and capacitive load that are equal in size}\label{fig:theory:reactive_powers}
+\end{figure}
 
 
 \section{Voltage, current and power as complex numbers}
-Physical quantities in a steady state alternating current (AC) power system are commonly expressed as a phasor in the complex plane. The voltage $U$ at time \textit{t} in an AC power grid is a sinusoidal signal $U = sin(\omega t)$ where $\omega$ is the angular frequency of the signal. Euler's formula states that a complex number $A$ can be expressed by
+Current, voltage, impedance and and power are all expressed as complex numbers in an AC electric power system. Consider the circuit shown in figure \ref{fig:theory:complex_current_circuit}
+\begin{figure}[ht!]
+    \center
+    \subimport{../}{circuits/complex_currents_circuit.tex}
+    \caption[size = 9]
+    {Circuit with a resistor and a inductance connected i parallel}\label{fig:theory:complex_current_circuit}
+\end{figure}
+The resistor will draw a current $I_{p}$ that is in phase with the source voltage. The inductor will draw a current $I_{q}$ that lags the voltage by 90 degrees. The resultant current drawn from the source will therefore be a linear combination of two phase shifted sinusoidal signals. Euler's formula states that a complex number $A$ can be expressed by
 
 \begin{equation}\label{eq:eulers_equation}
-    A = e^{j\omega t} = cos(\omega t) + jsin(\omega t)
+    A = Re^{j\omega t} = R\cos{(\omega t)} + jR\sin{(\omega t)}
 \end{equation}
-where $e$ is the base of the natural logarithm and $j$ is the imaginary unit. The voltage signal could therefore be expressed as $U(t) = Im(A(t))$. The observation making it easy to work with complex numbers in an AC power system is that the angular frequency $\omega$ of the voltages are the same. The frequency of a generator's voltage is directly proportional to the rotational speed of the turbine. If a generator in power system tries to gain speed, it will naturally be slowed down by the other generators in the system, bringing all of the different voltage to the same frequency. Adding two synchronous signals will give a new signal that inherits their frequency. There will be some phase shift to the new signal, but it does not depend on the frequency. As a results, it is possible to treat the sinusoidal signals (such as voltage and current) as a number in the complex plane.  
+
+where $e$ is the base of the natural logarithm and $j$ is the imaginary unit. The currents $I_{p}$ and $I_{q}$ signal can therefore be expressed as the imaginary part of two complex numbers. Treating the currents as complex numbers makes it easier to sum them because they form a right angled triangle, as shown in figure \ref{fig:theory:phase_current}. One can always convert back to the sinusoidal current by taking the imaginary part of the complex resultant current \textit{I}.
+
+\begin{figure}[ht!]
+    \center
+    \subimport{../}{circuits/phase_currents.tex}
+    \caption[size = 9]
+    {Current as complex numbers. $I_{q}$ is the current drawn by an inductor, and lags the voltage by 90 degrees. $I_{p}$ is the current drawn by a resistive load and is in phase with the voltage.  }\label{fig:theory:phase_current}
+\end{figure}
+
+The resultant current \textit{I} drawn from the voltage source can now be expressed as 
+\begin{equation}
+   \begin{aligned}\label{eq:theory:complex_current}
+I = |I|e^{j(\omega t - \varphi)}
+\end{aligned} 
+\end{equation}
+where $|I|$, $\omega$ and $\varphi$ respectively are  the magnitude angular frequency and phase shift phase shift of the current. It is common to also express the complex current as
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:complex_current_angular}
+I = |I|\angle -\varphi
+\end{aligned} 
+\end{equation}
+
+Inductive and capacitive reactances can also be expressed as complex numbers. A coil phase shifts the current 90 degrees behind the voltage. Considering the current $I_{q}$ as a complex number in Ohm's law gives that the inductive reactance can be expressed as $jX_{L}$, because multiplication by \textit{j} corresponds to a 90 degree rotation in the complex plane
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:complex_rectance_capacitive}
+U = I\cdot jX_{L}
+\end{aligned} 
+\end{equation}
+
+Similarly, a capacitive reactance $X_{c}$ phase shifts the current 90 degrees a head of the current. Therefore, it can be expressed as $-jX_{c}$
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:complex_rectance_inductance}
+U = I\cdot (-jX_{c})
+\end{aligned} 
+\end{equation}
+
+The complex notation also works for a circuit with resistive, inductive and capacitive components connected in series, as shown in figure \ref{fig:theory:complex_impedance_series}.
+
+\begin{figure}[ht!]
+    \center
+    \subimport{../}{circuits/complex_impedance_series.tex}
+    \caption[size = 9]
+    {AC circuit with a resistor, capacitor and coil connected in series}\label{fig:theory:complex_impedance_series}
+\end{figure}
+
+The sum of the resistance and reactances is called the impedance $Z$ of the circuit and is given as
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:complex_impedance}
+Z = R + jX_{L} - jX_{c}
+\end{aligned} 
+\end{equation}
+Using the complex impedance \textit{Z} in Ohm's law describes both the resultant magnitude $|I|$and phase angle of the current $\varphi$ 
+
+
+
+The observation making it easy to work with complex numbers in an AC power system is that the angular frequency $\omega$ of the voltages are the same. The frequency of a generator's voltage is directly proportional to the rotational speed of the turbine. If a generator in power system tries to gain speed, it will naturally be slowed down by the other generators in the system, bringing all of the different voltage to the same frequency. Adding two synchronous signals will give a new signal that inherits their frequency. There will be some phase shift to the new signal, but it does not depend on the frequency. As a results, it is possible to treat the sinusoidal signals (such as voltage and current) as a number in the complex plane.  
 
 where \textit{U} is the voltage difference between the two buses which the line is connecting, \textit{Z} is the impedance of the line and \textit{I} is the current flowing in the line. The impedance of a power line is mainly inductive, which results in phase shift between the sinusoidal  current and the voltage difference. 
 
