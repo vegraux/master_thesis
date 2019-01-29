@@ -1,0 +1,26 @@
+\documentclass[crop=false]{standalone}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\ctikzset{resistor = european}
+
+
+\begin{document}
+\begin{circuitikz}
+  %% Source
+  \coordinate (Csource);
+  \foreach \anch/\ang in {a/0,b/120,c/240}{%
+    \draw (Csource) to[vsourcesin=$|U|\angle \ang^\circ$,*-*] +({-\ang+90}:3) coordinate (S\anch) node[anchor={\ang}]{};
+  }
+  %% Load
+  \coordinate (Cload)  at ($(Csource)+(10,0)$);
+  \foreach \anch/\ang in {a/0,b/-120,c/-240}{%
+    \draw (Cload) to[R=$R_{\anch}$,*-*] +({-\ang+90}:3) coordinate (L\anch) node[anchor={\ang}]{};
+  }
+  %% Connections
+  \draw (Sa) -- +(0,1) to[R,l=$Z_a$] ($(La)+(0,1)$) -- (La);
+  \draw (Sb) to [R,l=$Z_b$] (Lb);
+  \draw (Sc) -- +(0,-2) to[R,l=$Z_c$] ($(Lc)+(0,-2)$) -- (Lc);
+\end{circuitikz}
+\end{document}

@@ -70,7 +70,7 @@ For the two loops $C_1,C_2$ in figure \ref{fig:theory:simple_circuit_branches} w
    \begin{aligned}\label{eq:theory:krirchoffs_2nd_ex}
     U + I_{1}R_{1} = 0 
     \\
-    -I_{1}R_{1} + I_{2}R_{2} = 0
+    I_{1}R_{1} - I_{2}R_{2} = 0
 \end{aligned} 
 \end{equation}
 
@@ -268,6 +268,16 @@ Where \textit{U} is the voltage, $I^{*}$ is the complex conjugate of the current
 \end{equation}
 where \textit{P} and \textit{Q} are the active and reactive power respectively. The angle of the apparent power $S$ is the same as the phase angle of the current $I$. 
 
+\section{Three-phase electric power}
+A conventional electrical power system transfers power in three transmission lines that have equal voltage magnitude and phase-shifted 120 degrees. An electrical circuit of a three-phase power system is shown is figure \ref{fig:theory:three_phase}
+
+\begin{figure}[ht!]
+    \center
+    \subimport{../}{circuits/three_phase.tex}
+    \caption[size = 9]
+    {Three-phase transmission system}\label{fig:theory:three_phase}
+\end{figure}
+
 
 
 \section{Components in the power system}
@@ -285,7 +295,7 @@ An electrical power system consists of a set of nodes \textbf{N}, commonly refer
     \center
     \subimport{../}{circuits/bus_system.tex}
     \caption[size = 9]
-    {Example of a network with 5 buses  and 7 branches connecting them}\label{fig:theory:bus_system}
+    {Example of a network with 5 buses and 7 branches connecting them}\label{fig:theory:bus_system}
 \end{figure}
 A bus is electrically modelled as a point where electrical power is injected. A positive injected power corresponds to generation of power at that bus. This is the case for a bus that is connected to a power plant. A negative power injection corresponds to a consumption of power, as would be the case for a bus connected to a factory producing aluminium. The net effect of power production and consumption at a line determines if the net power injection to that bus. Bus \textit{k} in an electric power system is physically described by four quantities: The voltage magnitude $|U_{k}|$, the voltage angle $\delta_{k}$, the active power injection $P_{k}$ and the reactive power injection $Q_{k}$.
 
@@ -385,7 +395,7 @@ I_{k} =  U_{k}Y_{k0}
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/powerflow_injected_bus.tex}
-    \caption[size = 9]{Electrical model of a bus connected to n buses}
+    \caption[size = 9]{Electrical model of a bus in a grid consisting of n buses}
     \label{fig:theory:powerflow_injected_bus}
 \end{figure}
 
