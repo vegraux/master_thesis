@@ -163,13 +163,13 @@ X_{c} = \omega L
 where $\omega$ is the angular frequency of the voltage and $L$ is the inductance of the coil. 
 
 \section{Reactive power}
-For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the reactive power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power load. 
+For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the reactive power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power consumer. 
 
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/plot_powers.tex}
     \caption[size = 9]
-    {Power transferred to the load in a circuit with a pure resistive, inductive and capacitive load that are equal in size}\label{fig:theory:reactive_powers}
+    {Instantaneous power transferred to the load in a circuit with a pure resistive, inductive and capacitive load that are equal in size}\label{fig:theory:reactive_powers}
 \end{figure}
 
 
@@ -188,7 +188,7 @@ The resistor will draw a current $I_{p}$ that is in phase with the source voltag
     A = Re^{j\omega t} = R\cos{(\omega t)} + jR\sin{(\omega t)}
 \end{equation}
 
-where $e$ is the base of the natural logarithm and $j$ is the imaginary unit. The currents $I_{p}$ and $I_{q}$ signal can therefore be expressed as the imaginary part of two complex numbers. Treating the currents as complex numbers makes it easier to sum them because they form a right angled triangle, as shown in figure \ref{fig:theory:phase_current}. One can always convert back to the sinusoidal current by taking the imaginary part of the complex resultant current \textit{I}.
+where $e$ is the base of the natural logarithm, $j$ is the imaginary unit, $R$ is the magnitude of \textit{A}. The currents $I_{p}$ and $I_{q}$ signal can therefore be expressed as the imaginary part of two complex numbers. Treating the currents as complex numbers makes it easier to sum them because they form a right angled triangle, as shown in figure \ref{fig:theory:phase_current}. One can always convert back to the sinusoidal current by taking the imaginary part of the complex resultant current \textit{I}.
 
 \begin{figure}[ht!]
     \center
@@ -254,7 +254,7 @@ Z = R + jX_{L} - jX_{c}
 \end{equation}
 Using the complex impedance \textit{Z} in Ohm's law describes both the resultant magnitude $|I|$ and phase angle of the current $\varphi$.
 
-The active and reactive power flowing in a line can also be expressed as a complex number. The apparent power $S$ flowing in a line is defined to be
+The active and reactive power flowing in a line are also expressed as a complex number. The apparent power $S$ flowing in a line is defined to be
 \begin{equation}\label{eq:theory_apparent_power}
     S  = UI^{*} = P + jQ = |S|e^{j\varphi}
 \end{equation}
@@ -271,7 +271,15 @@ where \textit{P} and \textit{Q} are the active and reactive power respectively. 
 
 
 \section{Components in the power system}
-An electrical power system consists of a set of nodes which can be thought of as the connection points in the system. These nodes are commonly referred to as buses. The connections or branches between the buses are power lines, cables, transformers or other power electronics equipment. The buses and branches defines the topology of the electrical power system. 
+An electrical power system consists of a set of nodes \textbf{N}, commonly referred to as buses, and a set of branches \textbf{L} that connects some or all of the buses. The branches between buses can be power lines, cables, transformers or other power electronics equipment. The buses and branches defines the topology of the electrical power system. Figure \ref{fig:theory:bus_system} is an illustration of a an electric power system consisting of 5 buses and 7 branches. Formally, this network is described as 
+\begin{equation}
+   \begin{aligned}\label{eq:theory:network_set}
+\textbf{N} &= \{1,2,3,4,5\}\\
+\textbf{L} &= \{(1,2),(1,3),(2,3),(2,4),(3,5),(4,5)\}
+\end{aligned} 
+\end{equation}
+
+
 
 \begin{figure}[ht!]
     \center
@@ -279,32 +287,29 @@ An electrical power system consists of a set of nodes which can be thought of as
     \caption[size = 9]
     {Example of a network with 5 buses  and 7 branches connecting them}\label{fig:theory:bus_system}
 \end{figure}
-Let N be the set of all buses in an electrical power system. Each branch is defined by the two buses $(i,j) \in$ L, where $i,j \in$ N.
+A bus is electrically modelled as a point where electrical power is injected. A positive injected power corresponds to generation of power at that bus. This is the case for a bus that is connected to a power plant. A negative power injection corresponds to a consumption of power, as would be the case for a bus connected to a factory producing aluminium. The net effect of power production and consumption at a line determines if the net power injection to that bus. Bus \textit{k} in an electric power system is physically described by four quantities: The voltage magnitude $|U_{k}|$, the voltage angle $\delta_{k}$, the active power injection $P_{k}$ and the reactive power injection $Q_{k}$.
 
-\subsection{Types of buses}
-There are three types of buses in a power system\cite{opf_intro}.
+\subsection{Types of buses}\label{theory:subsection:bus_types}
 
+There are three types of buses in an electric power system\cite{opf_intro}.
 
 \begin{itemize}
   \item Slack bus / reference bus
 \end{itemize}
-Its voltage angle is defined to be 0 and the angles at other buses are relative to the slack bus. There is only one slack bus in an electrical power system.
+Its voltage angle $\delta$ is defined to be 0 and the angles at other buses are relative to the slack bus. There is only one slack bus in an electrical power system.
 
 \begin{itemize}
   \item Load bus
 \end{itemize}
-A load bus is the most common bus in an electrical grid. The load buses can not control the flow of active and reactive power, as this is predetermined by the demand in the marked. As a result, it is also called PQ bus.
+A load bus is the most common bus in an electrical grid. The load buses has a fixed injection of active power $P$ and reactive power $Q$, as this is predetermined by the demand in the marked. As a result, it is also called a P-Q bus.
 
 \begin{itemize}
-  \item Voltage controlled bus
+  \item Voltage controlled bus or generation bus
 \end{itemize}
-The voltage magnitude and active power are known for the voltage controlled bus, while the voltage angle and reactive power can vary.
+The voltage magnitude $|U|$ and active power $|P|$ are fixed for the voltage controlled bus, while the voltage angle $\delta$ and reactive power $Q$ can vary. It is also also called a P-V bus. 
 
 
-
-\section{Two bus system}
-
-
+\section{Two bus system} 
 
 
 \begin{figure}[ht!]
@@ -314,44 +319,39 @@ The voltage magnitude and active power are known for the voltage controlled bus,
     {Simple two bus system connected by a line. \textit{P} and \textit{Q} are the active and reactive power flow, \textit{R} and \textit{X} is the resistance and reactance of the line, \textit{U} is the voltage and \textit{I} is the current flowing}    \label{fig:theory:two_bus}
 \end{figure}
 
-Figure \ref{fig:theory:two_bus} displays power flow between to buses connected by a transmission line. From the left we have active power $P_{1}$ and reactive power $Q_{1}$ flowing. The power flows through the line and continues out from bus 2 as $P_{2}$ and $Q_{2}$. $U_{1}$ is a complex representation of the voltage at bus 1, $U_{1} = |U_{1}|e^{j\delta}$. Similarly, $U_{2} = |U_{2}|e^{j0} = |U_{2}|$. The relation between voltage and current for the system can be described by Ohm's law.
+Figure \ref{fig:theory:two_bus} displays power flow between to buses connected by a transmission line. From the left we have active power $P_{1}$ and reactive power $Q_{1}$ flowing. The power flows through the line and continues out from bus 2 as $P_{2}$ and $Q_{2}$. $U_{1}$ is the complex representation of the voltage at bus 1, $U_{1} = |U_{1}|e^{j\delta}$. Similarly, $U_{2} = |U_{2}|e^{j0} = |U_{2}|$. The relation between voltage and current for the system can be described by Ohm's law.
 
 \begin{equation}\label{eq:chap1_ohm}
     U_{1} - U_{2} = (R + jX)I
 \end{equation}
-$R$ is the resistance and $X$ is the reactance of the line, $U_{1}$ and $U_{2}$ are the voltages at bus 1 and 2, and \textit{I} is the current flowing in the line. The impedance \textit{Z} of the line is also a complex number that can be expressed as $Z = |Z|e^{j\epsilon}$ where $tan (\epsilon) = X/R$. The current \textit{I} is commonly defined to be lagging, so that $I = |I|e^{-j\varphi}$. By this definition, $\varphi$ is a positive real number when the current is lagging the voltage. In figure \ref{fig:two_bus_phasor}, the current, voltages and impedance are drawn as phasors in the complex plane for a line with zero resistance (R=0).
+$R$ is the resistance and $X$ is the reactance of the line, $U_{1}$ and $U_{2}$ are the voltages at bus 1 and 2, and \textit{I} is the current flowing in the line. The impedance \textit{Z} of the line is also a complex number that can be expressed as $Z = |Z|e^{j\epsilon}$ where $tan (\epsilon) = X/R$. The current \textit{I} is commonly defined to be lagging, so that $I = |I|e^{-j\varphi}$. By this definition, $\varphi$ is a positive real number when the current is lagging the voltage. In figure \ref{fig:theory:two_bus_phasor}, the current, voltages and impedance are drawn as phasors in the complex plane for a line with zero resistance (R=0).
 
 
 \begin{figure}[ht!]
     \center
-    \includegraphics[width=10cm]{figures/two_bus_phasor.PNG}
+    \subimport{../}{circuits/two_bus_phasors.tex}
     \caption[size = 9]{Phasors of current and voltages in a two-port network connected by line with 0 resistance (R=0)}
-	\label{fig:two_bus_phasor}
+    \label{fig:theory:two_bus_phasor}
 \end{figure}
 
-The apparent power $S$ flowing in a line is defined to be
-\begin{equation}\label{eq:apparent_power}
-    S  = UI^{*} = P + jQ
-\end{equation}
-
-Where \textit{U} is the voltage, $I^{*}$ is the complex conjugate of the current, \textit{P} is the active power and \textit{Q} is the reactive power. The conjugation of the current is a convenience to make the reactive power \textit{Q} a positive number when the current is lagging the voltage. Using using \eqref{eq:chap1_ohm}, the current \textit{I} in the line can be expressed as
+Using using \eqref{eq:chap1_ohm}, the current \textit{I} in the line can be expressed as
 
 \begin{equation}\label{eq:two_port_current}
     I  = \frac{U_{1} - U_{2}}{Z}
     = \frac{|U_{1}|e^{j\delta} - |U_{2}|}{|Z|e^{j\epsilon}}
     = \frac{|U_{1}|e^{j(\delta- \epsilon)} - |U_{2}|e^{-j\epsilon}}{|Z|}
 \end{equation}
-where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, \textit{I} is the current flowing in the line and \textit{|Z|} is the impedance magnitude for the line. Using the definition of power flow in \eqref{eq:apparent_power} on bus 1 gives that the active power $P_{1}$ is given by
+where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, \textit{I} is the current flowing in the line and $|Z|$ is the impedance magnitude for the line. Using the definition of power flow in \eqref{eq:theory:apparent_power} on bus 1 gives that the active power $P_{1}$ is given by
 
 \begin{equation}\label{eq:two_port_active_power}
 P_{1} = \frac{|U_{1}|^2}{|Z|}cos(\epsilon) - \frac{|U_{1}||U_{2}|}{|Z|}cos(\epsilon - \delta)
 \end{equation}
-To make it easier to investigate a situation with active losses in the line (R = 0), it is convenient to introduce a loss angle $\alpha = tan(R/X)$. By the sum of angles in a triangle, we have the relation $\alpha + \epsilon = \pi/2$. By using the loss angle $\alpha$, the active power at bus 1 $P_{1}$ can be expressed as
+To make it easier to investigate a situation zero resistive losses in the line (R = 0), it is convenient to introduce a loss angle $\alpha = tan(R/X)$. By the sum of angles in a triangle, we have the relation $\alpha + \epsilon = \pi/2$. By using the loss angle $\alpha$, the active power flow at bus 1 $P_{1}$ can be expressed as
 
 \begin{equation}\label{eq:two_port_active_power_good}
 P_{1} = \frac{|U_{1}|^2}{|Z|}sin(\alpha) + \frac{|U_{1}||U_{2}|}{|Z|}sin(\delta -\alpha)
 \end{equation}
-A line without resistive losses can now be examined simply by setting $\alpha = 0$. The resulting active power flow $P_{1}$ reduces to
+A line without resistive losses can now be examined simply by setting $\alpha = 0$. The resulting active power flow $P_{1}$ at bus 1 reduces to
 
 \begin{equation}\label{eq:two_port_active_power_lossless}
 P_{1} =  \frac{|U_{1}||U_{2}|}{|Z|}sin(\delta)
@@ -362,7 +362,7 @@ where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, $|Z|$ i
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/plot_active_power_flow.tex}
-    \caption[size = 9]{Active power flow \textit{P} between two buses as a function of voltage angle with no losses ($\alpha=0$) a and typical loss angle $\alpha$ of 0.13} \label{fig:theory:active_power_flow}
+    \caption[size = 9]{Active power flow \textit{P} between two buses as a function of voltage angle with no losses ($\alpha=0$) a and typical loss angle $\alpha$ of 0.13. The bus with a leading voltage angle $\delta$ supplies active power, while the lagging bus voltage is receiving.} \label{fig:theory:active_power_flow}
 \end{figure}
 
 A similar argument will give that the reactive power flow $Q_{1}$ at bus 1 for a line without resistive losses is given by 
@@ -373,33 +373,119 @@ Q_{1} =  \frac{|U_{1}|}{|Z|}(|U_{1}| - |U_{2}|)
 where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2 respectively and $|Z|$ is the impedance magnitude of the line. The voltage angle $\delta$ is assumed to be small so that $cos(\delta) \approx 1$. Equation \eqref{eq:two_port_reactive_power_lossless} shows that the direction of the reactive power is determined by the difference of the voltage magnitudes. In other words, the bus with the highest voltage magnitude is supplying reactive power in a two bus system.
 
 \section{Power flow in a grid}
-Figure \ref{fig:power_flow_network} is an electrical model of bus \textit{k} in a power system that is connected to \textit{n} buses. $I_{k}$ is the net injected current to the grid from bus \textit{k}\cite{opf_intro}. It is common to work with the admittance $Y$ of a line, which is defined as the inverse of the impedance $Y = 1/Z$. By doing this, the current in a branch is easily found by multiplying the voltage difference and the admittance. The current flowing from bus \textit{k} to bus \textit{j} is $I_{j} = (U_{k} - U_{j})Y_{kj}$. The current flowing out of bus \textit{k} must equal the injected current $I_{k}$. This gives
+Figure \ref{fig:theory:powerflow_injected_bus} is an electrical model of bus \textit{k} in a power system consisting of \textit{n} buses. $I_{k}$ is the net injected current to the grid from bus \textit{k}\cite{opf_intro}. The current flowing from bus \textit{k} to bus \textit{j} is $I_{i} = (U_{k} - U_{i})Y_{ki}$. The current flowing out of bus \textit{k} must equal the injected current $I_{k}$. This gives
 
 \begin{equation}\label{eq:powerflow_currentsum}
 I_{k} =  U_{k}Y_{k0}
-+ \sum_{j=1,j\neq k}^{n}(U_{k} - U_{j})Y_{kj}
++ \sum_{i=1,i\neq k}^{n}(U_{k} - U_{i})Y_{ki}
 \end{equation}
 
 
-\begin{figure}[ht]
+
+\begin{figure}[ht!]
     \center
-    \includegraphics[width=8cm]{figures/power_flow_network.PNG}
+    \subimport{../}{circuits/powerflow_injected_bus.tex}
     \caption[size = 9]{Electrical model of a bus connected to n buses}
-	\label{fig:power_flow_network}
+    \label{fig:theory:powerflow_injected_bus}
 \end{figure}
 
-This is a linear system of equation that can be expressed compactly as a matrix equation with the bus voltages ordered in a vector $U_{bus}$
+Let the admittance components $y_{ki}$ be defined as
 
-\begin{equation}\label{eq:powerflow_busmatrix}
+
+\begin{equation}
+\label{eq:theory:admittance_components}
+    y_{ki} =
+\left\{
+	\begin{array}{ll}
+		     -Y_{ki}  & 
+	    \mbox{if }
+	        k \neq i
+	           \\
+		Y_{k0} + \sum_{j=1,j\neq k}^{n} Y_{kj} & \mbox{if } k=i
+	\end{array}
+\right.
+\end{equation}
+
+
+It is now possible to  express the injected current $I_{k}$ as a linear combination of all the bus voltages in the system 
+
+\begin{equation}
+    \begin{aligned}\label{eq:theory:injected_current_sum}
+    I_{k} = \sum_{j=1}^{n} y_{ki}U_{i}
+    \end{aligned} 
+\end{equation}
+
+Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}. The voltages and injected currents at all buses can therefore be expressed compactly as a matrix equation with the bus voltages ordered in a vector $U_{bus}$
+
+\begin{equation}\label{eq:theory:powerflow_busmatrix}
 I_{bus} = Y_{bus}U_{bus}
 \end{equation}
-where $I_{bus}$ are n-dimensional vectors whose j-th component is the current flowing from \textit{k} to bus \textit{j}.
+where $I_{bus}$ is an n-dimensional vectors whose k-th component is the injected current at bus \textit{k}. \textit{Y} is called the admittance matrix of the network and its elements are given by equation \eqref{eq:theory:admittance_components}. It is more convenient to work with power injection instead of current injection at a bus. The complex conjugate injected apparent power at bus \textit{k} $S_{k}$ can be found by using \eqref{eq:theory:injected_current_sum}
+
+\begin{equation}
+    \begin{aligned}\label{eq:theory:injected_power_sum}
+    S^{*}_{k} = U^{*}_{k}I_{k} = U^{*}_{k}\sum_{i=1}^{n} y_{ki}U_{i}
+    = \sum_{i=1}^{n} y_{ki}U_{i}U^{*}_{k}
+    \end{aligned} 
+\end{equation}
+
+
+Let
+
+\begin{equation}
+    \begin{aligned}\label{eq:theory:injected_power_sum_varialbes}
+    U_{i} &= |U_{i}|e^{j\delta_{i}}, \;\; i = 1,...,n \\
+    y_{ki} &= |y_{ki}|e^{j\lambda_{ki}}, \;\; i = 1,...,n, \; k = 1,...,n \\
+    \delta_{ki} &= \delta_{k} - \delta_{i}, \;\; i = 1,...,n, \; k = 1,...,n 
+    \end{aligned} 
+\end{equation}
+
+
+Substitution into \eqref{eq:theory:injected_power_sum} gives 
+
+\begin{equation}
+    \begin{aligned}\label{eq:theory:injected_power_sum_complex}
+    S^{*}_{k} &= \sum_{i=1}^{n}|y_{ki}||U_{i}||U_{k}|e^{-j(\delta_{ki}-\lambda_{ki})}
+    \end{aligned} 
+\end{equation}
+
+
+
+Applying Euler's formula on equation \eqref{eq:theory:injected_power_sum_complex} gives the injections of real power $P_{k}$ and reactive power $Q_{k}$ at bus \textit{k}.
+
+\begin{equation}
+    \begin{aligned}\label{eq:theory:power_flow_equation}
+    P_{k} =  \sum_{i=1}^{n}|y_{ki}||U_{i}||U_{k}|\cos{(\delta_{ki}-\lambda_{ki})}
+    \\
+    Q_{k} =  \sum_{i=1}^{n}|y_{ki}||U_{i}||U_{k}|\sin{(\delta_{ki}-\lambda_{ki})}
+    \end{aligned} 
+\end{equation}
+
+Equation \eqref{eq:theory:power_flow_equation} is known as the power flow equations. The admittance $y_{ki}$ of a line is known a known and is treated as a constant. By inspection of \eqref{eq:theory:power_flow_equation}, it is evident that there are 4n variables ($|U_{k}|,\delta_{ik}, P_{k}, Q_{k}$) and 2n equations. Therefore, 2 variables must be specified at each bus to have a unique solution of the power flow equations. 
+As mention in section \ref{theory:subsection:bus_types} there are 3 bus types in a power system. The following table summarises known and unknown quantities at different bus types.
+
+
+\begin{table}[h]
+\centering
+\caption{Specified and unknown quantities at different bus types. }
+\label{table:large_deals}
+\begin{tabular}{l|lll}
+
+Bus type  & Known quatities   & Unknown quantities & Number of buses \\ \hline
+Voltage control      & \textit{P}, $|U|$   &  \textit{Q}, $\delta$ & m   \\ 
+Load bus    & \textit{P}, \textit{Q}    & $|U|$, $\delta$ & n-m-1 \\ 
+Reference bus & $|U|$, $\delta$ & \textit{P},\textit{Q}  & 1 \\ \hline
+\end{tabular}
+\end{table}
+
+
 
 
 \section{Electric model of a power line}
 A common way to model a transmission line is by using a $\pi$-equivalent circuit, as shown in figure \ref{fig:theory:PI_model}
 
 \begin{figure}[ht!]
+    \center
     \subimport{../}{circuits/pi_model.tex}
     \caption{$\pi$-equivalant model for a transmission line.}
     \label{fig:theory:PI_model}

@@ -1,0 +1,21 @@
+\documentclass[crop=false]{standalone}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\begin{document}
+\ctikzset {bipoles/length=1.1cm}
+\begin{tikzpicture}[scale=1.50]
+\draw (0.5,-2.5) to [european resistor, l_=$Y_{k0}$] (0.5,-0.5) to [short, -*] (0,0);
+\draw (0.5,-2.25) node[ground]{};
+\draw (-0.5,-1.5) to [short, i=$I_k$] (-0.5,-0.5) to [short] (0,0);
+\draw (-2,0) to [european resistor, l=$Y_{kn}$, *-] (0,0);
+\draw (2,0) to [european resistor, l_=$Y_{k1}$, *-] (0,0);
+\draw (0,2) to [european resistor, l_=$Y_{ki}$, *-] (0,0);
+\node[align=left] at (0,2.3) {$U_i$};
+\node[align=left] at (2.3,0) {$U_1$};
+\node[align=left] at (-2.3,0) {$U_n$};
+\node[align=left] at (0,-0.4) {$U_k$};
+\end{tikzpicture}
+
+\end{document}
