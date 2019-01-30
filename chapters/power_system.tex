@@ -163,7 +163,7 @@ X_{c} = \omega L
 where $\omega$ is the angular frequency of the voltage and $L$ is the inductance of the coil. 
 
 \section{Reactive power}
-For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the reactive power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power consumer. 
+For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the instantaneous power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power consumer. 
 
 \begin{figure}[ht!]
     \center
@@ -269,14 +269,41 @@ Where \textit{U} is the voltage, $I^{*}$ is the complex conjugate of the current
 where \textit{P} and \textit{Q} are the active and reactive power respectively. The angle of the apparent power $S$ is the same as the phase angle of the current $I$. 
 
 \section{Three-phase electric power}
-A conventional electrical power system transfers power in three transmission lines that have equal voltage magnitude and phase-shifted 120 degrees. An electrical circuit of a three-phase power system is shown is figure \ref{fig:theory:three_phase}
+A conventional electrical power line transfers power in three conductors that have equal voltage magnitude and are phase-shifted 120 degrees with respect to each other. An electrical circuit of a three-phase power system is shown is figure \ref{fig:theory:three_phase}.
 
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/three_phase.tex}
     \caption[size = 9]
-    {Three-phase transmission system}\label{fig:theory:three_phase}
+    {Three-phase transmission system. Three conductors transfer power to the loads $R_{a}$, $R_{b}$ and $R_{c}$}\label{fig:theory:three_phase}
 \end{figure}
+
+The three conductors are not drawn in illustrations of a power system infrastructure, but replaced by a one-line diagram. A one-line diagram is well suited for illustrating power flow, but it should be noted that there in reality is a three-phase system with three conductors. The voltage magnitude given in a one-line diagram can be expressed either by the phase voltage $|U_{ph}|$ which is the voltage relative to ground, or the voltage between the lines $|U_{LL}|$. The relation between them in a balanced three-phase system is
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:three_phase_voltage}
+|U_{LL}| = \sqrt{3} |U_{ph}|
+\end{aligned} 
+\end{equation}
+The apparent power $|S|$ transferred in a three-phase system is given by
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:three_phase_power}
+|S| = \sqrt{3}|U_{LL}||I| 
+\end{aligned} 
+\end{equation}
+where $U_{LL}$ is the line voltage and $I$ is the current flowing in each conductor. The active power $P$ and reactive power $Q$ is determined by 
+\begin{equation}
+   \begin{aligned}\label{eq:theory:three_phase_reactive}
+P = |S|\cos{\varphi} \\
+Q = |S|\sin{\varphi} 
+\end{aligned} 
+\end{equation}
+where $\varphi$ is the angle between the phase voltage $U_{ph}$ and the current in the same phase. A symmetric system is assumed, so it is arbitrary which phase is used. 
+
+
+
+
 
 
 
@@ -329,12 +356,12 @@ The voltage magnitude $|U|$ and active power $|P|$ are fixed for the voltage con
     {Simple two bus system connected by a line. \textit{P} and \textit{Q} are the active and reactive power flow, \textit{R} and \textit{X} is the resistance and reactance of the line, \textit{U} is the voltage and \textit{I} is the current flowing}    \label{fig:theory:two_bus}
 \end{figure}
 
-Figure \ref{fig:theory:two_bus} displays power flow between to buses connected by a transmission line. From the left we have active power $P_{1}$ and reactive power $Q_{1}$ flowing. The power flows through the line and continues out from bus 2 as $P_{2}$ and $Q_{2}$. $U_{1}$ is the complex representation of the voltage at bus 1, $U_{1} = |U_{1}|e^{j\delta}$. Similarly, $U_{2} = |U_{2}|e^{j0} = |U_{2}|$. The relation between voltage and current for the system can be described by Ohm's law.
+Figure \ref{fig:theory:two_bus} displays power flow between to buses connected by a transmission line. From the left we have active power $P_{1}$ and reactive power $Q_{1}$ flowing. The power flows through the line and continues out from bus 2 as $P_{2}$ and $Q_{2}$. $U_{1}$ is the complex representation of the voltage at bus 1, $U_{1} = |U_{1}|e^{j\delta}$. Similarly, $U_{2} = |U_{2}|e^{j0} = |U_{2}|$. The relation between voltage and current for the system is given by Ohm's law.
 
 \begin{equation}\label{eq:chap1_ohm}
     U_{1} - U_{2} = (R + jX)I
 \end{equation}
-$R$ is the resistance and $X$ is the reactance of the line, $U_{1}$ and $U_{2}$ are the voltages at bus 1 and 2, and \textit{I} is the current flowing in the line. The impedance \textit{Z} of the line is also a complex number that can be expressed as $Z = |Z|e^{j\epsilon}$ where $tan (\epsilon) = X/R$. The current \textit{I} is commonly defined to be lagging, so that $I = |I|e^{-j\varphi}$. By this definition, $\varphi$ is a positive real number when the current is lagging the voltage. In figure \ref{fig:theory:two_bus_phasor}, the current, voltages and impedance are drawn as phasors in the complex plane for a line with zero resistance (R=0).
+$R$ is the resistance and $X$ is the reactance of the line, $U_{1}$ and $U_{2}$ are the voltages at bus 1 and 2, and \textit{I} is the current flowing in the line. The impedance \textit{Z} of the line can be expressed as $Z = |Z|e^{j\epsilon}$ where $tan (\epsilon) = X/R$. The current \textit{I} is commonly defined to be lagging, so that $I = |I|e^{-j\varphi}$. By this definition, $\varphi$ is a positive real number when the current is lagging the voltage. In figure \ref{fig:theory:two_bus_phasor}, the current, voltages and impedance are drawn as phasors in the complex plane for a line with zero resistance (R=0).
 
 
 \begin{figure}[ht!]
@@ -383,7 +410,7 @@ Q_{1} =  \frac{|U_{1}|}{|Z|}(|U_{1}| - |U_{2}|)
 where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2 respectively and $|Z|$ is the impedance magnitude of the line. The voltage angle $\delta$ is assumed to be small so that $cos(\delta) \approx 1$. Equation \eqref{eq:two_port_reactive_power_lossless} shows that the direction of the reactive power is determined by the difference of the voltage magnitudes. In other words, the bus with the highest voltage magnitude is supplying reactive power in a two bus system.
 
 \section{Power flow in a grid}
-Figure \ref{fig:theory:powerflow_injected_bus} is an electrical model of bus \textit{k} in a power system consisting of \textit{n} buses. $I_{k}$ is the net injected current to the grid from bus \textit{k}\cite{opf_intro}. The current flowing from bus \textit{k} to bus \textit{j} is $I_{i} = (U_{k} - U_{i})Y_{ki}$. The current flowing out of bus \textit{k} must equal the injected current $I_{k}$. This gives
+Figure \ref{fig:theory:powerflow_injected_bus} is an electrical model of bus \textit{k} in a power system consisting of \textit{n} buses. $I_{k}$ is the net injected current to the grid from bus \textit{k}\cite{opf_intro}. The current flowing from bus \textit{k} to bus \textit{i} is $I_{i} = (U_{k} - U_{i})Y_{ki}$. The current flowing out of bus \textit{k} must equal the injected current $I_{k}$. This gives
 
 \begin{equation}\label{eq:powerflow_currentsum}
 I_{k} =  U_{k}Y_{k0}
@@ -421,11 +448,11 @@ It is now possible to  express the injected current $I_{k}$ as a linear combinat
 
 \begin{equation}
     \begin{aligned}\label{eq:theory:injected_current_sum}
-    I_{k} = \sum_{j=1}^{n} y_{ki}U_{i}
+    I_{k} = \sum_{i=1}^{n} y_{ki}U_{i}
     \end{aligned} 
 \end{equation}
 
-Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}. The voltages and injected currents at all buses can therefore be expressed compactly as a matrix equation with the bus voltages ordered in a vector $U_{bus}$
+Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}. The voltages and injected currents at all buses can therefore be expressed compactly as a matrix equation with the bus voltages ordered in vector $U_{bus} $
 
 \begin{equation}\label{eq:theory:powerflow_busmatrix}
 I_{bus} = Y_{bus}U_{bus}
