@@ -305,8 +305,51 @@ where $\varphi$ is the angle between the phase voltage $U_{ph}$ and the current 
 
 
 
+\section{Per-unit system}
+An electric transmission system generally consist of lines with different voltage magnitudes, ranging from a few kV to over 400 kV. As a result, it is difficult to see if the power flow in a line is high or low, because it most always be compared to the voltage level. To simplify this, quantities are generally measured relative to base values. This is called the per-unit system. Specifically,
 
 
+\begin{equation}
+   \begin{aligned}\label{eq:theory:per_unit_all}
+U = |U_{b}|U_{pu} \\
+I = |I_{b}|I_{pu} \\
+S = |S_{b}|S_{pu} \\
+Z = |Z_{b}|Z_{pu} \\
+\end{aligned} 
+\end{equation}
+
+The subscripts \textit{b} and \textit{pu} denote base and per-unit respectively. The per-unit quantities are still complex numbers, but are dimensionless. Normally, a line is given by a nominal values for apparent power $|S_{b}|$ and voltage magnitude $|U_{b}|$. The base current $|I_{b}|$ is defined as 
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:per_unit_current}
+|I_{b}| = \frac{|S_{b}|}{\sqrt{3}|U_{b}|}
+\end{aligned} 
+\end{equation}
+By the definition in \eqref{eq:theory:per_unit_power}, the apparent power in per-unit $S_{pu}$ is given as 
+\begin{equation}
+   \begin{aligned}\label{eq:theory:per_unit_power}
+S_{pu} = \frac{S}{|S_{b}|}
+        = \frac{\sqrt{3}UI}{\sqrt{3}|U_{b}||I_{b}|}
+        = U_{pu}I_{pu}
+\end{aligned} 
+\end{equation}
+In other words, the apparent power takes the form of a one-phase system, although it in reality is a three-phase system. A similar motivation gives the definition of the per-unit impedance base $S_{b}$
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:per_unit_impedance}
+|Z_{b}| = \frac{|U_{b}|}{\sqrt{3}|I_{b}|}
+\end{aligned} 
+\end{equation}
+By the definition in \eqref{eq:theory:per_unit_impedance}, the per-unit voltage $U_{pu}$ is given as 
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:per_unit_impedance_ohm}
+U_{pu} = \frac{U}{|U_{b}|}
+        = \frac{\sqrt{3}ZI}{\sqrt{3}|Z_{b}||I_{b}|}
+        = Z_{pu}I_{pu}
+\end{aligned} 
+\end{equation}
+The per-unit notation thus result in the same relation between current, voltage and impedance as Ohm's law in a one-phase system. 
 
 \section{Components in the power system}
 An electrical power system consists of a set of nodes \textbf{N}, commonly referred to as buses, and a set of branches \textbf{L} that connects some or all of the buses. The branches between buses can be power lines, cables, transformers or other power electronics equipment. The buses and branches defines the topology of the electrical power system. Figure \ref{fig:theory:bus_system} is an illustration of a an electric power system consisting of 5 buses and 7 branches. Note that the branches are one-line representation of a three-phase system. Formally, this network is described as 
