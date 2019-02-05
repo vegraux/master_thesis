@@ -306,7 +306,7 @@ where $\varphi$ is the angle between the phase voltage $U_{ph}$ and the current 
 
 
 \section{Per-unit system}
-An electric transmission system generally consist of lines with different voltage magnitudes, ranging from a few kV to over 400 kV. As a result, it is difficult to see if the power flow in a line is high or low, because it must always be compared to the voltage level. To simplify this, quantities are generally measured relative to base values. This is called the per-unit system. Specifically,
+An electric transmission system generally consist of lines with different voltage magnitudes that can range from a few kV to many hundreds of kV. As a result, it is difficult to see if the power flow in a line is high or low, because it must always be compared to the voltage level. To simplify this, quantities are generally measured relative to base values. This is called the per-unit system. Specifically,
 
 
 \begin{equation}
@@ -496,12 +496,12 @@ It is now possible to  express the injected current $I_{k}$ as a linear combinat
     \end{aligned} 
 \end{equation}
 
-Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}. The voltages and injected currents at all buses can therefore be expressed compactly as a matrix equation with the bus voltages ordered in vector $U_{bus}  \in{\boldsymbol{\mathbb{R}}^{n}}$
+Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}. For the case when bus \textit{k} does not inject any current, $I_{k} = 0$. The voltages and injected currents at all buses can therefore be expressed compactly as a matrix equation with the bus voltages ordered in vector $U_{bus}  \in{\boldsymbol{\mathbb{C}}^{n}}$
 
 \begin{equation}\label{eq:theory:powerflow_busmatrix}
 I_{bus} = Y_{bus}U_{bus}
 \end{equation}
-where $I_{bus} \in{\boldsymbol{\mathbb{R}}^{n}}$ is a vector whose k-th component is the injected current at bus \textit{k}. $Y_{bus}\in{\boldsymbol{\mathbb{R}}^{nxn}}$ is called the admittance matrix of the network and its elements are given by equation \eqref{eq:theory:admittance_components}. It is more convenient to work with power injection instead of current injection at a bus. The complex conjugate injected apparent power at bus \textit{k} $S_{k}$ can be found by using \eqref{eq:theory:injected_current_sum}
+where $I_{bus} \in{\boldsymbol{\mathbb{C}}^{n}}$ is a vector whose k-th component is the injected current at bus \textit{k}. $Y_{bus}\in{\boldsymbol{\mathbb{C}}^{nxn}}$ is called the admittance matrix of the network and its elements are given by equation \eqref{eq:theory:admittance_components}. It is more convenient to work with power injection instead of current injection at a bus. The complex conjugate injected apparent power at bus \textit{k} $S_{k}$ can be found by using \eqref{eq:theory:injected_current_sum}
 
 \begin{equation}
     \begin{aligned}\label{eq:theory:injected_power_sum}
@@ -542,20 +542,20 @@ Applying Euler's formula on equation \eqref{eq:theory:injected_power_sum_complex
     \end{aligned} 
 \end{equation}
 
-The equations \eqref{eq:theory:power_flow_equation} is known as the power flow equations. The admittance $y_{ki}$ of a line is known a known and is treated as a constant. By inspection of \eqref{eq:theory:power_flow_equation}, it is evident that there are 4n variables ($|U_{k}|,\delta_{ik}, P_{k}$ and $Q_{k}$ at each bus) and 2n equations. Therefore, 2 variables must be specified at each bus to have a unique solution of the power flow equations. 
+The equations in \eqref{eq:theory:power_flow_equation} are known as the power flow equations. The admittance $y_{ki}$ of a line is known and is treated as a constant. By inspection of \eqref{eq:theory:power_flow_equation}, it is evident that there are 4n variables ($|U_{k}|,\delta_{k}, P_{k}$ and $Q_{k}$ at each bus) and 2n equations. Therefore, 2 variables must be specified at each bus to have a unique solution of the power flow equations. 
 As mention in section \ref{theory:subsection:bus_types} there are 3 bus types in a power system. The following table summarises known and unknown quantities at different bus types.
 
 
 \begin{table}[h]
 \centering
-\caption{Specified and unknown quantities at different bus types in a system with n buses in total. }
+\caption{Specified and unknown quantities at different bus types in a system with \textit{n} buses in total. }
 \label{table:large_deals}
 \begin{tabular}{l|lll}
 
 Bus type  & Known quatities   & Unknown quantities & Number of buses \\ \hline
-Voltage control      & \textit{P}, $|U|$   &  \textit{Q}, $\delta$ & m   \\ 
-Load bus    & \textit{P}, \textit{Q}    & $|U|$, $\delta$ & n-m-1 \\ 
-Reference bus & $|U|$, $\delta$ & \textit{P},\textit{Q}  & 1 \\ \hline
+Voltage control      & \textit{P}, $|U|$   &  \textit{Q}, $\delta$ & $m$   \\ 
+Load bus    & \textit{P}, \textit{Q}    & $|U|$, $\delta$ & $n-m-1$ \\ 
+Reference bus & $|U|$, $\delta$ & \textit{P}, \textit{Q}  & $1$ \\ \hline
 \end{tabular}
 \end{table}
 
