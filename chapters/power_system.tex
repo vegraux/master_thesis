@@ -368,7 +368,7 @@ An electrical power system consists of a set of nodes \textbf{N}, commonly refer
     \caption[size = 9]
     {Example of a network with 5 buses and 7 branches connecting them}\label{fig:theory:bus_system}
 \end{figure}
-A bus is electrically modelled as a point where electrical power is injected. A positive injected power corresponds to generation of power at that bus. This is the case for a bus that is connected to a power plant. A negative power injection corresponds to a consumption of power, as would be the case for a bus connected to a factory producing aluminium. The net effect of power production and consumption at a line determines if the net power injection to that bus. Bus \textit{k} in an electric power system is physically described by four quantities: The voltage magnitude $|U_{k}|$, the voltage angle $\delta_{k}$, the active power injection $P_{k}$ and the reactive power injection $Q_{k}$.
+A bus is electrically modelled as a point where electrical power is injected. A positive injected power corresponds to generation of power at that bus. This is the case for a bus that is connected to a power plant. A negative power injection corresponds to a consumption of power, as would be the case for a bus connected to a factory producing aluminium. The net effect of power production and consumption determines if the net power injection to that bus. Bus \textit{k} in an electric power system is physically described by four quantities: The voltage magnitude $|U_{k}|$, the voltage angle $\delta_{k}$, the active power injection $P_{k}$ and the reactive power injection $Q_{k}$.
 
 \subsection{Types of buses}\label{theory:subsection:bus_types}
 
@@ -453,7 +453,7 @@ Q_{1} =  \frac{|U_{1}|}{|Z|}(|U_{1}| - |U_{2}|)
 \end{equation}
 where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2 respectively and $|Z|$ is the impedance magnitude of the line. The voltage angle $\delta$ is assumed to be small so that $cos(\delta) \approx 1$. Equation \eqref{eq:two_port_reactive_power_lossless} shows that the direction of the reactive power is determined by the difference of the voltage magnitudes. In other words, the bus with the highest voltage magnitude is supplying reactive power in a two bus system.
 
-\section{Power flow in a grid}
+\section{The power flow equations}
 Figure \ref{fig:theory:powerflow_injected_bus} is an electrical model of bus \textit{k} in a power system consisting of \textit{n} buses. $I_{k}$ is the net injected current to the grid from bus \textit{k}\cite{opf_intro}. The current flowing from bus \textit{k} to bus \textit{i} is $I_{i} = (U_{k} - U_{i})Y_{ki}$. The current flowing out of bus \textit{k} must equal the injected current $I_{k}$. This gives
 
 \begin{equation}\label{eq:powerflow_currentsum}
@@ -466,7 +466,7 @@ I_{k} =  U_{k}Y_{k0}
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/powerflow_injected_bus.tex}
-    \caption[size = 9]{Electrical model of a bus in a grid consisting of n buses}
+    \caption[size = 9]{Electrical model of a bus in a grid consisting of \textit{n} buses}
     \label{fig:theory:powerflow_injected_bus}
 \end{figure}
 
