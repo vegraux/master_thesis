@@ -34,14 +34,17 @@ class PowerEnv(gym.Env):
 
         self.target_load = 1300
 
-
-
     def step(self, action):
         episode_over = self._take_action(action)
-        reward = self._get_reward()
-        ob = self._get_obs()
-        return ob, reward, episode_over, {}
+        if not episode_over:
+            reward = self._get_reward()
+            ob = self._get_obs()
 
+        else:
+            reward = -20000
+            ob = self.reset()
+
+        return ob, reward, episode_over, {}
 
     def _take_action(self, action):
         """ Converts the action space into an pandapowe action. """
@@ -54,13 +57,12 @@ class PowerEnv(gym.Env):
         except ppException:
             return True
 
-
-
-
-
     def _get_reward(self):
         """ Reward is given for scoring a goal."""
-        reward = -np.abs(self.env.res_bus.iloc[1, 2]-self.target_load)
+        flows = self.env.res_bus
+        reward = -np.abs(flows.iloc[1, 2] - self.target_load) + \
+                 -np.abs(flows['p_kw'].sum())
+
         return reward
         # TODO: generalize for different network
 
