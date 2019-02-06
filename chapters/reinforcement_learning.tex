@@ -23,8 +23,30 @@ The dog training is similar to an reinforcement learning algorithm. The dog is t
 \section{Reinforcement algorithms}
 Algorithms in machine learning and artificial intelligence are often divided into either supervised or unsupervised learning. Supervised learning is an algorithm using input data and labelled output data (target). The algorithm tries to map the input to the target in a manner that generalises well to unseen input data. Examples of supervised learning are regression and classification algorithms. Unsupervised learning is algorithms attempting to find structure in unlabelled data. Examples of such are clustering and anomaly detection. The terms \textit{supervised} and \textit{unsupervised} do not describe well the mechanisms of reinforcement learning algorithms. An reinforcement learning agent learns from interacting with an environment and receiving rewards based the action it takes. The agent's goal is not to use labelled data in some sense or explicitly finding general structures in the data. As a result, reinforcement learning is considered to be a category of its own\cite{Sutton1998}. 
 
-\section{Terminology}
-A general reinforcement algorithm consists of an agent that interacts with an environment by taking actions. The set of possible actions and states are respectively called the action space $\mathcal{A}$ and state space $\mathcal{S}$. For some reinforcement learning tasks, such as chess, the action space depends on the state $s$. For instance, it is not allowed to castle if an opponents piece is attacking some of the squares over which the king will move. In such cases, the action space $\mathcal{A}(s)$ is given by the state. The action space in an electric power system is dependent on the state, for instance if a power plant is out of operation. The environment at time \textit{t} is described by a state $s_{t} \in \mathcal{S}$. The agent preforms some action $a_{t}\in \mathcal{A}$ and receives a reward $r_{t}$ based on how "good" that action is. The action $a_{t}$ interacts with the environment and gives a new state $s_{t+1}$. The goal at each time step $t$ is to maximise the rewards in the future. How to formally define the reward maximising criterion depends on the nature of the task. Some tasks, such as playing a video game, are called episodic and have well-defined boundaries for start and end state. On the other hand, the electric power system is a continuous task that never should end if the agent does its job. For continuous tasks, let the discounted return $g_{t}$ at time $t$ be defined as 
+\section{Markov decision process}
+
+A Markov decision process is a mathematical framework describing sequential decision making and interaction with an environment, where the outcome can be stochastic. This is precisely what
+a general reinforcement algorithm attempts to do. The set of possible actions and states are respectively called the action space $\mathcal{A}$ and state space $\mathcal{S}$. For some reinforcement learning tasks, such as chess, the action space depends on the state $s$. For instance, it is not allowed to castle if an opponents piece is attacking some of the squares over which the king will move. In such cases, the action space $\mathcal{A}(s)$ is given by the state. The action space in an electric power system is dependent on the state, for instance if a power plant is out of operation. The environment starts at $t=0$ and is described by a state $s_{0} \in \mathcal{S}$. The agent preforms some action $a_{0}\in \mathcal{A}$ and receives a reward $r_{1}\in \mathcal{R} \subseteq \mathbb{R} $ based on how "good" that action is. The action $a_{0}$ interacts with the environment and gives a new state $s_{1}$. This starts the sequence of states, actions and rewards.
+
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:trajectory}
+s_{0},a_{0},r_{1},s_{1}, a_{1},r_{2},s_{2},...
+\end{aligned} 
+\end{equation}
+
+The interaction between the agent and environment is visualised in figure \ref{fig:theory:markov_decision_process} as a feedback loop.
+
+\begin{figure}[ht!]
+    \center
+    \includegraphics[height=3.5cm, width=10cm]{figures/markov_decision_processs.JPG}
+    \caption[size = 9]{Interaction in a Markov decision process. Source: Sutton \cite{Sutton1998}}
+    \label{fig:theory:markov_decision_process}
+\end{figure}
+
+
+
+The goal at each time step $t$ is to maximise the rewards in the future. How to formally define the reward maximising criterion depends on the nature of the task. Some tasks, such as playing a video game, are called episodic and have well-defined boundaries for start and end state. On the other hand, the electric power system is a continuous task that never should end if the agent does its job. For continuous tasks, let the discounted return $g_{t}$ at time $t$ be defined as 
 
 
 \begin{equation}
@@ -74,12 +96,13 @@ where $a$ is the action chosen by the policy. The stochastic case
 \pi(a|s) = p_{a}
 \end{aligned} 
 \end{equation}
-where $p_{a}$ is the probability of chosing action $a$ given the policy $\pi$.
+where $p_{a}$ is the probability of choosing action $a$ given the policy $\pi$.
 
 
 The reinforcement algorithms used in this thesis are restricted to policy-gradient methods. These are methods that approximate the policy function using a neural network and updates its parameters using gradients. 
 
-
+\section{Off-policy and on-policy}
+A problem that arises when constructing a reinforcement learning algorithm is how to both be able to exploit a good policy and at the same time explore new policies. If an agent always follows its policy and picks the action it believes is the best, it will never explore new and perhaps better approaches to solve a problem. A solution to this problem is two have two different policies. One policy is called the target policy that is to be the optimal solution, while the other is called the behaviour policy and is for exploration of new behaviours\cite{Sutton1998}. A reinforcement learning algorithm using this approach is said to be learning off-policy.
 
 \section{Deep deterministic policy gradient}
 
