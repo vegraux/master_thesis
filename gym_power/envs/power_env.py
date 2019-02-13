@@ -23,13 +23,13 @@ class PowerEnv(gym.Env):
         self.env = simple_two_bus()
         self.observation_size = 4 * len(
             self.env.bus)  # P,Q,U, delta at each bus
-        self.max_power = 2000
+        self.max_power = 4000
         high = np.array([1000000 for _ in range(self.observation_size)])
 
         self.observation_space = spaces.Box(low=-high, high=high,
                                             dtype=np.float32)
 
-        self.action_space = spaces.Box(low=0, high=self.max_power,
+        self.action_space = spaces.Box(low=-self.max_power, high=self.max_power,
                                        shape=(1,), dtype=np.float32)
 
         self.target_load = 1300
@@ -41,7 +41,7 @@ class PowerEnv(gym.Env):
             ob = self._get_obs()
 
         else:
-            reward = -20000
+            reward = -100
             ob = self.reset()
 
         return ob, reward, episode_over, {}
@@ -59,11 +59,8 @@ class PowerEnv(gym.Env):
 
     def _get_reward(self):
         """ Reward is given for scoring a goal."""
-        flows = self.env.res_bus
-        reward = -np.abs(flows.iloc[1, 2] - self.target_load) + \
-                 -np.abs(flows['p_kw'].sum())
 
-        return reward
+        return self.calc_reward()
         # TODO: generalize for different network
 
     def _get_obs(self):
@@ -74,6 +71,12 @@ class PowerEnv(gym.Env):
         self.env = simple_two_bus()
         return self._get_obs()
 
+    def calc_reward(self):
+        flows = self.env.res_bus
+        reward = -np.abs(flows.iloc[1, 2]/self.target_load - 1) #+ \
+                 #-np.abs(flows['p_kw'].sum())/self.target_load
+
+        return reward
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
