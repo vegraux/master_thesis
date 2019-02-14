@@ -13,3 +13,7 @@ register(
     id='foo-v0',
     entry_point='gym_power.envs:PowerEnv',
 )
+register(
+    id='powerenvsparse-v0',
+    entry_point='gym_power.envs:PowerEnvSparse',
+)
