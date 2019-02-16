@@ -15,7 +15,6 @@ from keras.layers import Dense, Activation, Flatten, Input, Concatenate
 from keras.optimizers import Adam
 from keras.layers.normalization import BatchNormalization
 
-
 from rl.agents import DDPGAgent
 from rl.memory import SequentialMemory
 from rl.random import OrnsteinUhlenbeckProcess
