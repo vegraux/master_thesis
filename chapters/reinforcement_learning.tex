@@ -23,7 +23,7 @@ The dog training is similar to an reinforcement learning algorithm. The dog is t
 \section{Reinforcement algorithms}
 Algorithms in machine learning and artificial intelligence are often divided into either supervised or unsupervised learning. Supervised learning is an algorithm using input data and labelled output data (target). The algorithm tries to map the input to the target in a manner that generalises well to unseen input data. Examples of supervised learning are regression and classification algorithms. Unsupervised learning is algorithms attempting to find structure in unlabelled data. Examples of such are clustering and anomaly detection. The terms \textit{supervised} and \textit{unsupervised} do not describe well the mechanisms of reinforcement learning algorithms. An reinforcement learning agent learns from interacting with an environment and receiving rewards based the action it takes. The agent's goal is not to use labelled data in some sense or explicitly finding general structures in the data. As a result, reinforcement learning is considered to be a category of its own\cite{Sutton1998}. 
 
-\section{Markov decision process}
+\section{Markov decision process}\label{section:markov_decision_process}
 
 A Markov decision process is a mathematical framework describing sequential decision making and interaction with an environment, where the outcome can be stochastic. This is precisely what
 a general reinforcement algorithm attempts to do. The set of possible actions and states are respectively called the action space $\mathcal{A}$ and state space $\mathcal{S}$. For some reinforcement learning tasks, such as chess, the action space depends on the state $s$. For instance, it is not allowed to castle if an opponents piece is attacking some of the squares over which the king will move. In such cases, the action space $\mathcal{A}(s)$ is given by the state. The action space in an electric power system is dependent on the state, for instance if a power plant is out of operation. The environment starts at $t=0$ and is described by a state $s_{0} \in \mathcal{S}$. The agent preforms some action $a_{0}\in \mathcal{A}$ and receives a reward $r_{1}\in \mathcal{R} \subseteq \mathbb{R} $ based on how "good" that action is. The action $a_{0}$ interacts with the environment and gives a new state $s_{1}$. This starts the sequence of states, actions and rewards.
@@ -46,26 +46,26 @@ The interaction between the agent and environment is visualised in figure \ref{f
 
 
 
-The goal at each time step $t$ is to maximise the rewards in the future. How to formally define the reward maximising criterion depends on the nature of the task. Some tasks, such as playing a video game, are called episodic and have well-defined boundaries for start and end state. On the other hand, the electric power system is a continuous task that never should end if the agent does its job. For continuous tasks, let the discounted return $g_{t}$ at time $t$ be defined as 
+The goal at each time step $t$ is to maximise the rewards in the future. How to formally define the reward maximising criterion depends on the nature of the task. Some tasks, such as playing a video game, are called episodic and have well-defined boundaries for start and end state. On the other hand, the electric power system is a continuous task that never should end if the agent does its job. For continuous tasks, let the discounted return $r^{\gamma}_{t}$ at time $t$ be defined as 
 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:discounted_reward}
-g_{t} = r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...
+r^{\gamma}_{t} = r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...
 = \sum_{k=t}^{\infty} \gamma^{k-t}r_{k+1}
 \end{aligned} 
 \end{equation}
-where $r_{t}$ is the reward received after action $a_{t}$ and $\gamma \in [0,1]$ is the discount factor. The goal of the agent at every time step $t$ could be to maximise the discounted return $g_{t}$.
+where $r_{t}$ is the reward received after action $a_{t}$ and $\gamma \in (0,1)$ is the discount factor. The goal of the agent at every time step $t$ could be to maximise the discounted return $r^{\gamma}_{t}$.
 
 
 
 \section{Value and policy functions}
-It is hard to talk about reinforcement learning algorithms without introducing the value function. Simply put, the value function evaluates how good an action $a$ is in a given state $s$. More concretely, the value function $V_{\pi}(s)$ is the expected discounted reward $g_{t}$ as defined by \eqref{eq:theory:discounted_reward} given state $s$ and following the policy $\pi$.
+It is hard to talk about reinforcement learning algorithms without introducing the value function. Simply put, the value function evaluates how good an action $a$ is in a given state $s$. More concretely, the value function $V_{\pi}(s)$ is the expected discounted reward $r^{\gamma}_{t}$ as defined by \eqref{eq:theory:discounted_reward} given state $s$ and following the policy $\pi$.
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:value_function}
 V_{\pi}(s) 
-= \mathbb{E}_{\pi}[g_{t}| s=s_{t}]
+= \mathbb{E}_{\pi}[r^{\gamma}_{t}| s=s_{t}]
 = \mathbb{E}_{\pi}[ r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...|s=s_{t}]
 \end{aligned} 
 \end{equation}
@@ -75,7 +75,7 @@ Another central function is the action-value function $Q_{\pi}(s,a)$, which quan
 \begin{equation}
    \begin{aligned}\label{eq:theory:action_value_function}
 Q_{\pi}(a_{t},s_{t}) 
-= \mathbb{E}_{\pi}[g_{t}|a=a_{t} ,s=s_{t}]
+= \mathbb{E}_{\pi}[r^{\gamma}_{t}|a=a_{t} ,s=s_{t}]
 = \mathbb{E}_{\pi}[ r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...|a=a_{t} ,s=s_{t}]
 \end{aligned} 
 \end{equation}
@@ -93,7 +93,7 @@ where $a$ is the action chosen by the policy. The stochastic case
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:policy_function_stochastic}
-\pi(a|s) = p_{a}
+\pi(a|s) = \mathbb{P}(a|s)
 \end{aligned} 
 \end{equation}
 where $p_{a}$ is the probability of choosing action $a$ given the policy $\pi$.
@@ -105,6 +105,70 @@ The reinforcement algorithms used in this thesis are restricted to policy-gradie
 A problem that arises when constructing a reinforcement learning algorithm is how to both be able to exploit a good policy and at the same time explore new policies. If an agent always follows its policy and picks the action it believes is the best, it will never explore new and perhaps better approaches to solve a problem. A solution to this problem is two have two different policies. One policy is called the target policy that is to be the optimal solution, while the other is called the behaviour policy and is for exploration of new behaviours\cite{Sutton1998}. A reinforcement learning algorithm using this approach is said to be learning off-policy.
 
 \section{Deep deterministic policy gradient}
+Silver et. al has developed an off-policy reinforcement algorithm called deep deterministic policy gradient (DDPG)\cite{pmlr-v32-silver14}. As the name suggest, the algorithm uses a deterministic approximation of the policy function instead of a stochastic version. The advantage with with a deterministic policy is that it does not have to integrate over action space in the search for the best policy. This section will outline the differences between stochastic and deterministic policy function. Both cases share similarities with each other. DDPG models the problem as a Markov decision problem as described in section \ref{section:markov_decision_process}.
+
+The initial state distribution is described by $p_{1}(s_{1})$. There is a reward function $r: \mathcal{S} \times \mathcal{A} \to \mathcal{R} \subseteq \mathbb{R}$ and an action value function $Q^{\pi}:\mathcal{S} \times \mathcal{A} \to \mathbb{R}$ that evaluates an action $a$ in state $s$. The policy interacts with the environment by taking actions and generates a trajectory of states, action and rewards 
+\begin{equation}
+   \begin{aligned}\label{eq:theory:trajectory2}
+h_{1:T} = s_{1},a_{1},r_{1},..., s_{T},a_{T},r_{T}
+\end{aligned} 
+\end{equation}
+The objective function $J(\pi)$ that agent will maximise is the expected discounted return under the policy $\pi$
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:max_discounted_return}
+J(\pi)
+= \mathbb{E}_{\pi}[r^{\gamma}_{1}]
+= \mathbb{E}_{\pi}[ r_{1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...]
+\end{aligned} 
+\end{equation}
+
+\subsection{Stochastic policy approximation}\label{section:stochastic_policy_approx}
+Consider a stochastic policy $\pi_{\theta}: \mathcal{S}\to \mathcal{P}(\mathcal{A})$ with parameters $\theta$ that maps the state space to a probability distribution over the action space. Let $p(s\to s',t,\pi)$ be the probability of transitioning from state $s$ to $s'$ in $t$ time steps. The discounted state distribution $\rho^{\pi}(s')$ is defined as   
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:discounted_state_distribution}
+    \rho^{\pi}(s') = \int_{\mathcal{S}}\sum_{t=1}^{\infty }\gamma^{t-1}p_{1}(s)
+    p(s \to s',t,\pi)ds
+\end{aligned} 
+\end{equation}
+The performance objective can then be expressed as an expectation
+\begin{equation}
+   \begin{aligned}\label{eq:theory:objective_expected_stochastic}
+    J(\pi_{\theta}) &= 
+    \int_{\mathcal{S}}\rho^{\pi}(s) \int_{\mathcal{A}}\pi_{\theta}(a|s)r(a,s)da ds 
+    \\
+    &=
+    \mathbb{E}_{s\sim \rho^{\pi},a \sim \pi_{\theta}}[r(s,a)]
+\end{aligned} 
+\end{equation}
+ The way the agent learns is by computing the gradient of the objective with respect to the policy parameters $\theta$ and update the weights in that direction. The gradient of the stochastic policy is given is given by the policy gradient theorem (Sutton \cite{Sutton1998}) in equation \eqref{eq:theory:stochastic_gradient}.
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:stochastic_gradient}
+    \nabla_{\theta} J(\pi_{\theta}) &= 
+     \int_{\mathcal{S}}\rho^{\pi}(s)
+     \int_{\mathcal{A}} \nabla_{\theta} \pi_{\theta}(a|s)Q^{\pi}(a,s)da ds
+     \\
+     &= \mathbb{E}_{s\sim \rho^{\pi},a \sim \pi_{\theta}}
+     [\nabla_{\theta} \log \pi_{\theta}(a|s)Q^{\pi}(a,s) ]
+\end{aligned} 
+\end{equation}
+
+Equation \eqref{eq:theory:stochastic_gradient} shows that the parameter update needs to integrates over the action space, which can be computationally costly.
+
+\subsection{Deterministic policy approximation}
+Consider a deterministic policy $\mu_{\theta}: \mathcal{S} \to \mathcal{A}$ with parameters $\theta$. Using the same definitions of discounted state distribution $\rho^{\mu}$ as in section \ref{section:stochastic_policy_approx}, the objective function is given as 
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:objective_expected_deterministic}
+    J(\mu_{\theta}) =
+    \int_{\mathcal{S}}
+    \rho^{\mu}(s)r(s,\mu_{\theta}(s)) ds = \mathbb{E}_{s\sim \rho^{\mu}}[r(s,\mu_{\theta}(s))]
+\end{aligned} 
+\end{equation}
+
+
 
 
 \end{document}
