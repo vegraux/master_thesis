@@ -60,7 +60,28 @@ where $r_{t}$ is the reward received after action $a_{t}$ and $\gamma \in (0,1)$
 
 
 \section{Value and policy functions}
-It is hard to talk about reinforcement learning algorithms without introducing the value function. Simply put, the value function evaluates how good an action $a$ is in a given state $s$. More concretely, the value function $V_{\pi}(s)$ is the expected discounted reward $r^{\gamma}_{t}$ as defined by \eqref{eq:theory:discounted_reward} given state $s$ and following the policy $\pi$.
+
+An agent selects actions in a given state is through its policy $\pi$. The policy of the agent decides what action to take in a given state by mapping the state space to the action space, $\pi: \mathcal{S} \to \mathcal{A}$. The policy can both be deterministic and stochastic. A deterministic policy maps a given state to the same action every time, while a stochastic policy maps the state to a probability distribution over the action space. For the deterministic case, the policy function $\pi$ is given by
+
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:policy_function_deterministic}
+\pi(s) = a
+\end{aligned} 
+\end{equation}
+where $a$ is the action chosen by the policy. Fot the stochastic case, it gives the probability of choosing action $a$.
+
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:policy_function_stochastic}
+\pi(a|s) = \mathbb{P}(a|s)
+\end{aligned} 
+\end{equation}
+
+
+The reinforcement algorithms used in this thesis are restricted to policy-gradient methods. These are methods that approximate the policy function using a neural network and updates its parameters using gradients. 
+
+It is very convenient to able to evaluate a certain state before taking an action. $V^{\pi}$ is called the value function $V$ under the policy $\pi$ and gives a metric for the "value" of the current state. The reason for including "under the policy $\pi$" is that a state is valued differently depending on the policy used. For instance, the start position in chess will be evaluated better under the policy of a chess grand master, than under the policy of an amateur. The value function $V_{\pi}(s)$ is the expected discounted reward $r^{\gamma}_{t}$ as defined by \eqref{eq:theory:discounted_reward} given state $s$ and following the policy $\pi$.
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:value_function}
@@ -71,37 +92,19 @@ V_{\pi}(s)
 \end{aligned} 
 \end{equation}
 
-Another central function is the action-value function $Q_{\pi}(s,a)$, which quantifies the expected discounted return given the action $a_{t}$ in state $s_{t}$ and that the policy $\pi$ is followed thereafter. 
+$Q_{\pi}(s,a)$ is called the action-value function, which quantifies the expected discounted return given the action $a_{t}$ in state $s_{t}$ and that the policy $\pi$ is followed thereafter. In other words, it can evaluate a specific action in a given state.  
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:action_value_function}
-Q_{\pi}(a_{t},s_{t}) 
+Q_{\pi}(s_{t},a_{t}) 
 &= \mathbb{E}_{\pi}[r^{\gamma}_{t}|a=a_{t} ,s=s_{t}]
 \\
 &= \mathbb{E}_{\pi}[ r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...|a=a_{t} ,s=s_{t}]
 \end{aligned} 
 \end{equation}
 
-The policy $\pi$ of the agent decides what action to take in a given state. The policy can both be deterministic and stochastic. A deterministic policy maps a given state to the same action every time, while a stochastic policy maps the state to a probability distribution over the action space. For the deterministic case, the policy function $\pi$ is given by
 
 
-\begin{equation}
-   \begin{aligned}\label{eq:theory:policy_function_deterministic}
-\pi(s) = a
-\end{aligned} 
-\end{equation}
-where $a$ is the action chosen by the policy. The stochastic case 
-
-
-\begin{equation}
-   \begin{aligned}\label{eq:theory:policy_function_stochastic}
-\pi(a|s) = \mathbb{P}(a|s)
-\end{aligned} 
-\end{equation}
-where $p_{a}$ is the probability of choosing action $a$ given the policy $\pi$.
-
-
-The reinforcement algorithms used in this thesis are restricted to policy-gradient methods. These are methods that approximate the policy function using a neural network and updates its parameters using gradients. 
 
 \section{Off-policy and on-policy}
 A problem that arises when constructing a reinforcement learning algorithm is how to both be able to exploit a good policy and at the same time explore new policies. If an agent always follows its policy and picks the action it believes is the best, it will never explore new and perhaps better approaches to solve a problem. A solution to this problem is two have two different policies. One policy is called the target policy that is to be the optimal solution, while the other is called the behaviour policy and is for exploration of new behaviours\cite{Sutton1998}. A reinforcement learning algorithm using this approach is said to be learning off-policy.
@@ -126,7 +129,7 @@ J(\pi)
 \end{equation}
 
 \subsection{Stochastic policy approximation}\label{section:stochastic_policy_approx}
-Consider a stochastic policy $\pi_{\theta}: \mathcal{S}\to \mathcal{P}(\mathcal{A})$ with parameters $\theta$ that maps the state space to a probability distribution over the action space. Let $p(s\to s',t,\pi)$ be the probability of transitioning from state $s$ to $s'$ in $t$ time steps. The discounted state distribution $\rho^{\pi}(s')$ is defined as   
+Consider a parametrised stochastic policy $\pi_{\theta}: \mathcal{S}\to \mathcal{P}(\mathcal{A})$ with parameters $\theta$ that maps the state space to a probability distribution over the action space. Let $p(s\to s',t,\pi)$ be the probability of transitioning from state $s$ to $s'$ in $t$ time steps. The discounted state distribution $\rho^{\pi}(s')$ is defined as   
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:discounted_state_distribution}
@@ -156,7 +159,7 @@ The performance objective can then be expressed as an expectation
      [\nabla_{\theta} \log \pi_{\theta}(a|s)Q^{\pi}(a,s) ]
 \end{aligned} 
 \end{equation}
-Equation \eqref{eq:theory:stochastic_gradient} shows that the parameter update needs to integrates over the action space, which can be computationally costly.
+Equation \eqref{eq:theory:stochastic_gradient} shows that the parameter update for the stochastic policy needs to integrates over the action space, which can be computationally costly.
 
 \subsection{Deterministic policy approximation}
 Consider a deterministic policy $\mu_{\theta}: \mathcal{S} \to \mathcal{A}$ with parameters $\theta$. Using the same definitions of discounted state distribution $\rho^{\mu}$ as in equation
@@ -184,7 +187,7 @@ Silver et al \cite{pmlr-v32-silver14} proved that the deterministic policy gradi
     \nabla_{a} Q^{\mu}(s,a)|_{a = \mu_{\theta}(s)}]
 \end{aligned} 
 \end{equation}
-In other words, it is the expectation of the matrix-vector product of the policy Jacobian matrix and the action-value gradient with respect to the actions under policy $\mu_{\theta}$. By convention, the columns of $\nabla_{\theta} \mu_{\theta}$ are the gradient of each action dimension. Silver et al argue that there are a class of function approximators that follow the gradient of the action-value function. Let $w$ be the parameters of the true action-value approximator $Q^{w}(s,a)$ such that   
+In other words, it is the expectation of the matrix-vector product of the policy Jacobian matrix and the action-value gradient with respect to the actions under policy $\mu_{\theta}$. By convention, the columns of $\nabla_{\theta} \mu_{\theta}$ are the gradient of each action dimension. Silver et al argue that there are a class of function approximators that follow the gradient of the action-value function. Let $w$ be the parameters of the action-value approximator $Q^{w}(s,a)$ such that   
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:action-value_approx}
@@ -195,7 +198,7 @@ and replace the action-value gradient $\nabla_{a} Q^{\mu}(s,a)$ in equation \eqr
 the gradient of the approximation $\nabla_{a} Q^{\mu}(s,a,w)$
 
 \subsection{Deterministic off-policy actor-critic}
-Deep deterministic policy gradient is an off-policy learning algorithm. An off-policy algorithm has a two different policies: a target policy $\mu_{\theta}(s)$ that is to be the final policy, and a stochastic behavioural policy $\beta(s,a)$ that is used for exploration to find different strategies. In other words, the target policy learns from the experiences of the behavioural policy. The off-policy objective performance in equation \eqref{eq:theory:objective_expected_deterministic} is altered by replacing the reward $r$ with the value function $V^{\mu}$ under the target policy $\mu$ and following the discounted state distribution of the behavioural policy $\rho^{\beta}$.
+Deep deterministic policy gradient is an off-policy learning algorithm. An off-policy algorithm has two different policies: a target policy $\mu_{\theta}(s)$ that is to be the final policy, and a stochastic behavioural policy $\beta(s,a)$ that is used for exploration to find different strategies. In other words, the target policy learns from the experiences of the behavioural policy. The off-policy objective performance in equation \eqref{eq:theory:objective_expected_deterministic} is altered by replacing the reward $r$ with the value function $V^{\mu}$ under the target policy $\mu$ and following the discounted state distribution of the behavioural policy $\rho^{\beta}$.
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:objective_expected_ooff_policy}
@@ -208,6 +211,56 @@ Deep deterministic policy gradient is an off-policy learning algorithm. An off-p
     \rho^{\beta}(s)Q^{\mu}(s,\mu_{\theta}(s)) ds
 \end{aligned} 
 \end{equation}
+The gradient of the modified objective is
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:objective_gradient_deterministic_off_policy}
+    \nabla_{\theta}J_{\beta}(\mu_{\theta}) &\approx
+    \int_{\mathcal{S}}
+    \rho^{\beta}(s)
+    \nabla_{\theta} \mu_{\theta}(s|a)
+    Q^{\mu}(s,a)ds 
+    \\
+    &= \mathbb{E}_{s\sim \rho^{\beta}}
+    [    \nabla_{\theta} \mu_{\theta}(s)
+    \nabla_{a} Q^{\mu}(s,a)|_{a = \mu_{\theta}(s)}]
+\end{aligned} 
+\end{equation}
+
+\subsection{Bellman equation}
+There is a recursive relation between the action-value function in two consecutive states $s_{t}$ and $s_{t+1}$, known as the Bellman equation. Assume a deterministic policy $\mu_{\theta}$
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:bellman_equation}
+Q^{\mu}(s_{t},a_{t}) 
+&= \mathbb{E}_{r_{t},s_{t+1} \sim \mathcal{E}}
+[r(s_{t},a_{t}) +\gamma Q^{\mu}(s_{t+1},\mu(s_{t+1}))]
+\end{aligned} 
+\end{equation}
+This relation can be transformed into a loss function for the action-value function approximator $Q(s,a|\theta^{Q})$. Let the action value target $y_{t} $ be defined as 
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:action_value_target_bellman_equation}
+y_{t} = r(s_{t},a_{t}) + \gamma Q(s_{t+1},\mu(s_{t+1})|\theta^{Q})
+\end{aligned} 
+\end{equation}
+The action-value loss can be defined as 
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:action_value_loss_bellman_equation}
+L(\theta^{Q}) 
+&= \mathbb{E}_
+{s_{t}\sim\rho^{\beta},a_{t} \sim \beta, r_{t} \sim \mathcal{E}}
+[(Q^{\mu}(s_{t},a_{t})- y_{t})^{2}]
+\end{aligned} 
+\end{equation}
+Notice that the expectation is in respect to the  state and action of the behavioural policy $\beta$. The loss should is zero if the action value approximator satisfies the bellman equation in \eqref{eq:theory:bellman_equation}.
+
+
+\subsection{Experience replay and stability}
+It has been proven difficult to use a naive implementation of the described DDPG algorithm with neural network as function approximators\cite{DBLP:journals/corr/LillicrapHPHETS15}. 
+
+
 
 
 \end{document}
