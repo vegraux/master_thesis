@@ -229,8 +229,8 @@ The gradient of the modified objective is
 \end{aligned} 
 \end{equation}
 
-\subsection{Bellman equation}
-There is a recursive relation between the action-value function in two consecutive states $s_{t}$ and $s_{t+1}$, known as the Bellman equation. Assume a deterministic policy $\mu_{\theta}$
+\subsection{Critic loss function}
+There is a recursive relation between the action-value function in two consecutive states $s_{t}$ and $s_{t+1}$, known as the Bellman equation. Assuming a deterministic policy $\mu_{\theta}$, we have
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:bellman_equation}
@@ -239,7 +239,7 @@ Q^{\mu}(s_{t},a_{t})
 [r(s_{t},a_{t}) +\gamma Q^{\mu}(s_{t+1},\mu(s_{t+1}))]
 \end{aligned} 
 \end{equation}
-This relation can be used as the loss function for the action-value function approximator $Q(s,a|\theta^{Q})$. Let the action value target $y_{t} $ be defined as 
+This relation can be used in the design of the loss function for the action-value function approximator $Q(s,a|\theta^{Q})$. Let the action value target $y_{t} $ be defined as 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:action_value_target_bellman_equation}
@@ -258,15 +258,11 @@ L(\theta^{Q})
 \end{equation}
 Notice that the state and action follows the distribution of the behavioural policy $\beta$. The loss is zero if the action value approximator satisfies the Bellman equation in \eqref{eq:theory:bellman_equation}. Therefore, the action-value approximator is encouraged to satisfy the Bellman equation.
 
-There are however some practical problems with the loss definition in equation \eqref{eq:theory:action_value_target_bellman_equation}. The critic target $y_{t}$ is calculated using $Q(s,a|\theta^{Q})$, which after each parameter update of $\theta^{Q}$ may change quickly. Therefore, the critic target can fluctuate rapidly during learning. To avoid this, Lillicrap et al. suggests a soft update of the target weights\cite{DBLP:journals/corr/LillicrapHPHETS15}. This is done by creating a copy of the actor $\mu'$ and critic $Q'$.
+There are however some practical problems with the loss definition in equation \eqref{eq:theory:action_value_target_bellman_equation}. The critic target $y_{t}$ is calculated using $Q(s,\mu(s)|\theta^{Q})$, which after each parameter update of $\theta^{Q}$ may change quickly. Therefore, the critic target can fluctuate rapidly during learning. We are changing our network closer to the target, but the target itself is moving. To avoid this, Lillicrap et al. suggests a soft update of the target weights\cite{DBLP:journals/corr/LillicrapHPHETS15}. This is done by creating a copy of the actor $\mu'$ and critic $Q'$ at the beginning of learning that will serve as the target networks. After each parameter update, the original actor and critic networks $\mu,Q$ are updated as before, while the target weights are soft updated by $\theta' \leftarrow \tau\theta + (1-\tau)\theta'$, where $\tau$ is a small positive number ($\tau  \ll 1$). The target network are more locked in place, and will slowly change during training compared to the original networks. This greatly increase the stability during learning. 
 
 
-\subsection{Experience replay and soft target updates}
-It has been proven difficult to use a naive implementation of the described DDPG algorithm with neural network as function approximators \cite{DBLP:journals/corr/LillicrapHPHETS15}. Learning challenging problems are generally unstable. A problem with the naive approach is that the states and actions explored by the agent during learning are sequential, and by no means uncorrelated. It is best that the samples in a batch used for updating the parameters of a neural network are independent and uncorrelated. A way to get around this problem is by introducing a replay buffer $\mathcal{R}$ where experiences during learning are stored. Specifically, each tuple $(s_{t},a_{t},r_{t},s_{t+1})$ is put into the the replay buffer. When the weights of the functions approximators are updated, a batch of $N$ random experience tuples is drawn from the replay buffer. This avoids the problem with correlated samples in the parameter update.
-
-Another problem with the implementation of DDPG is the rapid changes in the target used in 
-
-
+\subsection{Experience replay}
+It has been proven difficult to use a naive implementation of the described DDPG algorithm with neural network as function approximators \cite{DBLP:journals/corr/LillicrapHPHETS15}. Learning challenging problems are generally unstable. A problem with the naive approach is that the states and actions explored by the agent during learning are sequential, and by no means uncorrelated. It is best that the samples in a batch used for updating the parameters of a neural network are independent and uncorrelated. A way to get around this problem is by introducing a replay buffer $\mathcal{R}$ where experiences during learning are stored. Specifically, each tuple $(s_{t},a_{t},r_{t},s_{t+1})$ is put into the the replay buffer. When the weights of the functions approximators are updated, a batch of $N$ random transition tuples is drawn from the replay buffer. This avoids the problem with correlated samples in the parameter update and increases the stability of DDPG. In addition, it ensures that the agent does not forget experiences from early in the training. 
 
 \subsection{Algorithm for DDPG}
 
@@ -283,7 +279,7 @@ Another problem with the implementation of DDPG is the rapid changes in the targ
   Initialise random process $\mathcal{N}$\\
   Receive initial state $s_{1}$
   
-  \For{timestep 1:T}{
+  \For{t 1:T}{
    Select $a_{t} = \mu(s_{t}|\theta^{Q}) + \mathcal{N}_{t}$
    \\
    Execute $a_{t}$ and observe reward $r_{t}$ and new state $s_{t+1}$
@@ -325,6 +321,9 @@ Soft update the target weights
  }
  \caption{Deep deterministic policy gradient, as described by Lillicrap et al.\cite{DBLP:journals/corr/LillicrapHPHETS15}}
 \end{algorithm}
+
+\section{Hindsight experience replay}
+
 
 
 
