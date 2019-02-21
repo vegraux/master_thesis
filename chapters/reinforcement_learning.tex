@@ -324,7 +324,10 @@ Soft update the target weights
  \caption{Deep deterministic policy gradient, as described by Lillicrap et al.\cite{DBLP:journals/corr/LillicrapHPHETS15}}
 \end{algorithm}
 
-\section{Challenging reward engineering}\label{theory:challenging_reward_shaping}
+\section{Hindsigth Experience Replay}
+
+\subsection{Challenging reward engineering}\label{theory:challenging_reward_shaping}
+
 Designing the reward for a reinforcement agent is often a challenging and time-consuming task. For algorithm attempting to play a game it is usually not a problem, since the reward could simply be the score in the game, or a positive reward every time the agent wins an episode. However, for other tasks there will often be a need for a lot of handcrafted rewards that require domain-specific knowledge. This section will present an example of this challenge in an electric power system.
 
 \begin{figure}[ht!]
@@ -338,32 +341,49 @@ Designing the reward for a reinforcement agent is often a challenging and time-c
 
 
 
-Consider the two-bus system shown in figure \ref{fig:theory:two_bus_reinforcement}. The bus at the left represent a power plant that produces electric power $S_{1} = P_{1} + jQ_{1}$. The power flows through the transmission line and with some losses and arrives at bus 2 with apparent power $S_{1} = P_{1} + jQ_{1}$. An agent using the deep deterministic policy gradient (DDPG) algorithm was given a simple load balancing task on the power network. The agent controls the active power production $P_{1}$ at bus 1, and has to tune it so that bus 2 receives the desired active load $P_{2}$. For simplicity, the demanded load at bus 2 is constant at 1300 kW. The voltages magnitudes at each bus is locked to 1 p.u, while the reactive power injections and voltage angle can vary. The reward $r_{t}$ is defined as the negative of the absolute deviation between the received and desired load at bus 2. The idea is that the agent should be encouraged to move closer to the desired load. For simplicity, the initial state, represented as the voltage magnitude, voltage angle the apparent power at each bus, was always the same. The task should therefore be very manageable for the agent because it only has to learn one simple behaviour. After training it converged and received rewards close to 0, indicating that bus 2 got the desired load. The problem was that the agent produced over 10 times as much active power as bus 2 wanted. Where did the rest go? It was lost in the line. In other words, the system had under 10 \% efficiency. Figure \ref{fig:theory:two_bus_failing} shows what was happening. A line can not transfer an arbitrary amount of active power due to the power flow equations in equation \eqref{eq:theory:power_flow_equation}. As a result, there will be two different point for $P_{1}$ that gives the load the desired amount of active power. However, one point is obviously not desired, as the system efficiency is below 10 \%. However, one cannot blame the agent for finding this point, and sticking with it. It has now incentive to change its behaviour when the reward is defined as it is. A natural solution would be to include a term in the reward that punishes loss in the line. This can be done, and the agent would probably find the right power production level. 
+Consider the two-bus system shown in figure \ref{fig:theory:two_bus_reinforcement}. The bus at the left represent a power plant that produces electric power $S_{1} = P_{1} + jQ_{1}$. The power flows through the transmission line and with some losses and arrives at bus 2 with apparent power $S_{1} = P_{1} + jQ_{1}$. An agent using the deep deterministic policy gradient (DDPG) algorithm was given a simple load balancing task on the power network. The agent controls the active power production $P_{1}$ at bus 1, and has to tune it so that bus 2 receives the desired active load $P_{2}$. For simplicity, the demanded load at bus 2 is constant at 1300 kW. The voltages magnitudes at each bus is locked to 1 p.u, while the reactive power injections and voltage angle can vary. The reward $r_{t}$ is defined as the negative of the absolute deviation between the received and desired load at bus 2. The idea is that the agent should be encouraged to move closer to the desired load. For simplicity, the initial state, represented as the voltage magnitude, voltage angle the apparent power at each bus, was always the same. The task should therefore be very manageable for the agent because it only has to learn one simple behaviour. After training it converged and received rewards close to 0, indicating that bus 2 got the desired load. The problem was that the agent produced over 10 times as much active power as bus 2 wanted. Where did the rest go? It was lost in the line. In other words, the system had under 10 \% efficiency. Figure \ref{fig:theory:two_bus_failing} shows what was happening. A line can not transfer an arbitrary amount of active power due to the power flow equations. As a result, there will be two different point for $P_{1}$ that gives the load the desired amount of active power. However, one point is obviously not desired, as the system efficiency is below 10 \%. However, one cannot blame the agent for finding this point, and sticking with it. It has now incentive to change its behaviour when the reward is defined as it is. A natural solution would be to include a term in the reward that punishes loss in the line. This can be done, and the agent would probably find the right power production level. 
 
 
 \begin{figure}[ht!]
+    \label{fig:theory:two_bus_failing}
     \center
     \begin{tikzpicture}
-\begin{axis}[axis lines=left, xtick=\empty, ytick=\empty, legend style={draw=none}]
-\addplot table  [x=prod, y=busload, col sep=comma, smooth,mark=none, xlabel=$P_{1}$, ylabel=$P_{2}$ ] {data/two_bus_load_balancing.csv};
-
-\addplot table  [x=prod, y=cost1, col sep=comma, smooth,mark=none] {data/two_bus_load_balancing.csv};
-\legend{Without loss, With loss}
-\end{axis}
-\end{tikzpicture}
-    \caption[size = 9]
-    {Simple two bus system connected by a line. \textit{P} and \textit{Q} are the active and reactive power flow, \textit{R} and \textit{X} is the resistance and reactance of the line, \textit{U} is the voltage and \textit{I} is the current flowing}    \label{fig:theory:two_bus_failing}
+    \begin{axis}
+    [axis lines=left, xtick=\empty, ytick=\empty, legend style={draw=none},  xlabel=$P_{1}$]
+    \addplot table  [x=prod, y=busload, col sep=comma, smooth,mark=none,color=blue] {data/two_bus_load_balancing.csv};
+    
+    \addplot table  [x=prod, y=cost1, col sep=comma, smooth,mark=none, color=black] {data/two_bus_load_balancing.csv};
+    \legend{Received load, Agent loss}
+    \end{axis}
+    \end{tikzpicture}
+        \caption[size = 9]
+        {Received active power $P_{2}$ at bus two in figure \ref{fig:theory:two_bus_reinforcement} and penalty given to the agent as a function of a. 
+        }
 \end{figure}
 
-\section{Hindsight Experience Replay}
-Section \ref{theory:challenging_reward_shaping}  illustrates the challenges with reward shaping and the need for domain-expertise. Hindsight Experience Replay (HER) is an approach that dodges the need for custom made rewards for any off-policy reinforcement learning algorithm, such as DDPG\cite{DBLP:journals/corr/Andrychowicz_HER}. HER modifies Universal Value Function Approximators (UVFA), a method that feeds the agent with a goal $g$ that represent the state at which we want to be. By doing so, the agent does not only generalise to arbitrary states, but also arbitrary goals\cite{schaul15_goal_states}. This is ideal for reinforcement learning in an electric power system. The
+\section{Intuition for Hindsight Experience Replay}
+Section \ref{theory:challenging_reward_shaping}  illustrates the challenges with reward shaping and the need for domain-expertise. Hindsight Experience Replay (HER) is an approach that avoids the need for custom made rewards for any off-policy reinforcement learning algorithm, such as DDPG\cite{DBLP:journals/corr/Andrychowicz_HER}. HER modifies Universal Value Function Approximators (UVFA), a method that feeds the agent with a goal $g$ that represent the state at which we want to be. By doing so, the agent does not only generalise to arbitrary states, but also arbitrary goals\cite{schaul15_goal_states}. This is ideal for reinforcement learning in an electric power system. The
 supply and demand for electric power are varying every hour in the Norwegian power system, and it is therefore essential that the agent can learn to generalise its behaviour to new and unseen demand situation. 
 
 The sparse reward can simply be -1 at every time step when the goal $g$ is not reached, and 0 if the actual state is within some threshold from the goal. However, this approach is not well suited for a large state space, since the agent never will encounter a non-negative reward\cite{DBLP:journals/corr/Andrychowicz_HER}. The reward is simply too sparse and non-informative. The novelty in HER is to change the goal state for certain transitions in the replay buffer to a state that actually was visited by the agent. As a result, the agent will experience some positive rewards during learning. Although a visited state was far from the desired goal, it still can learn from it because the transitions leading to an unwanted actual state tells the agent something about how to reach that very state. 
 
-DDPG stores the transitions experienced during learning $(s_{t},a_{t},r_{t},s_{t+1})$ in a replay buffer $\mathcal{R}$. This transition tuple is now extended to include the goal state $g$. In other words, a transition in the replay buffer takes the form $(s_{t},a_{t},r_{t},g,s_{t+1})$ where $g$ is the goal shared between all time steps in an episode. The 
+DDPG stores the transitions experienced during learning $(s_{t},a_{t},r_{t},s_{t+1})$ in a replay buffer $\mathcal{R}$. This transition tuple is now extended to include the goal state $g$. In other words, a transition in the replay buffer takes the form $(s_{t},a_{t},r_{t},g,s_{t+1})$ where $g$ is the goal shared between all time steps in an episode. The details of HER will be described in the following sections.
 
+\section{Algorithm}
 
+The policy and action-value functions are given a goal $g$ in addition to the state $s$ and action $a$. Let $\mathcal{G}, \mathcal{S}, \mathcal{A}$ be the space of all goals, states and actions respectively. 
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:theory:her_function_with_goal}
+    &Q: \mathcal{S} \times \mathcal{A} \times \mathcal{G} \to \mathbb{R}
+    \\
+    &\pi: \mathcal{S} \times \mathcal{G} \to \mathcal{A}
+    \\
+    &r: \mathcal{S} \times \mathcal{A} \times \mathcal{G} \to \mathbb{R}
+    \end{aligned} 
+\end{equation}
+where $Q$ is the action-value function, $\pi$ is the policy function and $r$ is the reward function. The change in all these function is the inclusion of the goal. For each episode there will be a goal state that the policy and action-value takes in as input for all time steps. For each goal state $g$ there will be an associated predicate function $f_{g}: \mathcal{S} \to \{0,1\}$ and the task for the agent is to find a preform an action such that the next states maps to 1. If we for instance let $\mathcal{G} = \mathcal{S}$, the predicate could be $f_{g}(s) = [s=g]$. In other words, a given state maps to 1 if it is the desired goal. The sparse reward to the agent can then be formulated as $r_{g}(s,a) = -[f_{g}(s)=0]$. For continuous states and goals it would be more convenient to have a threshold $\epsilon$ such as $f_{g}(s) = [|s-g| < \epsilon]$ The goal vector could in an electric power system be the desired loads
 
 
 
