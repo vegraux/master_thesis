@@ -127,3 +127,20 @@
   biburl    = {https://dblp.org/rec/bib/journals/corr/AndrychowiczWRS17},
   bibsource = {dblp computer science bibliography, https://dblp.org}
 }
+
+@InProceedings{schaul15_goal_states,
+  title = 	 {Universal Value Function Approximators},
+  author = 	 {Tom Schaul and Daniel Horgan and Karol Gregor and David Silver},
+  booktitle = 	 {Proceedings of the 32nd International Conference on Machine Learning},
+  pages = 	 {1312--1320},
+  year = 	 {2015},
+  editor = 	 {Francis Bach and David Blei},
+  volume = 	 {37},
+  series = 	 {Proceedings of Machine Learning Research},
+  address = 	 {Lille, France},
+  month = 	 {7},
+  publisher = 	 {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v37/schaul15.pdf},
+  url = 	 {http://proceedings.mlr.press/v37/schaul15.html},
+  abstract = 	 {Value functions are a core component of reinforcement learning. The main idea is to to construct a single function approximator V(s; theta) that estimates the long-term reward from any state s, using parameters theta. In this paper we introduce universal value function approximators (UVFAs) V(s,g;theta) that generalise not just over states s but also over goals g. We develop an efficient technique for supervised learning of UVFAs, by factoring observed values into separate embedding vectors for state and goal, and then learning a mapping from s and g to these factored embedding vectors. We show how this technique may be incorporated into a reinforcement learning algorithm that updates the UVFA solely from observed rewards. Finally, we demonstrate that a UVFA can successfully generalise to previously unseen goals.}
+}
