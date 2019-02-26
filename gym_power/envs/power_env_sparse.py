@@ -30,7 +30,7 @@ class PowerEnvSparse(PowerEnv):
 
     def calc_reward(self):
         flows = self.powergrid.res_bus
-        reward = np.abs(flows.iloc[1, 2] - self.target_load) < 100  # + \
+        reward = np.abs(flows.iloc[1, 2] - self.desired_goal) < 100  # + \
         return reward
 
     def step(self, action):
@@ -47,7 +47,7 @@ class PowerEnvSparse(PowerEnv):
 
     def _get_obs(self):
         obs = list(self.powergrid.res_bus.values.flatten())
-        obs.append(self.target_load)
+        obs.append(self.desired_goal)
         return np.array(obs)
 
 

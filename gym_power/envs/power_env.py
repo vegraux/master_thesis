@@ -23,15 +23,15 @@ class PowerEnv(gym.Env):
 
     def __init__(self):
         self.seed()
-        self.base_env = simple_two_bus()
+        self.base_powergrid = simple_two_bus()
         self.voltage_threshold = 0.05
         self.power_threshold = 0.05
         self.nominal_cos_phi = 0.8
         self.cos_phi_threshold = 0.1
-        self.powergrid = copy.deepcopy(self.base_env)
+        self.powergrid = copy.deepcopy(self.base_powergrid)
         self.observation_size = 4 * len(
             self.powergrid.bus)  # P,Q,U, delta at each bus
-        self.max_power = 15000
+        self.max_power = 30000
         high = np.array([1000000 for _ in range(self.observation_size)])
 
         self.observation_space = spaces.Box(low=-high, high=high,
@@ -40,7 +40,7 @@ class PowerEnv(gym.Env):
         self.action_space = spaces.Box(low=-self.max_power, high=self.max_power,
                                        shape=(1,), dtype=np.float32)
 
-        self.target_load = 1300
+        self.desired_goal = 8000
 
     def step(self, action):
         episode_over = self._take_action(action)
@@ -79,8 +79,8 @@ class PowerEnv(gym.Env):
         return self.powergrid.res_bus.values.flatten()
 
     def reset(self):
-        self.powergrid = copy.deepcopy(self.base_env)
-        self.powergrid = self._create_initial_state()
+        self.powergrid = copy.deepcopy(self.base_powergrid)
+        self._create_initial_state()
 
         return self._get_obs()
 
@@ -94,7 +94,7 @@ class PowerEnv(gym.Env):
         cos_phi = self._random_uniform(nominal_cos_phi,self.cos_phi_threshold)
         start_power = nominal_power*cos_phi
         start_power = pd.Series(start_power,name='p_kw')
-        print('haasiba')
+        self.powergrid.gen['p_kw'] = -start_power
 
 
 
@@ -115,8 +115,8 @@ class PowerEnv(gym.Env):
 
     def calc_reward(self):
         flows = self.powergrid.res_bus
-        reward = -np.abs(flows.iloc[1, 2] -self.target_load) #+ \
-                 #-np.abs(flows['p_kw'].sum())/self.target_load
+        reward = -(flows.iloc[1, 2] - self.desired_goal) ** 2 #+ \
+                 #-np.abs(flows['p_kw'].sum())/self.desired_goal
 
         return reward
     def seed(self, seed=None):
@@ -130,5 +130,5 @@ class PowerEnv(gym.Env):
 
 if __name__ == '__main__':
     env = PowerEnv()
-    env._create_initial_state()
+    env.step([-1200])
     print(env.metadata)

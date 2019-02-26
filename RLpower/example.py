@@ -24,7 +24,7 @@ ENV_NAME = 'Pendulum-v0'
 
 
 # Get the environment and extract the number of actions.
-#env = gym.make(ENV_NAME)
+#powergrid = gym.make(ENV_NAME)
 env = PowerEnv()
 np.random.seed(123)
 env.seed(123)
