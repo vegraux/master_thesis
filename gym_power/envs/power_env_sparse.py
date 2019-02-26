@@ -21,7 +21,7 @@ class PowerEnvSparse(PowerEnv):
 
         super(PowerEnvSparse, self).__init__()
         self.observation_size = 4 * len(
-            self.env.bus) + 1
+            self.powergrid.bus) + 1
 
         high = np.array([1000000 for _ in range(self.observation_size)])
 
@@ -29,7 +29,7 @@ class PowerEnvSparse(PowerEnv):
                                             dtype=np.float32)
 
     def calc_reward(self):
-        flows = self.env.res_bus
+        flows = self.powergrid.res_bus
         reward = np.abs(flows.iloc[1, 2] - self.target_load) < 100  # + \
         return reward
 
@@ -46,12 +46,11 @@ class PowerEnvSparse(PowerEnv):
         return ob, reward, episode_over, {}
 
     def _get_obs(self):
-        obs = list(self.env.res_bus.values.flatten())
+        obs = list(self.powergrid.res_bus.values.flatten())
         obs.append(self.target_load)
         return np.array(obs)
 
 
 if __name__ == '__main__':
     env = PowerEnvSparse()
-
     print('wait')
