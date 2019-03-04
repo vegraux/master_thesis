@@ -1,19 +1,56 @@
 \documentclass[class=book, crop=false]{standalone}
 \usepackage[subpreambles=true]{standalone}
 \usepackage{import}
-
+\usepackage[utf8]{inputenc}
 \usepackage[margin=1.2in]{geometry}
 \usepackage[sorting = none,
             doi = true  %lesedato for url-adresse
             ]{biblatex} %none gir bibliografi i sitert rekkefølge
 \addbibresource{reference.bib}
 \usepackage{csquotes}
+\usepackage{pgfplotstable}
+\usepackage{booktabs}
+\pgfplotsset{compat=1.15}
 
 \begin{document}
 \section{Programming software}
-Python is the programming language used for this solving this task. Python is an open-source software that has several packages for machine learning and power flow calculations \cite{python_web}. In this thesis, \textit{pandapower} is the python package used for defining an electric power system and preforming power flow calculations\cite{pandapower}.
+Python is the programming language used for this solving this task. Python is an open-source software that has several packages for machine learning and power flow calculations \cite{python_web}. In this thesis, \textit{pandapower} is the python package used for defining an electric power system and preforming power flow calculations\cite{pandapower}. \textit{Keras} is the Python package used for training a reinforcement agent \cite{keras_chollet2015}.
 
-\textit{Keras} is the Python package used for training a reinforcement agent \cite{keras_chollet2015}.
+\section{Pandapower elements}
+This section will describe the different electrical elements available in pandapower and how they are physically modelled.
+\subsection{Lines}
+Table \ref{tab:standard_lines_pandapower} shows the available standard line that can be chosen with corresponding parameter values. Custom parameters can also be specified using the method \texttt{pandapower.create\_line\_from\_parameters}
+\begin{table}[]
+    \centering
+    \pgfplotstabletypeset[
+col sep = comma,
+string type,
+every head row/.style={before row=\toprule,after row=\midrule},
+every last row/.style={after row=\bottomrule},
+display columns/0/.style={string type,column name={}}
+]
+{data/linetypes.csv}
+    \caption{Standard lines available in pandapowers with values for resistance \textit{r}, inductance \textit{x}, capacitance \textit{c}, max current \textit{I} and cross sectional area \textit{Q} and line type. “ol” is overhead line and “cs” is underground cable system}
+    \label{tab:standard_lines_pandapower}
+\end{table}
+The line are modelled using the $\pi$-equivalent model, mentioned in section \ref{section:pi_model}.
+
+\subsection{Generators}
+Pandapower has two generator types. The first type is simply called generator and is modelled as a PV-bus. In other words, the active power production $P$ and voltage magnitude $|U|$ is are known when solving the power flow equations. Generators can be created using the method \texttt{pandapower.create\_gen}, where nominal values for apparent power and voltage can be specified. The second type is the static generator, where the active power $P$ and reactive power $Q$ is specified (PQ-bus). Static generators are created using \texttt{pandapower.create\_sgen}. Pandapower models power from the consumer perspective, so negative values for active power $P$ corresponds to generation of power.
+
+\subsection{Loads}
+The load in pandapower is modelled as a PQ-bus, where active and reactive power are known. Loads are created using the method \texttt{pandapower.create\_load}. The loads can also be modelled with constant impedance $Z$, current $I$ and $P$. In other words, replacing reactive power with current and impedance. 
+
+\subsection{Transformers}
+
+
+
+
+
+
+
+
+
 
 \end{document}
 
