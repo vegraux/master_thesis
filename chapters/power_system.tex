@@ -95,7 +95,7 @@ A capacitor is a component that can store an electrical charge \textit{Q} when a
 C = \frac{Q}{U}
 \end{aligned} 
 \end{equation}
-where \textit{Q} is the charge stored by the capacitor and \textit{U} is the applied DC voltage. The units for capacitance is farad \textit{F}. Applying Kirchoff's voltage law to this circuit when the source is a sinusoidal signal $Usin(\omega t)$ and using equation \eqref{eq:theory:capacitance} gives
+where \textit{Q} is the charge stored by the capacitor and \textit{U} is the applied DC voltage. The units for capacitance is farad \textit{F}. Applying Kirchoff's voltage law to this circuit when the source is a sinusoidal signal $U\sin(\omega t)$ and using equation \eqref{eq:theory:capacitance} gives
 
 
 
@@ -125,7 +125,7 @@ where $\omega$ is the angualar frequency of the signal and \textit{C} is the cap
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:capacitance_diffeq_solved_ohm}
-I(t) = \frac{U}{X_{c}} \cdot sin(\omega t + \pi/2)
+I(t) = \frac{U}{X_{c}} \sin(\omega t + \pi/2)
 \end{aligned} 
 \end{equation}
 
@@ -138,7 +138,7 @@ The circuit shown in figure \ref{fig:theory:circuit_inductor} is another example
     {Circuit with a electromagnetic coil as load}\label{fig:theory:circuit_inductor}
 \end{figure}
 
-The load is an electromagnetic coil, also called an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the circuit and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
+The load is an electromagnetic coil, also called an inductor, and appears in a wide range of electric components. For instance an electric transmission line is mainly modelled as an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the circuit and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:inductance_diffeq}
@@ -149,7 +149,7 @@ The solution of equation \eqref{eq:theory:inductance_diffeq} is
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:inductancee_diffeq_solved}
-I(t) = \frac{U}{\omega L} \cdot sin(\omega t - \pi/2)
+I(t) = \frac{U}{\omega L}  \sin(\omega t - \pi/2)
 \end{aligned} 
 \end{equation}
 
@@ -204,7 +204,7 @@ The resultant current \textit{I} drawn from the voltage source can now be expres
 I = |I|e^{-j \varphi} = I_{p} + jI_{q}
 \end{aligned} 
 \end{equation}
-where $|I|$, $\omega$ and $\varphi$ respectively are  the magnitude, angular frequency and phase shift of the current. Comparing equation \eqref{eq:eulers_equation} and \eqref{eq:theory:complex_current} shows that the angular frequency $\omega$ is removed, and that the current is simply considered a complex constant. This has do with the fact that the sum of two synchronous sinusoidal signals inherits the same frequency. One can therefore simply consider the signal at t=0, and all calculations are correct. It is common to also express the complex current as $|I|\angle -\varphi$. The current magnitude $|I|$ is given by the Pythagorean theorem. 
+where $|I|$ and $\varphi$ respectively are the magnitude and phase shift of the current. Comparing equation \eqref{eq:eulers_equation} and \eqref{eq:theory:complex_current} shows that the angular frequency $\omega$ is removed, and that the current is simply considered a complex constant. This has do with the fact that the sum of two synchronous sinusoidal signals inherits the same frequency. One can therefore simply consider the signal at t=0, and all calculations are correct. It is common to also express the complex current as $|I|\angle -\varphi$. The current magnitude $|I|$ is given by the Pythagorean theorem. 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:pythagoras_current}
@@ -311,10 +311,10 @@ An electric transmission system generally consist of lines with different voltag
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:per_unit_all}
-U = |U_{b}|U_{pu} \\
-I = |I_{b}|I_{pu} \\
-S = |S_{b}|S_{pu} \\
-Z = |Z_{b}|Z_{pu} \\
+U &= |U_{b}|U_{pu} \\
+I &= |I_{b}|I_{pu} \\
+S &= |S_{b}|S_{pu} \\
+Z &= |Z_{b}|Z_{pu} \\
 \end{aligned} 
 \end{equation}
 
@@ -561,7 +561,7 @@ Reference bus & $|U|$, $\delta$ & \textit{P}, \textit{Q}  & $1$ \\ \hline
 
 
 
-\section{Electric model of a power line}
+\section{Electric model of a power line}\label{section:pi_model}
 A common way to model a transmission line is by using a $\pi$-equivalent circuit, as shown in figure \ref{fig:theory:PI_model}
 
 \begin{figure}[ht!]
