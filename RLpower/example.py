@@ -9,7 +9,8 @@ __email__ = 'vegard.ulriksen.solberg@nmbu.no'
 
 import numpy as np
 import gym
-
+import matplotlib.pyplot as plt
+import pandas as pd
 from keras.models import Sequential, Model
 from keras.layers import Dense, Activation, Flatten, Input, Concatenate
 from keras.optimizers import Adam
@@ -18,14 +19,14 @@ from keras.layers.normalization import BatchNormalization
 from rl.agents import DDPGAgent
 from rl.memory import SequentialMemory
 from rl.random import OrnsteinUhlenbeckProcess
-from gym_power.envs.power_env import PowerEnv
+from gym_power.envs.power_env import PowerEnv, PowerEnvOld
 
 ENV_NAME = 'Pendulum-v0'
 
 
 # Get the environment and extract the number of actions.
 #powergrid = gym.make(ENV_NAME)
-env = PowerEnv()
+env = PowerEnvOld()
 np.random.seed(123)
 env.seed(123)
 
@@ -75,7 +76,17 @@ agent.compile(Adam(lr=.001, clipnorm=1.), metrics=['mae'])
 agent.fit(env, nb_steps=50000, visualize=True, verbose=1, nb_max_episode_steps=200)
 
 # After training is done, we save the final weights.
-agent.save_weights('ddpg_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
+#agent.save_weights('ddpg_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
 
 # Finally, evaluate our algorithm for 5 episodes.
 agent.test(env, nb_episodes=5, visualize=True, nb_max_episode_steps=200)
+
+
+obs = [ob[-2] for ob in memory.observations.data]
+actions = [action[0] for action in memory.actions.data]
+rewards = [r for r in memory.rewards.data]
+
+df = pd.DataFrame()
+df['obs'] = obs
+df['actions'] = actions
+df['rewards'] = rewards

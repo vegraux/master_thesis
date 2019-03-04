@@ -17,7 +17,7 @@ def simple_two_bus():
                    std_type="NA2XS2Y 1x240 RM/25 12/20 kV")
 
     pp.create_ext_grid(net, bus=b2)
-    pp.create_gen(net, bus=b1, p_kw=-5000, vn_kv=20, sn_kva=8000
+    pp.create_gen(net, bus=b1, p_kw=-1000, vn_kv=20, sn_kva=8000
                   , controllable=True)
     pp.runpp(net)
     return net
