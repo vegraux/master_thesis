@@ -11,10 +11,10 @@ import baselines.run as run
 
 import gym_power
 
-MODEL_PATH = '\\PycharmProjects\\highway-env\\scripts\\models\\latest'
+MODEL_PATH = '\\PycharmProjects\\highway-powergrid\\scripts\\models\\latest'
 
 DEFAULT_ARGUMENTS = [
-    "--env=powerenv_goal-v0",
+    "--powergrid=powerenv_goal-v0",
     "--alg=her",
     "--num_timesteps=1e4",
     "--network=default",
