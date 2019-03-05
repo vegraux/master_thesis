@@ -50,7 +50,7 @@ The power $P$ an electric load consumes can be found easily by multiplying the c
 The unit for power is watt \textit{W} or joule per second.
 
 \subsection{Kirchoff's laws}
-Figure shows a circuit with several branches and loads 
+Figure \ref{fig:theory:simple_circuit_branches} shows a circuit with several branches and loads 
 
 \begin{figure}[ht!]
     \centering
@@ -59,7 +59,7 @@ Figure shows a circuit with several branches and loads
     \label{fig:theory:simple_circuit_branches}
 \end{figure}
 
-The current \textit{I} will split when it reaches and intersection, in such a way that the total current flowing into the node equal the total total current flowing out from a node. Referring to figure \ref{fig:theory:simple_circuit_branches} we have that $I = I_1 + I_2$. This conservation of current is called Kirchoff's 1st law or simply kirchhoff current law (KCL). With the introduction of branches in a circuit, there will also be closed loops. In figure \ref{fig:theory:simple_circuit_branches} there are two closed loops $C_{1}$ and $C_{2}$. Kirchoff's 2nd law , aslo known as Kirchoffs's voltage law (KVL), states that the voltage \textit{U} over the components in a closed loop $C$ is equal to zero. 
+The current \textit{I} will split when it reaches and intersection, in such a way that the total current flowing into the node equal the total total current flowing out from a node. Referring to figure \ref{fig:theory:simple_circuit_branches} we have that $I = I_1 + I_2$. This conservation of current is called Kirchoff's 1st law or simply Kirchhoff current law (KCL). With the introduction of branches in a circuit, there will also be closed loops. In figure \ref{fig:theory:simple_circuit_branches} there are two closed loops $C_{1}$ and $C_{2}$. Kirchoff's 2nd law , aslo known as Kirchoffs's voltage law (KVL), states that the voltage \textit{U} over the components in a closed loop $C$ is equal to zero. 
 
 \begin{equation}\label{eq:theory:kirchoffs_2nd_integral}
     \sum_{i}^{N} V_{i} = 0, \;\; V_{i} \in C
@@ -164,7 +164,7 @@ X_{c} = \omega L
 where $\omega$ is the angular frequency of the voltage and $L$ is the inductance of the coil. 
 
 \section{Reactive power}
-For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the instantaneous power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power consumer. 
+For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive, as shown in figure \ref{fig:theory:reactive_powers}. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the instantaneous power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power consumer. Consequently, overhead transmission lines are considered reactive consumers, because they are mainly inductive. 
 
 \begin{figure}[ht!]
     \center
@@ -183,13 +183,13 @@ Current, voltage, impedance and and power are all expressed as complex numbers i
     \caption[size = 9]
     {Circuit with a resistor and a inductance connected i parallel}\label{fig:theory:complex_current_circuit}
 \end{figure}
-The resistor will draw a current $I_{p}$ that is in phase with the source voltage. The inductor will draw a current $I_{q}$ that lags the voltage by 90 degrees. The resultant current drawn from the source will therefore be a linear combination of two phase shifted sinusoidal signals. Euler's formula states that a complex number $A$ can be expressed by
+The resistor will draw a current $I_{p}$ that is in phase with the source voltage. The inductor will draw a current $I_{q}$ that lags the voltage by 90 degrees. The resultant current drawn from the source will therefore be a linear combination of two phase shifted sinusoidal signals. The equations for summing phase-shifted sinusoidal are complicated, and not not easy to work with. Euler's formula states that a complex number $A$ can be expressed by
 
 \begin{equation}\label{eq:eulers_equation}
     A = Re^{j\omega t} = R\cos{(\omega t)} + jR\sin{(\omega t)}
 \end{equation}
 
-where $e$ is the base of the natural logarithm, $j$ is the imaginary unit, $R$ is the magnitude of \textit{A}. The currents $I_{p}$ and $I_{q}$ signal can therefore be expressed as the imaginary part of two complex numbers. Treating the currents as complex numbers makes it easier to sum them because they form a right angled triangle, as shown in figure \ref{fig:theory:phase_current}. One can always convert back to the sinusoidal current by taking the imaginary part of the complex resultant current \textit{I}.
+where $e$ is the base of the natural logarithm, $j$ is the imaginary unit, $R$ is the magnitude of \textit{A}. The currents $I_{p}$ and $I_{q}$ signal can therefore be expressed as the imaginary part of two complex numbers $A_{1}, A_{2}$. Treating the currents as complex numbers makes it easier to sum them because they form a right angled triangle in the complex plane, as shown in figure \ref{fig:theory:phase_current}. One can always convert back to the sinusoidal current by taking the imaginary part of the complex resultant current \textit{I}.
 
 \begin{figure}[ht!]
     \center
@@ -253,7 +253,7 @@ The sum of the resistance and reactances is called the impedance $Z$ of the circ
 Z = R + jX_{L} - jX_{c}
 \end{aligned} 
 \end{equation}
-Using the complex impedance \textit{Z} in Ohm's law describes both the resultant magnitude $|I|$ and phase angle of the current $\varphi$.
+Using the complex impedance \textit{Z} in Ohm's law describes both the resultant magnitude $|I|$ and phase angle of the current $\varphi$ in an AC system.
 
 The active and reactive power flowing in a line are also expressed as a complex number. The apparent power $S$ flowing in a line is defined to be
 \begin{equation}\label{eq:theory_apparent_power}
@@ -333,7 +333,7 @@ S_{pu} = \frac{S}{|S_{b}|}
         = U_{pu}I_{pu}
 \end{aligned} 
 \end{equation}
-In other words, the apparent power takes the form of a one-phase system, although it in reality is a three-phase system. A similar motivation gives the definition of the per-unit impedance base $S_{b}$
+In other words, the apparent power takes the form of a one-phase system, although it in reality is a three-phase system. A similar motivation gives the definition of the per-unit impedance base $Z_{b}$
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:per_unit_impedance}
