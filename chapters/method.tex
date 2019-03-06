@@ -9,6 +9,7 @@
 \addbibresource{reference.bib}
 \usepackage{csquotes}
 \usepackage{pgfplotstable}
+\usepackage{float}
 \usepackage{booktabs}
 \usepackage{pdflscape}
 \usepackage{afterpage}
@@ -24,20 +25,8 @@ Pandapower is a time independent simulation tool, which means that it finds stea
 
 This section will describe the different electrical elements available in pandapower and how they are physically modelled.
 \subsection{Lines}
-Table \ref{tab:standard_lines_pandapower} shows the available standard line that can be chosen with corresponding parameter values. Custom parameters can also be specified using the method \texttt{pandapower.create\_line\_from\_parameters}
-\begin{table}[]
-    \centering
-    \pgfplotstabletypeset[
-col sep = comma,
-string type,
-every head row/.style={before row=\toprule,after row=\midrule},
-every last row/.style={after row=\bottomrule},
-display columns/0/.style={string type,column name={}}
-]
-{data/linetypes.csv}
-    \caption{Standard lines available in pandapowers with values for resistance \textit{r}, inductance \textit{x}, capacitance \textit{c}, max current \textit{I} and cross sectional area \textit{Q} and line type. “ol” is overhead line and “cs” is underground cable system}
-    \label{tab:standard_lines_pandapower}
-\end{table}
+Custom parameters can also be specified using the method \texttt{pandapower.create\_line\_from\_parameters}
+
 The line are modelled using the $\pi$-equivalent model, mentioned in section \ref{section:pi_model}.
 
 \subsection{Generators}
@@ -51,11 +40,12 @@ Pandapower offers both two-winding and three-winding transformers that can be cr
 \texttt{pandapower.create\_transformer\_from\_parameters}. The transformers can be modelled as a $\pi$-transformer or a $t$-transformer. The transformers can have settings for tap-position and phase-shifting of the voltage, which are a possible control variables for a reinforcement agent.  
 
 \subsection{Storage}
+It is possible to connect a storage element to a power grid using the \texttt{pandapower.create\_storage} method. The storage element is modelled as a PQ-node. Because simulations in pandapower is time-independent and only find steady state solution, it does not update the capacity of a storage during power flow calculations. Available energy in the storage element must therefore be updated manually according to some predefined timescale when several power flow calculations are performed.  
 
 
 \section{Data structures in pandapower}
 
-Pandapower stores information about components in a net in pandas dataframes, which make it easy to inspect the output of a power flow calculation. Figure \ref{fig:method:loading_example_net} shows a case net and the components included in it. 
+Pandapower stores information about elements in an electric transmission system in pandas DataFrames, which make it easy to inspect the output of a power flow calculation. Figure \ref{fig:method:loading_example_net} shows a case net and the components included in it. 
 
 \begin{figure}[H]
     \center
@@ -66,17 +56,19 @@ Pandapower stores information about components in a net in pandas dataframes, wh
 Each of the elements listed have a corresponding pandas DataFrame. The elements without "res" at the beginning are parameter tables and have information about nominal and max/min values for the components. Figure \ref{fig:method:line_bus_dataframe} shows the parameter table for the line and bus.
 
 \begin{figure}[H]
-    \includegraphics[height=7cm, width=14cm]{figures/case4g_line_bus.PNG}
+    \includegraphics[height=7cm, width=13.5cm]{figures/case4g_line_bus.PNG}
     \caption[size = 9]{Parameter table in pandapower. There are more columns in net.line}
     \label{fig:method:line_bus_dataframe}
 \end{figure}
-All of the components will have a result table after the power flow calculation is performed, using the method \texttt{pandapower.runpp}. Figure \ref{fig:method:res_line_bus_dataframe} shows the result table for the bus and load.
+All of the components will have a result table after the power flow calculation is performed, using the method \texttt{pandapower.runpp}. Figure \ref{fig:method:res_line_bus_dataframe} shows the result table for the bus and line.
 
 \begin{figure}[H]
     \includegraphics[height=8cm, width=14cm]{figures/case4g_line_bus_res.PNG}
-    \caption[size = 9]{Result table in pandapower. There are more columns in net.res_line}
+    \caption[size = 9]{Result table in pandapower. There are more columns in net.res\_line}
     \label{fig:method:res_line_bus_dataframe}
 \end{figure}
+
+
 
 
 

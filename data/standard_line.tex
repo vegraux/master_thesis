@@ -1,0 +1,33 @@
+\documentclass[class=book, crop=false]{standalone}
+\usepackage[subpreambles=true]{standalone}
+\usepackage{import}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[sorting = none,
+            doi = true  %lesedato for url-adresse
+            ]{biblatex} %none gir bibliografi i sitert rekkefølge
+\addbibresource{reference.bib}
+\usepackage{csquotes}
+\usepackage{pgfplotstable}
+\usepackage{booktabs}
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage{capt-of}% or use the larger `caption` package
+\pgfplotsset{compat=1.15}
+
+
+\begin{document}
+\begin{table}[]
+    \centering
+    \pgfplotstabletypeset[
+col sep = comma,
+string type,
+every head row/.style={before row=\toprule,after row=\midrule},
+every last row/.style={after row=\bottomrule},
+display columns/0/.style={string type,column name={}}
+]
+{data/linetypes.csv}
+    \caption{Standard lines available in pandapowers with values for resistance \textit{r}, inductance \textit{x}, capacitance \textit{c}, max current \textit{I} and cross sectional area \textit{Q} and line type. “ol” is overhead line and “cs” is underground cable system}
+    \label{tab:standard_lines_pandapower}
+\end{table}
+\end{document}
