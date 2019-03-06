@@ -10,13 +10,18 @@
 \usepackage{csquotes}
 \usepackage{pgfplotstable}
 \usepackage{booktabs}
+\usepackage{pdflscape}
+\usepackage{afterpage}
+\usepackage{capt-of}% or use the larger `caption` package
 \pgfplotsset{compat=1.15}
 
 \begin{document}
 \section{Programming software}
 Python is the programming language used for this solving this task. Python is an open-source software that has several packages for machine learning and power flow calculations \cite{python_web}. In this thesis, \textit{pandapower} is the python package used for defining an electric power system and preforming power flow calculations\cite{pandapower}. \textit{Keras} is the Python package used for training a reinforcement agent \cite{keras_chollet2015}.
 
-\section{Pandapower elements}
+\section{Pandapower}
+Pandapower is a time independent simulation tool, which means that it finds steady state solutions to a power flow problem. Consequently, the transitions from one state to another is not covered in this thesis.
+
 This section will describe the different electrical elements available in pandapower and how they are physically modelled.
 \subsection{Lines}
 Table \ref{tab:standard_lines_pandapower} shows the available standard line that can be chosen with corresponding parameter values. Custom parameters can also be specified using the method \texttt{pandapower.create\_line\_from\_parameters}
@@ -39,9 +44,42 @@ The line are modelled using the $\pi$-equivalent model, mentioned in section \re
 Pandapower has two generator types. The first type is simply called generator and is modelled as a PV-bus. In other words, the active power production $P$ and voltage magnitude $|U|$ is are known when solving the power flow equations. Generators can be created using the method \texttt{pandapower.create\_gen}, where nominal values for apparent power and voltage can be specified. The second type is the static generator, where the active power $P$ and reactive power $Q$ is specified (PQ-bus). Static generators are created using \texttt{pandapower.create\_sgen}. Pandapower models power from the consumer perspective, so negative values for active power $P$ corresponds to generation of power.
 
 \subsection{Loads}
-The load in pandapower is modelled as a PQ-bus, where active and reactive power are known. Loads are created using the method \texttt{pandapower.create\_load}. The loads can also be modelled with constant impedance $Z$, current $I$ and $P$. In other words, replacing reactive power with current and impedance. 
+The load in pandapower is modelled as a PQ-bus, where active and reactive power are known. Loads are created using the method \texttt{pandapower.create\_load}. The loads can also be modelled with constant impedance $Z$, current $I$ and $P$. In other words, replacing reactive power with current and impedance.
 
 \subsection{Transformers}
+Pandapower offers both two-winding and three-winding transformers that can be created from standard types using the \texttt{pandapower.create\_transformer} method, or from parameters using the method
+\texttt{pandapower.create\_transformer\_from\_parameters}. The transformers can be modelled as a $\pi$-transformer or a $t$-transformer. The transformers can have settings for tap-position and phase-shifting of the voltage, which are a possible control variables for a reinforcement agent.  
+
+\subsection{Storage}
+
+
+\section{Data structures in pandapower}
+
+Pandapower stores information about components in a net in pandas dataframes, which make it easy to inspect the output of a power flow calculation. Figure \ref{fig:method:loading_example_net} shows a case net and the components included in it. 
+
+\begin{figure}[H]
+    \center
+    \includegraphics[height=6cm, width=12cm]{figures/case4g_show_net.PNG}
+    \caption[size = 9]{Loading an example net in pandapower}
+    \label{fig:method:loading_example_net}
+\end{figure}
+Each of the elements listed have a corresponding pandas DataFrame. The elements without "res" at the beginning are parameter tables and have information about nominal and max/min values for the components. Figure \ref{fig:method:line_bus_dataframe} shows the parameter table for the line and bus.
+
+\begin{figure}[H]
+    \includegraphics[height=7cm, width=14cm]{figures/case4g_line_bus.PNG}
+    \caption[size = 9]{Parameter table in pandapower. There are more columns in net.line}
+    \label{fig:method:line_bus_dataframe}
+\end{figure}
+All of the components will have a result table after the power flow calculation is performed, using the method \texttt{pandapower.runpp}. Figure \ref{fig:method:res_line_bus_dataframe} shows the result table for the bus and load.
+
+\begin{figure}[H]
+    \includegraphics[height=8cm, width=14cm]{figures/case4g_line_bus_res.PNG}
+    \caption[size = 9]{Result table in pandapower. There are more columns in net.res_line}
+    \label{fig:method:res_line_bus_dataframe}
+\end{figure}
+
+
+
 
 
 

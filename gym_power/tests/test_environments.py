@@ -25,5 +25,5 @@ class TestPowerEnv:
         env.close()
 
         assert env.observation_space.contains(obs)
-        assert reward < 1
+        assert reward < 0
 
