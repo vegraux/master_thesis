@@ -571,10 +571,18 @@ A common way to model a transmission line is by using a $\pi$-equivalent circuit
     \label{fig:theory:PI_model}
 \end{figure}
 
-
-
 The transmission line is modelled by a resistance and inductance in series. In addition, there are two shunt capacitors connected in parallel at each end of the line. The capacitors are there because the flow of charges will give an associated capacitance that is proportional with the line length. The $\pi$-model splits the admittance $Y$ of the capacitor into two and puts one part on each end of the line. It is this model pandapower uses to solve a given transmission system. 
 
+\section{Frequency stability}
+The generators in coal, gas, nuclear and hydro power plants in a steady state power system all spin at synchronous speed. In other words, if a synchronous generator is accelerated by 1\%, then all the other synchronous generators do the same. The angular velocities are directly proportional to each other, and the frequency of the voltage in the system is given by this speed. Figure \ref{fig:theory:entso-synchronous-area} shows the different synchronous area in Europa. Norway is synchronously linked to Sweden and Finland, and has high voltage direct current (HVDC) power cables connection to central-Europe. There are regulations for frequency stability in an electric power system.
 
+\begin{figure}[H]
+    \center
+    \includegraphics[height=13cm, width=14cm]{figures/ENTSO-E-member-states.png}
+    \caption[size = 9]{Synchronous areas in Europa\cite{synchronous_regions}.}
+    \label{fig:theory:entso-synchronous-area}
+\end{figure}
+
+The power producing units in a conventionally electric power system have typically consisted of spinning masses. The generators and turbines have a large masses and together give the power system an associated moment of inertia \textit{J}. The system inertia naturally gives frequency stability to the system. However, renewable energy sources do not have any natural inertia that helps the stability in frequency. Wind power have rotating masses, but they generally use asynchronous generators that do not follow the frequency of the grid SOURCE. Harnessing solar power by using photo voltaic (PV) modules does not involve physical inertia, and does therefore not contribute to frequency stability. A possible solution to this problem is to use virtual inertia on renewable power that mimics the reaction of a synchronous generator\cite{virtual_inertia}. From the transmission system operator's perspective, renewable energy sources can look as if they are synchronous generators.
 
 \end{document}

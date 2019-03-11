@@ -38,7 +38,7 @@ It is possible to connect a storage element to a power grid using the \texttt{pa
 
 \section{Data structures in pandapower}
 
-Pandapower stores information about elements in an electric transmission system in pandas DataFrames, which make it easy to inspect the numeric output of a power flow calculation. Figure \ref{fig:method:loading_example_net} shows a case net and the components included in it. 
+Pandapower stores information about elements in an electric transmission system in pandas DataFrames, which make it easy to inspect the numeric output of a power flow calculation. Figure \ref{fig:method:loading_example_net} shows a 4 bus case net and the components included in it. 
 
 \begin{figure}[H]
     \center
@@ -62,7 +62,7 @@ All of the components will have a result table after the power flow calculation 
 \end{figure}
 
 \section{Plotting results}
-It is important to be able to inspect the resulting state after a reinforcement agent performs an action on the system. This can be complicated for large network with many buses and lines that each have a voltage magnitude, voltage angle and so on. Luckily, pandapower has support for plotting both grid architecture and results from the power flow. It is possible to get static plots using matplotlib and interactive plots using plotly\cite{plotly}. Figure \ref{fig:method:oberrhein_grid_results_plotly} shows the interactive results from a power flow calculation performed on the Icelandic power grid using plotly. The lines are coloured based on the line loading (100\% means maximum current), while the buses are coloured based on the voltage magnitude. Such plots help to get a overview of the grid and quickly identify critical areas of the transmission system. Since the plot is interactive, it is easy to zoom and it is possible to click on a line or bus to see the relevant values. 
+It is important to be able to inspect the resulting state after a reinforcement agent performs an action on the system. This can be complicated for large network with many buses and lines that each have a voltage magnitude, voltage angle and so on. Luckily, pandapower has support for plotting both grid architecture and results from the power flow. It is possible to get static plots using matplotlib and interactive plots using plotly\cite{plotly}. Figure \ref{fig:method:oberrhein_grid_results_plotly} shows the interactive results from a power flow calculation performed on the Oberrhein power grid using plotly. The lines are coloured based on the line loading (100\% means maximum current), while the buses are coloured based on the voltage magnitude. Such plots help to get a overview of the grid and quickly identify critical areas in the transmission system. Since the plot is interactive, it is easy to zoom and it is possible to click on a line or bus to see the relevant values. 
 
 
 \begin{figure}[H]
@@ -74,20 +74,26 @@ It is important to be able to inspect the resulting state after a reinforcement 
 
 
 \section{Controlling a pandapower net}
-Reinforcement learning is all about taking actions and getting rewards based on how good that action was. It must therefore be possible to control certain elements in a pandapower net. This section will show how it is possible to apply certain actions in pandapowers. \texttt{net.gen} gives a DataFrame where all the generators in the system is given a row. Because a bus connected to a generator is modelled as a PV-bus, it is possible to control the voltage and power by overwriting the parameters in \texttt{net.gen}. Figure \ref{fig:method:case4g_controll_vm_p_kw} shows how to set the active power production to 100000 kW and voltage magnitude to 0.99. The last row in the \texttt{net.res\_bus} is the bus where the generator is connected, and we see that the voltage magnitude is the same as the generator voltage magnitude. The power production if different from 100000 kW because there is a 80000 kW load connected to the same bus, and the table shows the sum of production and consumption at each bus. 
+Reinforcement learning is all about taking actions and getting rewards based on how good that action was. It must therefore be possible to control certain elements in a pandapower net. This section will show how to perform certain actions in pandapowers. \texttt{net.gen} gives a DataFrame where all the generators in the system is represented as a row. Because a generator is modelled as a PV-bus, it is possible to control the voltage and power by overwriting the parameters in \texttt{net.gen}. Figure \ref{fig:method:case4g_controll_vm_p_kw} shows how to set the active power production to 100000 kW and voltage magnitude to 0.99. The last row in the \texttt{net.res\_bus} is the bus where the generator is connected, and we see that the voltage magnitude is the same as the generator voltage magnitude. The power production if different from 100000 kW because there is a 80000 kW load connected to the same bus, and the table shows the sum of production and consumption at each bus. 
 
 
 
 \begin{figure}[H]
     \center
     \includegraphics[height=12cm, width=12cm]{figures/case4g_controll_vm_p_kw.PNG}
-    \caption[size = 9]{How to control the active power and voltage magnitude at a generator. Note that negative values for active power ('p_kw') means production}
+    \caption[size = 9]{How to control the active power and voltage magnitude at a generator. Note that negative values for active power ('p\_kw') means production}
     \label{fig:method:case4g_controll_vm_p_kw}
 \end{figure}
 
+Transformers in a transmission system can have controllable taps that change the winding ratio between the low and high voltage side of the transformer. By doing this it is possible to control the voltage magnitude at buses connected to a transformer. There also exists phase-shifting transformers that can manipulate the the voltage angle between the low and high voltage side. Transformers in pandapower allow control of both voltage magnitude $|U|$ and voltage angle $\delta$. The code in figure \ref{fig:method:control_transformer} demonstrates how to control a transformer in pandapower. First, a two bus system with a transformer is created. It is a standard type transformer 25 MVA, 110/20 kV and the external grid is connected to the high voltage side of the transformer. The taps are placed on the low voltage side of the transformer with the command \texttt{net.trafo['tp\_side'] = 'lv'}. Performing a power flow calculation gives the result tables without changing the tap position in the transformer. The voltage angle is manipulated to 20 degrees by specifying \texttt{net.trafo['shift\_degree']}. The voltage magnitude is changed by first specifying \texttt{net.trafo['tp\_st\_percent']} which is the percentage change in voltage magnitude per tap position. This is set to 10 \% and the tap position is set using \texttt{net.trafo['tp\_pos']} to -1. By running another power flow calculation and inspecting the table \texttt{net.res\_bus}, it is evident that the voltage angle is shifted 20 degrees and that the voltage magnitude is reduced by 10 \% with respect to the first power flow calculation. 
 
 
-
+\begin{figure}[H]
+    \center
+    \includegraphics[height=12cm, width=12cm]{figures/control_transformer.PNG}
+    \caption[size = 9]{Code of of to control the tap position and phase angle for a transformer in pandapower}
+    \label{fig:method:control_transformer}
+\end{figure}
 
 
 
