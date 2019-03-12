@@ -31,7 +31,7 @@ class PowerEnv(gym.Env):
         self.powergrid = copy.deepcopy(self.base_powergrid)
         self.observation_size = 4 * len(
             self.powergrid.bus)  # P,Q,U, delta at each bus
-        self.max_power = 2000
+        self.max_power = 20
         high = np.array([1000000 for _ in range(self.observation_size)])
 
         self.observation_space = spaces.Box(low=-high, high=high,
@@ -45,7 +45,8 @@ class PowerEnv(gym.Env):
         self.current_step = 0
 
     def step(self, action):
-        scaled_action = 0.5*(action + 1)*self.max_power
+        #scaled_action = 0.5*(action + 1)*self.max_power
+        scaled_action = action*self.max_power
         episode_over = self._take_action(scaled_action)
         self.current_step += 1
         if self.current_step > self.episode_length:
@@ -66,7 +67,8 @@ class PowerEnv(gym.Env):
     def _take_action(self, action):
         """ Converts the action space into an pandapowe action. """
         at = pd.DataFrame(data=[action], columns=['p_kw'])
-        self.powergrid.gen[at.columns] = at
+        #self.powergrid.gen[at.columns] = at
+        self.powergrid.gen[at.columns] += at
         try:
             pp.runpp(self.powergrid)
             return False
