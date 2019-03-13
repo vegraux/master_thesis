@@ -4,12 +4,16 @@
 environment for active network management for controlling flexible load
 and/or generation control
 """
+import os
+import dotenv
+dotenv.load_dotenv()
 import gym
+import matplotlib.pyplot as plt
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
 from gym_power.sample_net import simple_two_bus
-from pandapower.networks import mv_oberrhein
+from pandapower.networks import create_cigre_network_mv
 import copy
 import pandapower as pp
 from pandapower import ppException
@@ -20,18 +24,22 @@ import enlopy as el
 
 __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'
+DATA_PATH = os.getenv('DATA_PATH')
 
 class ActiveEnv(gym.Env):
 
     def __init__(self,episode_length=200):
-        obs = self.reset()
+        #obs = self.reset()
+        self.np_random = None
         self.seed()
-        self.base_powergrid = mv_oberrhein()
+        self.base_powergrid = create_cigre_network_mv(with_der="pv_wind")
         self.voltage_threshold = 0.05
         self.power_threshold = 0.05
         self.nominal_cos_phi = 0.8
         self.cos_phi_threshold = 0.1
         self.powergrid = copy.deepcopy(self.base_powergrid)
+        pp.runpp(self.powergrid)
+
         self.observation_size = 4 * len(
             self.powergrid.bus)  # P,Q,U, delta at each bus
         self.max_power = 20
@@ -44,10 +52,15 @@ class ActiveEnv(gym.Env):
                                        shape=(1,), dtype=np.float32)
 
         self.episode_length = episode_length
+        self.episode_start_hour = self.select_start_hour()
         self.current_step = 0
-        self.load_forcasts = self.get_initial_load_forecast()
         self.load_dict = self.get_load_dict()
-        self.flexible_load_indices = np.random.choice(len(self.load_forcasts),10)
+        self.solar_data = self.load_solar_data()
+        self.solar_forecasts = self.get_episode_solar_forecast()
+        self.demand_forcasts = self.get_episode_load_forecast()
+        #self.flexible_load_indices = np.random.choice(len(self.demand_forcasts), 10)
+
+
 
     def get_load_dict(self):
         """
@@ -56,26 +69,32 @@ class ActiveEnv(gym.Env):
         return {col: index for (index, col) in enumerate(self.powergrid.load)}
 
 
-    def get_forecast(self):
+    def get_demand_forecast(self):
         """
         Finds the forecasted hourly demand for the next 24 hours
-        :return: dictionary with
+        :return: List with 24 demand for all buses
         """
         forecasts = []
         t = self.current_step
-        for load in self.load_forcasts:
+        for load in self.demand_forcasts:
             day_forecast = load[t:t+24]
             forecasts.append(day_forecast)
 
         return forecasts
-
-
-    def get_initial_load_forecast(self):
+    def get_solar_forecast(self):
         """
-        gets the forecasts for all loads
+        Returns solar forecast for the next 24 hours.
         :return:
         """
-        nr_days = (self.episode_length // 24) + 2
+        t = self.current_step
+        return self.solar_forecasts[t:t+24]
+
+    def get_episode_load_forecast(self):
+        """
+        gets the forecasts for all loads in the episode
+        :return:
+        """
+        nr_days = (self.episode_length // 24) + 3 #margin
         initial_forecasts = []
         for k in range(len(self.powergrid.load)):
             load_forcast = []
@@ -84,7 +103,7 @@ class ActiveEnv(gym.Env):
                 load_forcast += day
 
             load_forcast = np.array(load_forcast)
-            initial_forecasts.append(load_forcast)
+            initial_forecasts.append(load_forcast[self.episode_start_hour:])
 
         return initial_forecasts
 
@@ -94,14 +113,29 @@ class ActiveEnv(gym.Env):
         :return:
         """
         loads = []
-        for load in self.load_forcasts:
+        for load in self.demand_forcasts:
             loads.append(load[0])
 
         self.powergrid.load['p_kw'] = loads
 
+    def select_start_hour(self):
+        """
+        Selects start hour for the episode
+        :return:
+        """
+        return self.np_random.choice(24)
+
+
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+
     def reset(self):
         self.powergrid = copy.deepcopy(self.base_powergrid)
         self._create_initial_state()
+        self.episode_start_hour = self.select_start_hour()
+        self.solar_forecasts = self.get_episode_solar_forecast()
+        self.demand_forcasts = self.get_episode_load_forecast()
 
         return self._get_obs()
 
@@ -113,16 +147,39 @@ class ActiveEnv(gym.Env):
         return self.powergrid.res_bus.values.flatten()
 
 
+    def get_episode_solar_forecast(self):
+        """
+        Method that returns the solar_forcast for the entire episode
+        """
+        start_day = self.np_random.choice(350) #first 350 days
+        start = self.episode_start_hour + start_day*24
+        nr_hours = self.episode_length + 25 #margin of 1
+        return self.solar_data[start:start+nr_hours].values
+
+
+    def load_solar_data(self):
+        solar_path = os.path.join(DATA_PATH,'solar_irradiance_2015.hdf')
+        return pd.read_hdf(solar_path,key='sun')
+
+
 
     def _get_obs(self):
         """
-        samples an initial state for the power system
+        samples an state for the power system
         :return:
         """
-        forecasts = self.get_forecast()
+        demand_forecasts = self.get_demand_forecast()
+        solar_forecasts = self.get_solar_forecast()
         bus_state = self.get_bus_state()
 
-        pass
+        state = []
+        for demand in demand_forecasts:
+            state += list(demand)
+
+        state += list(solar_forecasts)
+        state += list(bus_state)
+
+        return np.array(state)
 
     def take_action(self, action):
         """
@@ -170,11 +227,7 @@ class ActiveEnv(gym.Env):
 
 
 if __name__ == '__main__':
-
     env = ActiveEnv()
-    print('her ska det stopeps')
-    env.get_forecast()
-
-
-
-
+    demand = env.get_demand_forecast()
+    state = env._get_obs()
+    print('para aquí')
