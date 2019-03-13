@@ -138,7 +138,7 @@ The circuit shown in figure \ref{fig:theory:circuit_inductor} is another example
     {Circuit with a electromagnetic coil as load}\label{fig:theory:circuit_inductor}
 \end{figure}
 
-The load is an electromagnetic coil, also called an inductor, and appears in a wide range of electric components. For instance an electric transmission line is mainly modelled as an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the circuit and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
+The load is an electromagnetic coil, also called an inductor, and appears in a wide range of electric components. For instance an electric transmission line is mainly modelled as an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the coil and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:inductance_diffeq}
@@ -584,5 +584,10 @@ The generators in coal, gas, nuclear and hydro power plants in a steady state po
 \end{figure}
 
 The power producing units in a conventionally electric power system have typically consisted of spinning masses. The generators and turbines have a large masses and together give the power system an associated moment of inertia \textit{J}. The system inertia naturally gives frequency stability to the system. However, renewable energy sources do not have any natural inertia that helps the stability in frequency. Wind power have rotating masses, but they generally use asynchronous generators that do not follow the frequency of the grid SOURCE. Harnessing solar power by using photo voltaic (PV) modules does not involve physical inertia, and does therefore not contribute to frequency stability. A possible solution to this problem is to use virtual inertia on renewable power that mimics the reaction of a synchronous generator\cite{virtual_inertia}. From the transmission system operator's perspective, renewable energy sources can look as if they are synchronous generators.
+
+
+\section{Active network management}
+Active network management (ANM) is a control strategy too avoid that components in a network exceeds its safety margins in stressed situations\cite{active_network_management}. This is specially relevant with the rising installation of solar panels in private households and large wind wind farms. A transmission system is constructed to produce power at centralised power plants, and the goal of the transmission system operator is to transport this power through the network and to the consumers. However, the role of the consumer has changed with the rising use of solar panels in private households. In sunny days, households with solar panels will become producers of energy, and send a large amount of power to the grid. The transmission grid is evolving from a centralised to a distributed energy system, with many smaller production units. This is called distributed energy resources (DER) and offers new challenges in terms of overloads and congestion in the grid. 
+
 
 \end{document}
