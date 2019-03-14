@@ -21,7 +21,7 @@ class TestForecasts():
         checks that there are forecasts for every load, and that there always
         exist forecasts 24 hours in the future for all time steps.
         """
-        episode_load_forecasts = ENV.get_episode_load_forecast()
+        episode_load_forecasts = ENV.get_episode_demand_forecast()
         assert len(episode_load_forecasts) == len(ENV.powergrid.load)
         for load in episode_load_forecasts:
             assert load.shape[0] - ENV.episode_length > 24
@@ -73,7 +73,7 @@ class TestState:
         """
         Checks that state dimensions are good. It will probably fail when I
         change state representation, so I guess it will be deleted at some point
-        """
+
         state = ENV._get_obs()
         state_size = len(state)
         bus_state_size = len(ENV.powergrid.bus) * 4
@@ -82,4 +82,38 @@ class TestState:
         solar_forecast_state_size =  len(ENV.get_solar_forecast())
         sum_size = bus_state_size + solar_forecast_state_size + demand_forecast_state_size
         assert state_size == sum_size
+
+        """
+        pass
+
+class TestComitments:
+
+    def test_action_override(self):
+        """
+        checks that actions of commited loads are overwritten and that commitments
+        are updated correctly
+        :return:
+        """
+        env = ActiveEnv()
+        env._commitments[0] = 1
+        env.last_action[0] = 2
+        action = np.ones_like(env.last_action)
+        action[-1] = 0
+        action = env._check_commitment(action)
+        assert action[0] == -2
+        assert all(env._commitments[1:-1])
+        assert not any(env._commitments[[0,-1]])
+
+
+class TestActions:
+
+    def test_action(self):
+        """
+        Checks that action is taken and updates the network
+        :return:
+        """
+        env = ActiveEnv()
+        action = np.ones_like(env.last_action)
+        env._take_action(action)
+        assert all(env.powergrid.load['p_kw'].values == action)
 

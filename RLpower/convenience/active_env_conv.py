@@ -14,13 +14,14 @@ def plot_forecasts():
     Plots solar and load forecast.
     :return:
     """
+    hours = 100
     env = ActiveEnv()
-    load = env.get_episode_load_forecast()[0]
+    load = env.get_episode_demand_forecast()[0]
     sol = env.get_episode_solar_forecast()
     fig, ax = plt.subplots()
 
-    plt.plot(sol[:100],axes=ax)
-    plt.plot(5*load[:100],axes=ax)
+    plt.plot(2000*sol[:hours],axes=ax)
+    plt.plot(load[:hours],axes=ax)
     plt.show()
 
 if __name__ == '__main__':
