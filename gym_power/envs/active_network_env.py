@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
-from gym_power.sample_net import simple_two_bus
+from gym_power.sample_net import simple_two_bus, cigre_network
 from pandapower.networks import create_cigre_network_mv
 import copy
 import pandapower as pp
@@ -37,12 +37,12 @@ class ActiveEnv(gym.Env):
         self.episode_length = episode_length
 
         #power grid
-        self.base_powergrid = create_cigre_network_mv(with_der="pv_wind")
+        self.base_powergrid = cigre_network()
+        pp.runpp(self.base_powergrid)
         self.powergrid = copy.deepcopy(self.base_powergrid)
-        pp.runpp(self.powergrid)
         self.flexible_load_indices = np.arange(len(self.powergrid.load))
-        self.max_power = 20
         self.last_action = np.zeros_like(self.flexible_load_indices)
+        self.pq_ratio = self.calc_pq_ratio()
 
         #state variables, forecast + commitment
         self.solar_data = self.load_solar_data()
@@ -52,15 +52,11 @@ class ActiveEnv(gym.Env):
         self._commitments = np.zeros(len(self.powergrid.load)) != 0
 
 
-
-        self.observation_size = self._get_obs().shape[0]
-        high = np.array([np.inf for _ in range(self.observation_size)])
-
-        self.observation_space = spaces.Box(low=-high, high=high,
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
+                                            shape=self._get_obs().shape,
                                             dtype=np.float32)
-
-        self.action_space = spaces.Box(low=-1, high=1,
-                                       shape=(1,), dtype=np.float32)
+        self.action_space = spaces.Box(-1., 1., shape=self.last_action.shape,
+                                       dtype=np.float32)
 
 
         self.load_dict = self.get_load_dict()
@@ -75,6 +71,14 @@ class ActiveEnv(gym.Env):
         """
         return {col: index for (index, col) in enumerate(self.powergrid.load)}
 
+    def calc_pq_ratio(self):
+        """
+        Power factor for loads are constant. This method finds the PQ-ratio
+        for all loads (same as for default cigre network)
+        """
+        net = create_cigre_network_mv(with_der="pv_wind")
+        pq_ratio = net.load['q_kvar'] / net.load['p_kw']
+        return pq_ratio
 
     def get_demand_forecast(self):
         """
@@ -88,6 +92,10 @@ class ActiveEnv(gym.Env):
             forecasts.append(day_forecast)
 
         return forecasts
+
+
+
+
     def get_solar_forecast(self):
         """
         Returns solar forecast for the next 24 hours.
@@ -96,7 +104,7 @@ class ActiveEnv(gym.Env):
         t = self.current_step
         return self.solar_forecasts[t:t+24]
 
-    def get_episode_demand_forecast(self,scale_demand=30000):
+    def get_episode_demand_forecast(self,scale_demand=10):
         """
         gets the forecasts for all loads in the episode
         :return:
@@ -138,7 +146,7 @@ class ActiveEnv(gym.Env):
         return [seed]
 
     def reset(self):
-        assert self.current_step == 0
+        self.current_step = 0
 
         self.powergrid = copy.deepcopy(self.base_powergrid)
         self._create_initial_state()
@@ -177,8 +185,12 @@ class ActiveEnv(gym.Env):
 
 
     def load_solar_data(self):
-        solar_path = os.path.join(DATA_PATH,'solar_irradiance_2015.hdf')
-        return pd.read_hdf(solar_path,key='sun')
+        solar_path = os.path.join(DATA_PATH,'solar_irradiance_2015.csv')
+        solar = pd.read_csv(solar_path)
+        solar.index = pd.to_datetime(solar.iloc[:, 0])
+        solar.index.name = 'time'
+        solar = solar.iloc[:, [1]]
+        return solar
 
     def _check_commitment(self, action):
         """
@@ -192,6 +204,7 @@ class ActiveEnv(gym.Env):
         new_commitments = (action != 0)
         new_commitments[self._commitments] = False
         self._commitments = new_commitments
+        self.last_action = action
         return action
 
 
@@ -216,15 +229,16 @@ class ActiveEnv(gym.Env):
 
         return np.array(state)
 
-    def _take_action(self, action):
+    def _take_action(self, action, flexibility=0.1):
         """
-        take the action vector and modifies the flexible loads
+        Takes the action vector, Scales it and modifies the flexible loads
         :return:
         """
+        action *= flexibility*self.powergrid.load['p_kw']
         action = self._check_commitment(action)
         load_index = self.load_dict['p_kw']
 
-        self.powergrid.load.iloc[self.flexible_load_indices, load_index] = action
+        self.powergrid.load.iloc[self.flexible_load_indices, load_index] += action
         try:
             pp.runpp(self.powergrid)
             return False
@@ -232,18 +246,41 @@ class ActiveEnv(gym.Env):
         except ppException:
             return True
 
+    def set_demand_and_solar(self):
+        """
+        Updates the demand and solar production according to the forecasts
+        """
+        solar_pu = self.get_solar_forecast()[0]
+        demand_pu = self.get_demand_forecast()[0][0]
+        self.powergrid.sgen['p_kw'] = - solar_pu * self.powergrid.sgen['sn_kva']
+        self.powergrid.load['p_kw'] = demand_pu * self.powergrid.load['sn_kva']
+        self.powergrid.load['q_kvar'] = self.powergrid.load['p_kw'] * self.pq_ratio
 
-    def _get_reward(self):
-        pass
+
+
+    def _get_reward(self,v_min=0.95,v_max=1.05, i_max_loading= 90):
+        v = self.powergrid.res_bus['vm_pu']
+        v_lower = sum(v_min - v[v < v_min])
+        v_over =  sum(v[v > v_max] - v_max)
+
+        i = self.powergrid.res_line['loading_percent']
+        i_over = sum(i[i > i_max_loading] - i_max_loading)
+
+        i_loss = sum(self.powergrid.res_line['pl_kw'])
+
+        state_loss = v_lower + v_over + i_over + i_loss
+        return -state_loss
+
+
 
 
 
 
     def step(self, action):
+        self.set_demand_and_solar()
         episode_over = self._take_action(action)
         self.current_step += 1
         if self.current_step > self.episode_length:
-            self.current_step = 0
             ob = self.reset()
 
         if not episode_over:
@@ -269,8 +306,22 @@ class ActiveEnv(gym.Env):
 
 if __name__ == '__main__':
     env = ActiveEnv()
-    demand = env.get_demand_forecast()
-    solar = env.get_solar_forecast()
-    action = np.ones_like(env.last_action)
-    ob, reward, episode_over, info = env.step(action)
+    env.set_demand_and_solar()
+    flex = 0.1
+    demand = copy.copy(env.powergrid.load['p_kw'].values)
+    action1 = np.ones_like(env.last_action)
+    action1 = env.action_space.sample()
+    scaled_action1 = flex*action1*env.powergrid.load['p_kw']
+
+    env._take_action(action1, flexibility=flex)
+
+    assert np.linalg.norm(env.powergrid.load['p_kw'].values - (demand + scaled_action1)) < 10e-4
+    action2 = env.action_space.sample()
+    env._take_action(action2)
+
+    # action2 should by modified to cancel effect of action1
+    assert np.linalg.norm(env.last_action + scaled_action1) < 10e-4
+    assert np.linalg.norm(env.powergrid.load['p_kw'].values - demand) < 10e-4
+
+
     print('para aquí')

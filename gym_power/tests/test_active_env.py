@@ -3,8 +3,11 @@
 """
 
 """
+import copy
+
 import pytest
 import numpy as np
+from numpy.linalg import norm
 from gym_power.envs.active_network_env import ActiveEnv
 
 __author__ = 'Vegard Solberg'
@@ -64,7 +67,7 @@ class TestForecasts():
             demand_forecast.append(load[0])
         demand_forecast = np.array(demand_forecast)
 
-        assert np.linalg.norm(demand_forecast - loads) < 10e-6
+        assert norm(demand_forecast - loads) < 10e-6
 
 
 class TestState:
@@ -95,7 +98,7 @@ class TestComitments:
         :return:
         """
         env = ActiveEnv()
-        env._commitments[0] = 1
+        env._commitments[0] = True
         env.last_action[0] = 2
         action = np.ones_like(env.last_action)
         action[-1] = 0
@@ -109,11 +112,42 @@ class TestActions:
 
     def test_action(self):
         """
-        Checks that action is taken and updates the network
+        Checks that action is taken and updates the network, but only if
+        load is not commited
         :return:
         """
         env = ActiveEnv()
-        action = np.ones_like(env.last_action)
-        env._take_action(action)
-        assert all(env.powergrid.load['p_kw'].values == action)
+        env.set_demand_and_solar()
+        flex = 0.1
+        demand = copy.copy(env.powergrid.load['p_kw'].values)
+        action1 = np.ones_like(env.last_action)
+        action1 = env.action_space.sample()
+        scaled_action1 = flex * action1 * env.powergrid.load['p_kw']
+
+        env._take_action(action1, flexibility=flex)
+
+        assert norm(env.powergrid.load['p_kw'].values - (
+                    demand + scaled_action1)) < 10e-4
+        action2 = env.action_space.sample()
+        env._take_action(action2)
+
+        # action2 should by modified to cancel effect of action1
+        assert norm(env.last_action + scaled_action1) < 10e-4
+        assert norm(env.powergrid.load['p_kw'].values - demand) < 10e-4
+
+    def test_set_solar(self):
+        """
+        Checks that the the solar power production is updates in every step,
+        and follows the solar forecast
+        :return:
+        """
+        env = ActiveEnv()
+        solar_forecast = env.get_solar_forecast()
+        for hour in range(10):
+            action = env.action_space.sample()
+            ob, reward, episode_over, info = env.step(action)
+            load_pu = -env.powergrid.sgen['p_kw'] / env.powergrid.sgen['sn_kva']
+            assert norm(load_pu - solar_forecast[hour]) < 10e-7
+
+
 

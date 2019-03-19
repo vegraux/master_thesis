@@ -23,3 +23,7 @@ register(
     tags={'wrapper_config.TimeLimit.max_episode_steps': 20}
 
 )
+register(
+    id='active_env-v0',
+    entry_point='gym_power.envs:ActiveEnv'
+)

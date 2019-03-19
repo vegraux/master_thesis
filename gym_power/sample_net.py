@@ -22,5 +22,19 @@ def simple_two_bus():
     pp.runpp(net)
     return net
 
+
+def cigre_network(with_der='pv_wind',scale_nominal_value=40):
+    """
+    Creates 15 bus cigre network with 8 solar units and 1 wind park.
+    The network is scaled so that there is a lot of solar power production
+    :param with_der:
+    :return:
+    """
+
+    net = pn.create_cigre_network_mv(with_der="pv_wind")
+    net.sgen['sn_kva'] *= scale_nominal_value
+    net.sgen.loc[8, 'sn_kva'] /= scale_nominal_value # undo scaling for wind park
+    return net
+
 if __name__ == '__main__':
     simple_two_bus()
