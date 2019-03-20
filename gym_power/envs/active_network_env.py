@@ -28,13 +28,16 @@ DATA_PATH = os.getenv('DATA_PATH')
 
 class ActiveEnv(gym.Env):
 
-    def __init__(self,episode_length=200, mod_period=2):
+    def __init__(self,episode_length=200, look_ahead=4, solar_scale=0.8,
+                 do_action=True):
         self.np_random = None
         self.seed()
         #time attributes
         self.current_step = 0
-        self.episode_start_hour = self.select_start_hour()
+        self._episode_start_hour = self.select_start_hour()
         self.episode_length = episode_length
+        self.look_ahead = look_ahead
+        self.do_action = do_action
 
         #power grid
         self.base_powergrid = cigre_network()
@@ -45,10 +48,10 @@ class ActiveEnv(gym.Env):
         self.pq_ratio = self.calc_pq_ratio()
 
         #state variables, forecast + commitment
-        self.solar_data = self.load_solar_data()
+        self.solar_data = self.load_solar_data(solar_scale=solar_scale)
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forcasts = self.get_episode_demand_forecast()
-        self.mod_period = mod_period
+        self.set_demand_and_solar()
         self._commitments = np.zeros(len(self.powergrid.load)) != 0
 
 
@@ -82,13 +85,13 @@ class ActiveEnv(gym.Env):
 
     def get_demand_forecast(self):
         """
-        Finds the forecasted hourly demand for the next 24 hours
-        :return: List with 24 demand for all buses
+        Finds the forecasted hourly demand for the next T hours
+        :return: List with T demand for all buses
         """
         forecasts = []
         t = self.current_step
         for load in self.demand_forcasts:
-            day_forecast = load[t:t+24]
+            day_forecast = load[t:t+self.look_ahead]
             forecasts.append(day_forecast)
 
         return forecasts
@@ -98,11 +101,31 @@ class ActiveEnv(gym.Env):
 
     def get_solar_forecast(self):
         """
-        Returns solar forecast for the next 24 hours.
+        Returns solar forecast for the next look_ahead hours.
         :return:
         """
         t = self.current_step
-        return self.solar_forecasts[t:t+24]
+        return self.solar_forecasts[t:t+self.look_ahead]
+
+    def get_scaled_solar_forecast(self):
+        """
+        scales each solar panel production with nominal values.
+        :return: Sum of solar production in network (kW)
+        """
+        solar_pu = self.solar_forecasts
+        scaled_solar = []
+        for sol in solar_pu:
+            scaled_solar.append((sol*self.powergrid.sgen['sn_kva']).sum())
+        return np.array(scaled_solar)
+
+    def get_scaled_demand_forecast(self):
+        demand_pu = self.demand_forcasts[0]
+        scaled_demand = []
+        for demand in demand_pu:
+            scaled_demand.append((demand*self.powergrid.load['sn_kva']).sum())
+        return np.array(scaled_demand)
+
+
 
     def get_episode_demand_forecast(self,scale_demand=10):
         """
@@ -111,14 +134,14 @@ class ActiveEnv(gym.Env):
         """
         nr_days = (self.episode_length // 24) + 3 #margin
         episode_forecasts = []
-        for k in range(len(self.powergrid.load)):
+        for k in range(1):#range(len(self.powergrid.load)):
             demand_forcast = []
             for day in range(nr_days):
                 day = list(el.generate.gen_daily_stoch_el())
                 demand_forcast += day
 
             demand_forcast = scale_demand*np.array(demand_forcast)
-            episode_forecasts.append(demand_forcast[self.episode_start_hour:])
+            episode_forecasts.append(demand_forcast[self._episode_start_hour:])
 
         return episode_forecasts
 
@@ -149,10 +172,10 @@ class ActiveEnv(gym.Env):
         self.current_step = 0
 
         self.powergrid = copy.deepcopy(self.base_powergrid)
-        self._create_initial_state()
-        self.episode_start_hour = self.select_start_hour()
+        self._episode_start_hour = self.select_start_hour()
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forcasts = self.get_episode_demand_forecast()
+        self.set_demand_and_solar()
 
         return self._get_obs()
 
@@ -161,6 +184,7 @@ class ActiveEnv(gym.Env):
         Return the voltage, active and reactive power at every bus
         :return:
         """
+
         return self.powergrid.res_bus.values.flatten()
 
 
@@ -169,8 +193,8 @@ class ActiveEnv(gym.Env):
         Method that returns the solar_forcast for the entire episode
         """
         start_day = self.np_random.choice(350) #margin for episode length
-        start = self.episode_start_hour + start_day*24
-        nr_hours = self.episode_length + 25 #margin of 1
+        start = self._episode_start_hour + start_day * 24
+        nr_hours = self.episode_length + self.look_ahead + 1 #margin of 1
         episode_solar_forecast = self.solar_data[start:start+nr_hours].values
         return episode_solar_forecast.ravel()
 
@@ -184,13 +208,13 @@ class ActiveEnv(gym.Env):
         return commitments
 
 
-    def load_solar_data(self):
+    def load_solar_data(self,solar_scale=0.5):
         solar_path = os.path.join(DATA_PATH,'solar_irradiance_2015.csv')
         solar = pd.read_csv(solar_path)
         solar.index = pd.to_datetime(solar.iloc[:, 0])
         solar.index.name = 'time'
         solar = solar.iloc[:, [1]]
-        return solar
+        return solar_scale*solar
 
     def _check_commitment(self, action):
         """
@@ -278,7 +302,13 @@ class ActiveEnv(gym.Env):
 
     def step(self, action):
         self.set_demand_and_solar()
-        episode_over = self._take_action(action)
+
+        if self.do_action:
+            episode_over = self._take_action(action)
+        else:
+            pp.runpp(self.powergrid)
+            episode_over = False
+
         self.current_step += 1
         if self.current_step > self.episode_length:
             ob = self.reset()
@@ -306,22 +336,16 @@ class ActiveEnv(gym.Env):
 
 if __name__ == '__main__':
     env = ActiveEnv()
-    env.set_demand_and_solar()
-    flex = 0.1
-    demand = copy.copy(env.powergrid.load['p_kw'].values)
-    action1 = np.ones_like(env.last_action)
-    action1 = env.action_space.sample()
-    scaled_action1 = flex*action1*env.powergrid.load['p_kw']
+    hours = 100
+    load = env.get_scaled_demand_forecast()
+    sol = env.get_scaled_solar_forecast()
+    fig, ax = plt.subplots()
 
-    env._take_action(action1, flexibility=flex)
-
-    assert np.linalg.norm(env.powergrid.load['p_kw'].values - (demand + scaled_action1)) < 10e-4
-    action2 = env.action_space.sample()
-    env._take_action(action2)
-
-    # action2 should by modified to cancel effect of action1
-    assert np.linalg.norm(env.last_action + scaled_action1) < 10e-4
-    assert np.linalg.norm(env.powergrid.load['p_kw'].values - demand) < 10e-4
-
-
+    plt.plot(sol[:hours],axes=ax)
+    plt.plot(load[:hours],axes=ax)
+    plt.show()
+    for hour in range(hours):
+        action = env.action_space.sample()
+        ob, reward, episode_over, info = env.step(action)
+        print(reward,load[hour],sol[hour])
     print('para aquí')
