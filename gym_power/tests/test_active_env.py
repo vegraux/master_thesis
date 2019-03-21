@@ -176,6 +176,21 @@ class TestActions:
             assert norm(load_pu - solar_forecast[hour]) < 10e-7
 
 
+    def test_constant_consumption(self):
+        """
+        Checks that the total demand and total modified demand is the same.
+        In other words, checks that consumption is shifted and not altered.
+        This should hold when 'hours' is even
+        """
+        env = ActiveEnv()
+        hours = 100
+        for hour in range(hours):
+            action = 1 * np.ones(len(env.powergrid.load))
+            ob, reward, episode_over, info = env.step(action)
+
+        total_demand = env.get_scaled_demand_forecast()[:hours].sum()
+        total_modified_demand = env.resulting_demand[:hours].sum()
+        assert np.abs(total_demand-total_modified_demand) < 10e-6
 class TestReset:
 
     def test_reset_after_steps(self):

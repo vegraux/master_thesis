@@ -29,7 +29,7 @@ DATA_PATH = os.getenv('DATA_PATH')
 class ActiveEnv(gym.Env):
 
     def __init__(self,episode_length=200, look_ahead=4, solar_scale=0.8,
-                 do_action=True):
+                 do_action=True, flexibility=0.1):
         self.np_random = None
         self.seed()
         #time attributes
@@ -46,6 +46,7 @@ class ActiveEnv(gym.Env):
         self.flexible_load_indices = np.arange(len(self.powergrid.load))
         self.last_action = np.zeros_like(self.flexible_load_indices)
         self.pq_ratio = self.calc_pq_ratio()
+        self.flexibility = flexibility
 
         #state variables, forecast + commitment
         self.solar_data = self.load_solar_data(solar_scale=solar_scale)
@@ -53,6 +54,7 @@ class ActiveEnv(gym.Env):
         self.demand_forcasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
         self._commitments = np.zeros(len(self.powergrid.load)) != 0
+        self.resulting_demand = np.zeros(self.episode_length)
 
 
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
@@ -253,18 +255,29 @@ class ActiveEnv(gym.Env):
 
         return np.array(state)
 
-    def _take_action(self, action, flexibility=0.1):
+    def log_resulting_demand(self):
+        """
+        Logs the resulting demand in an episode after the agent has taken
+        its actions
+
+        """
+        loads = self.powergrid.load['p_kw']
+        self.resulting_demand[self.current_step] = loads.sum()
+
+
+    def _take_action(self, action):
         """
         Takes the action vector, Scales it and modifies the flexible loads
         :return:
         """
-        action *= flexibility*self.powergrid.load['p_kw']
+        action *= self.flexibility*self.powergrid.load['p_kw']
         action = self._check_commitment(action)
         load_index = self.load_dict['p_kw']
 
         self.powergrid.load.iloc[self.flexible_load_indices, load_index] += action
         try:
             pp.runpp(self.powergrid)
+            self.log_resulting_demand()
             return False
 
         except ppException:
@@ -295,7 +308,21 @@ class ActiveEnv(gym.Env):
         state_loss = v_lower + v_over + i_over + i_loss
         return -state_loss
 
-
+    def plot_demand_and_solar(self, hours=100):
+        """
+        Visualise the total solar production and demand for buses in the system
+        :param hours:
+        :return:
+        """
+        load = self.get_scaled_demand_forecast()
+        sol = self.get_scaled_solar_forecast()
+        resulting_demand = self.resulting_demand
+        fig, ax = plt.subplots()
+        plt.plot(sol[:hours], axes=ax)
+        plt.plot(load[:hours], axes=ax)
+        plt.plot(resulting_demand[:hours], axes=ax)
+        plt.legend(['solar','demand','modified'])
+        plt.show()
 
 
 
@@ -337,15 +364,9 @@ class ActiveEnv(gym.Env):
 if __name__ == '__main__':
     env = ActiveEnv()
     hours = 100
-    load = env.get_scaled_demand_forecast()
-    sol = env.get_scaled_solar_forecast()
-    fig, ax = plt.subplots()
-
-    plt.plot(sol[:hours],axes=ax)
-    plt.plot(load[:hours],axes=ax)
-    plt.show()
     for hour in range(hours):
-        action = env.action_space.sample()
+        action = 0.5*np.ones(len(env.powergrid.load))
         ob, reward, episode_over, info = env.step(action)
-        print(reward,load[hour],sol[hour])
+
+    env.plot_demand_and_solar(hours=hours)
     print('para aquí')
