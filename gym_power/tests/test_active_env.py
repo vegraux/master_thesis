@@ -142,15 +142,15 @@ class TestActions:
         load is not commited
         :return:
         """
-        env = ActiveEnv()
-        env.set_demand_and_solar()
         flex = 0.1
+        env = ActiveEnv(flexibility=flex)
+        env.set_demand_and_solar()
         demand = copy.copy(env.powergrid.load['p_kw'].values)
         action1 = np.ones_like(env.last_action)
         action1 = env.action_space.sample()
         scaled_action1 = flex * action1 * env.powergrid.load['p_kw']
 
-        env._take_action(action1, flexibility=flex)
+        env._take_action(action1)
 
         assert norm(env.powergrid.load['p_kw'].values - (
                     demand + scaled_action1)) < 10e-4
@@ -182,7 +182,7 @@ class TestActions:
         In other words, checks that consumption is shifted and not altered.
         This should hold when 'hours' is even
         """
-        env = ActiveEnv()
+        env = ActiveEnv(force_commitments=True)
         hours = 100
         for hour in range(hours):
             action = 1 * np.ones(len(env.powergrid.load))

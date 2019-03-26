@@ -25,10 +25,10 @@ import tensorflow as tf
 
 #powerenv = PowerEnvSparse()
 #powerenv = PowerEnv()
-powerenv = ActiveEnv()
+powerenv = ActiveEnv(force_commitments=False)
 #powerenv = PowerEnvOld()
 powerenv = DummyVecEnv([lambda: powerenv])
-powerenv = VecNormalize(powerenv, norm_reward=False)
+#powerenv = VecNormalize(powerenv, norm_reward=False)
 
 #action_noise = OrnsteinUhlenbeckActionNoise(mean=np.array([0]), sigma=np.array([0.3]))
 action_mean = np.zeros(powerenv.action_space.shape)
@@ -46,37 +46,30 @@ powermodel = DDPG(LnMlpPolicy, powerenv,
                   memory_limit=int(t_steps),
                   nb_train_steps=50,
                   nb_rollout_steps=100,
-                  critic_lr=0.00001, #default: 0.001
-                  actor_lr=0.000001, #default: 0.0001
-                  normalize_observations=True)
+                  critic_lr=0.001, #default: 0.001
+                  actor_lr=0.0001, #default: 0.0001
+                  normalize_observations=False)
 powermodel.learn(t_steps)
 
+env = powerenv.envs[0]
+net = env.powergrid
+sol_bus = net.load['bus'].isin(net.sgen['bus'])
 
-my_env = powermodel.env.venv.venv.envs[0]
-
-df = pd.DataFrame(powermodel.memory.unnormalized_obs.data[:t_steps,[-2]],columns=['load'])
-df['rewards'] = powermodel.memory.rewards.data[:t_steps]
-df['actions'] = powermodel.memory.actions.data[:t_steps]*my_env.max_power
-df.plot()
-plt.show()
-
-df2 = pd.DataFrame()
-
-obs_det = []
-rewards_det = []
-action_det = []
-
+data = []
 obs = powerenv.reset()
-for i in range(200):
+for i in range(100):
     action,_ = powermodel.predict(obs)
-    action_scaled = 0.5*(action+1)*powerenv.envs[0].max_power
-    obs, rewards, dones, info = powerenv.step(action_scaled)
-    obs_det.append(obs[0][-2])
-    rewards_det.append(rewards[0])
-    action_det.append(action_scaled[0][0])
+    obs, rewards, dones, info = powerenv.step(action)
+    line = {}
+    for i,act in enumerate(action[0]):
+        line[i] = act
+    data.append(line)
 
-df2['rewards'] = rewards_det
-df2['load'] = obs_det
-df2['actions'] = action_det
-df2.plot()
+df = pd.DataFrame(data)
+df['demand'] =env.get_episode_demand_forecast()[0][:100]
+df['sol'] =env.get_episode_solar_forecast()[:100]
+df.loc[:,['demand','sol',7]].plot()
 plt.show()
+
+
+

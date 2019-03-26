@@ -20,6 +20,7 @@ from rl.agents import DDPGAgent
 from rl.memory import SequentialMemory
 from rl.random import OrnsteinUhlenbeckProcess
 from gym_power.envs.power_env import PowerEnv, PowerEnvOld, PowerEnvOldNormalized
+from gym_power.envs.active_network_env import ActiveEnv
 from gym_power.envs.power_env_step import PowerEnvStep
 
 ENV_NAME = 'Pendulum-v0'
@@ -27,7 +28,7 @@ ENV_NAME = 'Pendulum-v0'
 
 # Get the environment and extract the number of actions.
 #powergrid = gym.make(ENV_NAME)
-env = PowerEnvOld()
+env =ActiveEnv()
 #env = PowerEnvOldNormalized()
 #env = PowerEnvStep()
 
@@ -47,7 +48,7 @@ actor.add(Dense(16))
 #actor.add(Dense(16))
 actor.add(Activation('relu'))
 actor.add(Dense(nb_actions))
-actor.add(Activation('linear'))
+actor.add(Activation('tanh'))
 print(actor.summary())
 
 action_input = Input(shape=(nb_actions,), name='action_input')

@@ -29,7 +29,8 @@ DATA_PATH = os.getenv('DATA_PATH')
 class ActiveEnv(gym.Env):
 
     def __init__(self,episode_length=200, look_ahead=4, solar_scale=0.8,
-                 do_action=True, flexibility=0.1):
+                 do_action=True, flexibility=0.1, force_commitments=True,
+                 bus_in_state=False):
         self.np_random = None
         self.seed()
         #time attributes
@@ -53,8 +54,12 @@ class ActiveEnv(gym.Env):
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forcasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
+        self.force_commitments = force_commitments
+        self.bus_in_state = bus_in_state
         self._commitments = np.zeros(len(self.powergrid.load)) != 0
         self.resulting_demand = np.zeros(self.episode_length)
+        self._balance = np.zeros(self.episode_length)
+
 
 
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
@@ -224,36 +229,62 @@ class ActiveEnv(gym.Env):
         to its action from last step, and modifies the current action to the
         opposite of the last action, so the consumption is not altered.
         """
+        if self.force_commitments:
+            action[self._commitments] = - self.last_action[self._commitments]
 
-        action[self._commitments] = - self.last_action[self._commitments]
-
-        new_commitments = (action != 0)
-        new_commitments[self._commitments] = False
-        self._commitments = new_commitments
-        self.last_action = action
-        return action
+            new_commitments = (action != 0)
+            new_commitments[self._commitments] = False
+            self._commitments = new_commitments
+            self.last_action = action
+            return action
+        else:
+            return action
 
 
 
     def _get_obs(self):
         """
-        samples an state for the power system
+        returns the state for the power system
         :return:
         """
-        demand_forecasts = self.get_demand_forecast()
-        solar_forecasts = self.get_solar_forecast()
-        bus_state = self.get_bus_state()
-        commitment_state = self.get_commitment_state()
-
         state = []
+        demand_forecasts = self.get_demand_forecast()
         for demand in demand_forecasts:
             state += list(demand)
 
+        solar_forecasts = self.get_solar_forecast()
         state += list(solar_forecasts)
-        state += list(bus_state)
-        state += list(commitment_state)
+
+        if self.bus_in_state:
+            bus_state = self.get_bus_state()
+            state += list(bus_state)
+
+        if self.force_commitments:
+            commitment_state = self.get_commitment_state()
+            state += list(commitment_state)
+        else:
+            balance = self.calc_balance()/30000
+            state += [balance]
 
         return np.array(state)
+
+    def calc_balance(self):
+        """
+        Calculates how much power the agent ows to the system, i.e the amount
+        of extra energy the loads have received the last 24 hours. Reward function
+        penalises a large balance.
+        :return:
+
+        """
+        t = self.current_step
+        if t > 24:
+            modifications = self._balance[t - 24:t]
+
+        else:
+            modifications = self._balance[:t]
+
+        return modifications.sum()
+
 
     def log_resulting_demand(self):
         """
@@ -267,11 +298,15 @@ class ActiveEnv(gym.Env):
 
     def _take_action(self, action):
         """
-        Takes the action vector, Scales it and modifies the flexible loads
+        Takes the action vector, scales it and modifies the flexible loads
         :return:
         """
         action *= self.flexibility*self.powergrid.load['p_kw']
-        action = self._check_commitment(action)
+        if self.force_commitments:
+            action = self._check_commitment(action)
+
+        self._balance[self.current_step] = action.sum()
+
         load_index = self.load_dict['p_kw']
 
         self.powergrid.load.iloc[self.flexible_load_indices, load_index] += action
@@ -295,17 +330,23 @@ class ActiveEnv(gym.Env):
 
 
 
-    def _get_reward(self,v_min=0.95,v_max=1.05, i_max_loading= 90):
+    def calc_reward(self,old_balance, v_min=0.95, v_max=1.05, i_max_loading= 90,
+                    include_loss=False,scale_balance=0.0001):
         v = self.powergrid.res_bus['vm_pu']
         v_lower = sum(v_min - v[v < v_min])
         v_over =  sum(v[v > v_max] - v_max)
 
         i = self.powergrid.res_line['loading_percent']
-        i_over = sum(i[i > i_max_loading] - i_max_loading)
+        i_over = sum(i[i > i_max_loading] - i_max_loading)/100
+        balance = self.calc_balance()
+        balance_change = np.abs(balance) - np.abs(old_balance)
 
-        i_loss = sum(self.powergrid.res_line['pl_kw'])
+        state_loss = v_lower + v_over + i_over + balance_change*scale_balance
 
-        state_loss = v_lower + v_over + i_over + i_loss
+        if include_loss:
+            i_loss = sum(self.powergrid.res_line['pl_kw'])
+            state_loss += i_loss
+
         return -state_loss
 
     def plot_demand_and_solar(self, hours=100):
@@ -329,7 +370,7 @@ class ActiveEnv(gym.Env):
 
     def step(self, action):
         self.set_demand_and_solar()
-
+        old_balance = self.calc_balance()
         if self.do_action:
             episode_over = self._take_action(action)
         else:
@@ -337,11 +378,11 @@ class ActiveEnv(gym.Env):
             episode_over = False
 
         self.current_step += 1
-        if self.current_step > self.episode_length:
+        if self.current_step >= self.episode_length:
             ob = self.reset()
 
         if not episode_over:
-            reward = self._get_reward()
+            reward = self.calc_reward(old_balance)
             ob = self._get_obs()
 
         else:
@@ -351,7 +392,8 @@ class ActiveEnv(gym.Env):
         return ob, reward, episode_over, {}
 
 
-
+    def render(self, mode='human', close=False):
+        pass
 
 
 
@@ -362,7 +404,8 @@ class ActiveEnv(gym.Env):
 
 
 if __name__ == '__main__':
-    env = ActiveEnv()
+    env = ActiveEnv(force_commitments=False)
+    env._get_obs()
     hours = 100
     for hour in range(hours):
         action = 0.5*np.ones(len(env.powergrid.load))
