@@ -95,11 +95,11 @@ The agent should also get information that ensures that the consumption at a loa
 \mathcal{S}_{commitment} = \{ c_{i} | i = 1,...,L\}
     \end{aligned} 
 \end{equation}
-where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of load $i$ in a $k$-period commitment period in a grid with $L$ flexible loads. Table ?? summarises the different state spaces. 
+where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of load $i$ in a $k$-period commitment period in a grid with $L$ flexible loads. Table \ref{table:state_spaces} summarises the different state spaces. The reinforcement algorithm will be tested with several combinations of the spaces presented. In every case, the final state variable is constructed by concatenating the state vectors from different state spaces used. 
 
 \begin{table}[h]
 \centering
-\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. \textit{L} is the number of flexible loads in the net. $N$ and $L$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ is the commitment stage of flexible load \textit{i}}
+\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $L$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ is the commitment stage of flexible load \textit{i}}
 \label{table:state_spaces}
 \begin{tabular}{l|lll}
 
@@ -151,7 +151,7 @@ There are safety margins in terms of voltage magnitudes in the power system. In 
     C_{voltage,i} = max(0,|V_{i}| - V_{upper}) + max(0,V_{lower}- |V_{i}|)
     \end{aligned} 
 \end{equation}
-where $V_upper$ and $V_lower$ are the upper and lower per-unit voltage limit respectively. Let $C_{current,i}$ be the cost of violating current margins in line $i$
+where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. Let $C_{current,i}$ be the cost of violating current margins in line $i$
 
 \begin{equation}
    \begin{aligned}
@@ -159,6 +159,14 @@ where $V_upper$ and $V_lower$ are the upper and lower per-unit voltage limit res
     C_{current,i} = max(0,|I_{i}| - I_{upper})
     \end{aligned} 
 \end{equation}
-where $I_{upper}$ is the per unit upper current limit in lines
+where $I_{upper}$ is the per unit upper current limit in lines. It is necessary to incentives costumers to offer flexibility in a realistic modelling of demand response. In other words, costumers should be economically compensated when their flexibility is activated. In classical incentive based programs (IBP) for demand control, costumers are given some sort of participation payment, such as a discount rate\cite{demand_response_definition}. On the other hand, marked based IBP compensates the costumers based on how much they participate. The most natural cost to consider in this thesis is the marked based IBP because the agent can is continuously change the consumption of power at flexible loads. The activation cost $C_{activation,i}$ is defined as
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:problem:activation_cost}
+    C_{activation,i} = \lambda \Delta P_{i}
+    \end{aligned} 
+\end{equation}
+where $\Delta P_{i}$  is the change in demand at bus \textit{i} and $\lambda$ is the flexibility price at the time of activation.
 
 \end{document}
