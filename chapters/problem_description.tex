@@ -53,7 +53,7 @@ Bus & N & 15 \\
 Switch & - & 8 \\
 Static generator &-& 9 \\ 
 Line & - & 15 \\
-Load &L & 18 \\
+Load &F & 18 \\
 Transformer &- & 2
 
  \\
@@ -65,10 +65,10 @@ Only number of loads (\textit{L}) and number of buses \textit{B} is given since 
 
 
 \section{State space}
-It is not obvious how to design the state space for the agent. This section presents several spaces that could be useful for the reinforcement algorithm. Let $\mathcal{S}_{sun} \subseteq  \mathbb{R}^{k}$ be space of the forecasted total solar production in the grid \textit{k} hours into the future . This gives the agent information about the coming solar production in the power marked that can be used for finding strategies. For instance, consider a situation with a high production of solar power that is overreaching the capacity in the power lines. If the agent sees that there is a dip in solar production in the next hour due to clouds, it can increase the local demand at solar producing, to relieve the overloaded power lines. It can then safely decrease the demand the next hour, since the sun is blocked by the clouds. This is an example of a desired behaviour that the agent ideally should find. The buses are assumed to be geographically close, so the solar irradiance is the same. If a cloud blocks the sun at bus 1, then it also blocks the sun at all the other buses in the system. This significantly reduce the state space compared to a unique forecast for every bus. 
+It is not obvious how to design the state space for the agent. This section presents several spaces that could be useful for the reinforcement algorithm. Let $\mathcal{S}_{sun} \subseteq  \mathbb{R}^{H}$ be space of the forecasted total solar production in the grid \textit{H} hours into the future . This gives the agent information about the coming solar production in the power marked that can be used for finding strategies. For instance, consider a situation with a high production of solar power that is overreaching the capacity in the power lines. If the agent sees that there is a dip in solar production in the next hour due to clouds, it can increase the local demand at solar producing, to relieve the overloaded power lines. It can then safely decrease the demand the next hour, since the sun is blocked by the clouds. This is an example of a desired behaviour that the agent ideally should find. The buses are assumed to be geographically close, so the solar irradiance is the same. If a cloud blocks the sun at bus 1, then it also blocks the sun at all the other buses in the system. This significantly reduce the state space compared to a unique forecast for every bus. 
 
 
-Let $\mathcal{S}_{demand} \subseteq \mathbb{R}^{k}$ be the space of the forecasted total demand in the grid $k$ hours into the future. The total demand in the market only partially describes the demand situations in the marked since the agent does not receive information about demand at individual loads. An advantage, however, is that the size of the a state vector from  $\mathcal{S}_{demand}$ is much smaller than a corresponding vector for all loads. Specifically, the CIGRE network that is used has 18 loads that would make the state vector 18 times greater.
+Let $\mathcal{S}_{demand} \subseteq \mathbb{R}^{F\cdot H}$ be the space of the forecasted power demand $H$ hours into the future in a grid with $F$ flexible loads. It is also possible to let the total demand in the market represent the demand state. A problem with this approach is that it only partially describes the demand situations in the marked since the agent does not receive information about demand at individual loads. An advantage, however, is that the size of the a state vector from  $\mathcal{S}_{demand}$ is much smaller than a corresponding vector for all loads. Specifically, the CIGRE network that is used has 18 loads that would make the state vector 18 times greater.
 
 
 
@@ -85,34 +85,34 @@ where $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magni
 
 
 
-The agent should also get information that ensures that the consumption at a load merely is shifted and not altered in absolute magnitude. In other words, a state that contains information about the energy balance in the grid. A positive energy balance means that the agent has forced the loads to use more energy than the real demand. If the agent changes a load by -1 MW for an hour, the agent should ideally increase the load by 1 MW some time not far into the future. Gemine et al did this by making a commitment when a load is modulated. When a load is modulated, it follows a predefined modulation curve for $T_{d}$ time steps (for instance 4 steps)\cite{active_network_management}. The modulation signal is constructed so that is sums to zero of over the time period $T_{d}$, which guarantees that the total energy consumption of the load is constant. This could be a possible approach for a reinforcement learning algorithm as well. The state vector could indicate in what modulation step a load is at. For instance, if the modulation started at $t_{0}$ for a load and the current time step is $t_{0} + 3$, then the load component of this vector is 3. The agent is then always fed with a signal that tells it the commitment stage of that load. The desired action of the agent at a time step in the commitment period will simply be ignored so that the load follows the modulation signal. This has the drawback that the agent's action frequently are overridden. Given a modulation period of \textit{k} steps, the agent desired action is only performed $1/k$ times. Hopefully the agent will pick up on this through the commitment state vector. Formally, the commitment space $\mathcal{S}_{commitment} \subseteq \mathbb{R}^{L}$ can be defined as
+The agent should also get information that ensures that the consumption at a load merely is shifted and not altered in absolute magnitude. In other words, a state that contains information about the energy balance in the grid. A positive energy balance means that the agent has forced the loads to use more energy than the real demand. If the agent changes a load by -1 MW for an hour, the agent should ideally increase the load by 1 MW some time not far into the future. Gemine et al did this by making a commitment when a load is modulated. When a load is modulated, it follows a predefined modulation curve for $T_{d}$ time steps (for instance 4 steps)\cite{active_network_management}. The modulation signal is constructed so that is sums to zero of over the time period $T_{d}$, which guarantees that the total energy consumption of the load is constant. This could be a possible approach for a reinforcement learning algorithm as well. The state vector could indicate in what modulation step a load is at. For instance, if the modulation started at $t_{0}$ for a load and the current time step is $t_{0} + 3$, then the load component of this vector is 3. The agent is then always fed with a signal that tells it the commitment stage of that load. The desired action of the agent at a time step in the commitment period will simply be ignored so that the load follows the modulation signal. This has the drawback that the agent's action frequently are overridden. Given a modulation period of \textit{k} steps, the agent desired action is only performed $1/k$ times. Hopefully the agent will pick up on this through the commitment state vector. Formally, the commitment space $\mathcal{S}_{commitment} \subseteq \mathbb{R}^{F}$ can be defined as
 
 
 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:commitment_state}
-\mathcal{S}_{commitment} = \{ c_{i} | i = 1,...,L\}
+\mathcal{S}_{commitment} = \{ c_{i} | i = 1,...,F\}
     \end{aligned} 
 \end{equation}
-where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of load $i$ in a $k$-period commitment period in a grid with $L$ flexible loads. Table \ref{table:state_spaces} summarises the different state spaces. The reinforcement algorithm will be tested with several combinations of the spaces presented. In every case, the final state variable is constructed by concatenating the state vectors from different state spaces used. 
+where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of flexible load $i$ in a $k$-period commitment period in a grid with $F$ flexible loads. Table \ref{table:state_spaces} summarises the different state spaces. The reinforcement algorithm will be tested with several combinations of the spaces presented. In every case, the final state variable is constructed by concatenating the state vectors from different state spaces used. 
 
 \begin{table}[h]
 \centering
-\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $L$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ is the commitment stage of flexible load \textit{i}}
+\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $F$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ is the commitment stage of flexible load \textit{i}}
 \label{table:state_spaces}
 \begin{tabular}{l|lll}
 
 State space  & Symbol & Size & Definition
 \\ 
 \hline
-Solar forecast      & $\mathcal{S}_{sun}$& H  &  $\{r_{i} |\;j=1,...,H\}$
+Solar forecast      & $\mathcal{S}_{sun}$& H  &  $\{r_{j} |\;j=1,...,H\}$
 \\ 
 
-Demand forecast    & $\mathcal{S}_{demand}$ &$H\cdot L$ &$\{d_{j,i} |\;j=1,...,H,i=1,...,L\}$  \\ 
+Demand forecast    & $\mathcal{S}_{demand}$ &$H\cdot F$ &$\{d_{j,i} |\;j=1,...,H,i=1,...,F\}$  \\ 
 Bus state & $\mathcal{S}_{bus}$ & $4N$ &$\{\delta_{i}, P_{i}, Q_{i}, |V_{i}| |\; i = 1,...,N\}$\\
 
-Commitment state &$\mathcal{S}_{commitment}$& $L$  &$\{ c_{i} |\; i = 1,...,L\}$ \\
+Commitment state &$\mathcal{S}_{commitment}$& $F$  &$\{ c_{i} |\; i = 1,...,F\}$ \\
   
 
 \hline
@@ -167,6 +167,46 @@ where $I_{upper}$ is the per unit upper current limit in lines. It is necessary 
     C_{activation,i} = \lambda \Delta P_{i}
     \end{aligned} 
 \end{equation}
-where $\Delta P_{i}$  is the change in demand at bus \textit{i} and $\lambda$ is the flexibility price at the time of activation.
+where $\Delta P_{i}$  is the change in power consumption at flexible load \textit{i} and $\lambda$ is the flexibility price at the time of activation.
+
+It is desired that the flexible loads consume more power during periods heavy solar production. In addition, flexible loads should use less energy during periods with low solar energy, so the total energy consumption in a day is not altered. However, the agent is not penalised during periods of low solar power production since there are no violations of current and voltage margins in the grid. As a result, there must be a signal that incentives the agent to reduce the power consumption in periods with low solar production. This could be done by be introducing the power balance $B_{i}$.
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:problem:balance}
+    C_{activation,i} = \lambda \Delta P_{i}
+    \end{aligned} 
+\end{equation}
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:problem:balance_cost}
+    C_{activation,i} = \lambda \Delta P_{i}
+    \end{aligned} 
+\end{equation}
+
+
+The total cost of an agent at each step is defined as a linear combination over the voltage, current and activation cost 
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:problem:total_cost}
+    C = 
+    \alpha \sum_{i=1}^{F}C_{activation,i} + 
+    \beta \sum_{i=1}^{L}C_{current,i} +
+    \gamma \sum_{i=1}^{N}C_{voltage,i}
+    \end{aligned} 
+\end{equation}
+Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible loads and buses respectively. The weights $\alpha$, $\beta$ and $\gamma$ can be tuned, based on what is the desired behaviour of the agent. If safety margins are most important, the cost of activation ($\alpha$) should be small. Lastly, the cost must be turned into a reward that a reinforcement algorithm can use. The reward is simply defined to be the negative of the cost
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:problem:total_reward}
+    R = - C
+    \end{aligned} 
+\end{equation}
+
+
+
 
 \end{document}
