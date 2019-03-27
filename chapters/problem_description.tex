@@ -119,7 +119,7 @@ Commitment state &$\mathcal{S}_{commitment}$& $F$  &$\{ c_{i} |\; i = 1,...,F\}$
 \end{tabular}
 \end{table}
 \section{Action space}
-The grid is controlled using demand response, which means that reinforcement agent can manipulate the active power demand at flexible loads in the power grid. The amount of flexibility at a load is defined to be certain percent of the real demand. It is assumed that the flexibility is symmetric so the demand can both be tuned up and down. The action space in a power grid with $L$ flexible load  $\mathcal{A}  \subseteq \mathbb{R}^{L}$ is defined as
+The grid is controlled using demand response, which means that reinforcement agent can manipulate the active power demand at flexible loads in the power grid. The amount of flexibility at a load is defined to be certain percent of the real power demand. It is assumed that the flexibility is symmetric so the demand can both be tuned up and down. The action space in a power grid with $L$ flexible load  $\mathcal{A}  \subseteq \mathbb{R}^{L}$ is defined as
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:action_space}
@@ -148,7 +148,7 @@ There are safety margins in terms of voltage magnitudes in the power system. In 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:voltage_margins_cost}
-    C_{voltage,i} = max(0,|V_{i}| - V_{upper}) + max(0,V_{lower}- |V_{i}|)
+    C_{voltage,i} = \max(0,|V_{i}| - V_{upper}) + \max(0,V_{lower}- |V_{i}|)
     \end{aligned} 
 \end{equation}
 where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. Let $C_{current,i}$ be the cost of violating current margins in line $i$
@@ -156,7 +156,7 @@ where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:current_margins_cost}
-    C_{current,i} = max(0,|I_{i}| - I_{upper})
+    C_{current,i} = \max(0,|I_{i}| - I_{upper})
     \end{aligned} 
 \end{equation}
 where $I_{upper}$ is the per unit upper current limit in lines. It is necessary to incentives costumers to offer flexibility in a realistic modelling of demand response. In other words, costumers should be economically compensated when their flexibility is activated. In classical incentive based programs (IBP) for demand control, costumers are given some sort of participation payment, such as a discount rate\cite{demand_response_definition}. On the other hand, marked based IBP compensates the costumers based on how much they participate. The most natural cost to consider in this thesis is the marked based IBP because the agent can is continuously change the consumption of power at flexible loads. The activation cost $C_{activation,i}$ is defined as
@@ -164,40 +164,42 @@ where $I_{upper}$ is the per unit upper current limit in lines. It is necessary 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:activation_cost}
-    C_{activation,i} = \lambda \Delta P_{i}
+    C_{activation,i} = \lambda |\Delta P_{i}|
     \end{aligned} 
 \end{equation}
-where $\Delta P_{i}$  is the change in power consumption at flexible load \textit{i} and $\lambda$ is the flexibility price at the time of activation.
+where $|\Delta P_{i}|$  is the absolute change in power consumption at flexible load \textit{i} and $\lambda$ is the flexibility price at the time of activation.
 
-It is desired that the flexible loads consume more power during periods heavy solar production. In addition, flexible loads should use less energy during periods with low solar energy, so the total energy consumption in a day is not altered. However, the agent is not penalised during periods of low solar power production since there are no violations of current and voltage margins in the grid. As a result, there must be a signal that incentives the agent to reduce the power consumption in periods with low solar production. This could be done by be introducing the power balance $B_{i}$.
+It is desired that the flexible loads consume more power during periods with heavy solar production. In addition, flexible loads should use less energy during periods with low solar energy, so the total energy consumption in a day is not altered. However, the agent is not penalised during periods of low solar power production since there are no violations of current and voltage margins in the grid. As a result, there must be a signal that incentives the agent to reduce the power consumption in periods with low solar production. This could be done by be introducing the power imbalance $B_{i,t}$ of flexible load $i$ at time $t$.
 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:balance}
-    C_{activation,i} = \lambda \Delta P_{i}
+    B_{i,t} = \sum_{k=1}^{24}\Delta P_{i,t-k}
     \end{aligned} 
 \end{equation}
+$\Delta P_{i,t-k}$ is the change in power consumption $k$ time steps before $t$ at flexible load \textit{i}. Simply put, the imbalance $B_{i,t}$ expresses if a flexible load is in balance in terms of energy consumption over the last 24 hours. A positive imbalance means the flexible loads have consumed more power than they originally planed. The goal is to have the imbalance close to zero, which means that power consumption has been shifted and not altered in absolute magnitude. The agent should be punished for having a large imbalance. Consequently, it should be penalised for taking an action that increases the absolute balance quantity. Let $C_{imbalance,i}$ be the energy imbalance cost at time $t$ for flexible load \textit{i}.
 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:balance_cost}
-    C_{activation,i} = \lambda \Delta P_{i}
+    C_{imbalance,i} = |B_{i,t-1}| - |B_{i,t}|
     \end{aligned} 
 \end{equation}
+where the balance $B_{i,t}$ is given by equation \eqref{eq:problem:balance}. The agent is penalised if the result of an action increases the energy imbalance in absolute magnitude.  
 
-
-The total cost of an agent at each step is defined as a linear combination over the voltage, current and activation cost 
+The total cost of an agent at each step is defined as a linear combination over the voltage, current, activation and imbalance cost 
 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:total_cost}
     C = 
-    \alpha \sum_{i=1}^{F}C_{activation,i} + 
-    \beta \sum_{i=1}^{L}C_{current,i} +
-    \gamma \sum_{i=1}^{N}C_{voltage,i}
+    \kappa_{1} \sum_{i=1}^{F}C_{activation,i} + 
+    \kappa_{2} \sum_{i=1}^{L}C_{current,i} +
+    \kappa_{3} \sum_{i=1}^{N}C_{voltage,i} +
+    \kappa_{4} \sum_{i=1}^{L}C_{imbalance,i} 
     \end{aligned} 
 \end{equation}
-Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible loads and buses respectively. The weights $\alpha$, $\beta$ and $\gamma$ can be tuned, based on what is the desired behaviour of the agent. If safety margins are most important, the cost of activation ($\alpha$) should be small. Lastly, the cost must be turned into a reward that a reinforcement algorithm can use. The reward is simply defined to be the negative of the cost
+Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible loads and buses respectively. The weights $\kappa_{i}$ can be tuned, based on what the desired behaviour of the agent is. If safety margins are most important, the weights for cost of activation and imbalance should be small. Note that it is possible to discard some of the costs by setting its weight equal to zero. Lastly, the cost must be turned into a reward that a reinforcement algorithm can use. The reward $R$ is simply defined to be the negative of the cost
 
 \begin{equation}
    \begin{aligned}
@@ -205,8 +207,35 @@ Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible lo
     R = - C
     \end{aligned} 
 \end{equation}
+where $C$ is defined by \eqref{eq:problem:total_cost}. Table \ref{table:reward_terms} summarises the different costs and their definition. 
 
+\begin{table}[h]
+\centering
+\caption{Cost terms that can be used in the reinforcement algorithm. The subscripts 'upper' and 'lower' means the upper and lower safety margins. $\lambda$ is the unit cost for activation of a flexible load ($\pounds/MWh$). $\Delta P_{i}$ is the change in consumption of flexible load \textit{i}. $B_{i,t}$ is the daily energy imbalance as defined in \eqref{eq:problem:balance}}
+\label{table:reward_terms}
+\begin{tabular}{l|ll}
 
-
+Cost  & Definition & Comment
+\\ 
+\hline
+Voltage &
+$\max(0,|V_{i}| - V_{upper}) + \max(0,V_{lower}- |V_{i}|)$ &
+Violation of voltage margin
+\\
+Current &
+$\max(0,|I_{i}| - I_{upper})$&
+Violation of current margin
+\\
+Activation &
+$\lambda |\Delta P_{i}|$&
+Activating flexibility
+\\
+Imbalance &
+$|B_{i,t-1}| - |B_{i,t}|$&
+Changing daily energy consumption
+\\
+\hline
+\end{tabular}
+\end{table}
 
 \end{document}
