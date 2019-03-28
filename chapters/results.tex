@@ -17,7 +17,7 @@
 \begin{document}
 There are many ways of setting up the state space and reward function that can result in very different behaviour of the agent. This chapter will present results from certain formulation of the reinforcement environment.
 \section{Formulation 1 - Free activation}
-A reinforcement agent was trained with reward function that does not include cost of activation. This is not a realistic case, since households that offer flexibility should be compensated for altering their energy profile. This formulation serves to show how an agent would activate flexibility if there was no direct cost associated with altering the power consumption. However, the agent is penalised for changing the total daily energy demand in the power net. Note that it is not penalised for changing the consumption at individual loads as long as the total consumption in the network is preserved. The specific reward terms with weights are shown in table \ref{table:results:reward_formulation1}
+A reinforcement agent was trained with reward function that does not include cost of activation. This is not a realistic case, since households that offer flexibility should be compensated for altering their energy profile. This formulation serves to show how an agent would activate flexibility if there was no direct cost associated with altering the power consumption. However, the agent is penalised for changing the total daily energy demand in the power net. Note that it is not penalised for changing the daily consumption at individual loads as long as the total consumption in the network is preserved. The specific reward terms with weights are shown in table \ref{table:results:reward_formulation1}
 
 \begin{table}[ht]
 \centering
