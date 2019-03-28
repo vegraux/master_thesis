@@ -65,7 +65,7 @@ Only number of loads (\textit{L}) and number of buses \textit{B} is given since 
 
 
 \section{State space}
-It is not obvious how to design the state space for the agent. This section presents several spaces that could be useful for the reinforcement algorithm. Let $\mathcal{S}_{sun} \subseteq  \mathbb{R}^{H}$ be space of the forecasted total solar production in the grid \textit{H} hours into the future . This gives the agent information about the coming solar production in the power marked that can be used for finding strategies. For instance, consider a situation with a high production of solar power that is overreaching the capacity in the power lines. If the agent sees that there is a dip in solar production in the next hour due to clouds, it can increase the local demand at solar producing, to relieve the overloaded power lines. It can then safely decrease the demand the next hour, since the sun is blocked by the clouds. This is an example of a desired behaviour that the agent ideally should find. The buses are assumed to be geographically close, so the solar irradiance is the same. If a cloud blocks the sun at bus 1, then it also blocks the sun at all the other buses in the system. This significantly reduce the state space compared to a unique forecast for every bus. 
+It is not obvious how to design the state space for the agent. This section presents several spaces that could be useful for the reinforcement algorithm. Let $\mathcal{S}_{sun} \subseteq  \mathbb{R}^{H}$ be space of the forecasted total solar production in the grid \textit{H} hours into the future . This gives the agent information about the coming solar production in the power marked that can be used for finding strategies. For instance, consider a situation with a high production of solar power that is overreaching the capacity in the power lines. If the agent sees that there is a dip in solar production in the next hour due to clouds, it can increase the local demand at solar producing, to relieve the overloaded power lines. It can then safely decrease the demand the next hour, since the sun is blocked by the clouds. This is an example of a desired behaviour that the agent ideally should find. The buses are assumed to be geographically close, so the solar irradiance is the same. If a cloud blocks the sun at bus 1, then it also blocks the sun at all the other buses in the system. This significantly reduces the state space compared to a unique forecast for every bus. 
 
 
 Let $\mathcal{S}_{demand} \subseteq \mathbb{R}^{F\cdot H}$ be the space of the forecasted power demand $H$ hours into the future in a grid with $F$ flexible loads. It is also possible to let the total demand in the market represent the demand state. A problem with this approach is that it only partially describes the demand situations in the marked since the agent does not receive information about demand at individual loads. An advantage, however, is that the size of the a state vector from  $\mathcal{S}_{demand}$ is much smaller than a corresponding vector for all loads. Specifically, the CIGRE network that is used has 18 loads that would make the state vector 18 times greater.
@@ -95,11 +95,22 @@ The agent should also get information that ensures that the consumption at a loa
 \mathcal{S}_{commitment} = \{ c_{i} | i = 1,...,F\}
     \end{aligned} 
 \end{equation}
-where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of flexible load $i$ in a $k$-period commitment period in a grid with $F$ flexible loads. Table \ref{table:state_spaces} summarises the different state spaces. The reinforcement algorithm will be tested with several combinations of the spaces presented. In every case, the final state variable is constructed by concatenating the state vectors from different state spaces used. 
+where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of flexible load $i$ in a $k$-period commitment period in a grid with $F$ flexible loads.
+
+The agent does not have follow a predefined commitment signal to ensure that the power consumption is shifted, but instead be penalised for changing the total consumption during a day, as explained in section \ref{section:reward}. The agent must then be fed some information about the power balance at the flexible loads, i.e if the loads have consumed more or less power than the original demand. Let  $\mathcal{S}_{imbalance} \subseteq \mathbb{R}^{F}$  be the state space representing the power imbalance, defined by \begin{equation}
+   \begin{aligned}
+   \label{eq:problem:imbalance_state}
+\mathcal{S}_{imbalance} = \{ B_{i} | i = 1,...,F\}
+    \end{aligned} 
+\end{equation}
+where $B_{i}$ is the energy imbalance at flexible load $i$ defined by \eqref{eq:problem:balance}.
+
+
+Table \ref{table:state_spaces} summarises the different state spaces. The reinforcement algorithm will be tested with several combinations of the spaces presented. In every case, the final state variable is constructed by concatenating the state vectors from different state spaces used. 
 
 \begin{table}[h]
 \centering
-\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $F$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ is the commitment stage of flexible load \textit{i}}
+\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $F$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ are respectively the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ and $B_{i}$ are respectively the commitment stage and energy imbalance of flexible load \textit{i}}
 \label{table:state_spaces}
 \begin{tabular}{l|lll}
 
@@ -113,7 +124,8 @@ Demand forecast    & $\mathcal{S}_{demand}$ &$H\cdot F$ &$\{d_{j,i} |\;j=1,...,H
 Bus state & $\mathcal{S}_{bus}$ & $4N$ &$\{\delta_{i}, P_{i}, Q_{i}, |V_{i}| |\; i = 1,...,N\}$\\
 
 Commitment state &$\mathcal{S}_{commitment}$& $F$  &$\{ c_{i} |\; i = 1,...,F\}$ \\
-  
+ 
+Imbalance state &$\mathcal{S}_{imbalance}$& $F$  &$\{ B_{i} |\; i = 1,...,F\}$ \\
 
 \hline
 \end{tabular}
@@ -139,7 +151,7 @@ where $f_{i}$ is the flexibility at load, $P_{i}$ is the active power demand.
 
 It is possible to include more control variables that the agent can control. For instance, the reinforcement agent could control the tap position of the transformer and the switches in the system. There is also a CIGRE benchmark network in pandapower that has storage units in the power net. A possible extension is to let the agent control the charging and discharging of storage units.
 
-\section{Reward function}
+\section{Reward function}\label{section:reward}
 A central element in any reinforcement algorithm is the reward function. The reward function should give a signal that is used to reinforce "good" behaviour. The goal of the agent is to not violate safety margins for voltage and current in the power grid. Gemine et al formulate a reward function aimed to safely operate a power grid at a low cost, where they punish the agent proportionally to the violation of safety margins\cite{active_network_management}. There are multiple cost terms that can be included, and this section will present several of these. 
 
 There are safety margins in terms of voltage magnitudes in the power system. In the Norwegian power system this is between 0.95 and 1.05. In other word, Statnett tolerates a 5 \% deviation from nominal voltage in each direction. Let $C_{voltage,i}$ be the cost for violating voltage margins at bus $i$
@@ -199,7 +211,7 @@ The total cost of an agent at each step is defined as a linear combination over 
     \kappa_{4} \sum_{i=1}^{L}C_{imbalance,i} 
     \end{aligned} 
 \end{equation}
-Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible loads and buses respectively. The weights $\kappa_{i}$ can be tuned, based on what the desired behaviour of the agent is. If safety margins are most important, the weights for cost of activation and imbalance should be small. Note that it is possible to discard some of the costs by setting its weight equal to zero. Lastly, the cost must be turned into a reward that a reinforcement algorithm can use. The reward $R$ is simply defined to be the negative of the cost
+Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible loads and buses respectively. The weights $\kappa_{i}$ can be tuned, based on what the desired behaviour of the agent is. If safety margins are most important, the weights for cost of activation and imbalance should be small. Note that it is possible to discard a cost completely by setting its weight equal to zero. Lastly, the cost must be turned into a reward that a reinforcement algorithm can use. The reward $R$ is simply defined to be the negative of the cost
 
 \begin{equation}
    \begin{aligned}
@@ -207,7 +219,7 @@ Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible lo
     R = - C
     \end{aligned} 
 \end{equation}
-where $C$ is defined by \eqref{eq:problem:total_cost}. Table \ref{table:reward_terms} summarises the different costs and their definition. 
+where the total cost $C$ is defined by \eqref{eq:problem:total_cost}. Table \ref{table:reward_terms} summarises the different costs and their definition. 
 
 \begin{table}[h]
 \centering
