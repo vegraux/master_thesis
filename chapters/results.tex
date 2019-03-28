@@ -15,5 +15,58 @@
 \pgfplotsset{compat=1.15}
 
 \begin{document}
+There are many ways of setting up the state space and reward function that can result in very different behaviour of the agent. This chapter will present results from certain formulation of the reinforcement environment.
+\section{Formulation 1 - Free activation}
+A reinforcement agent was trained with reward function that does not include cost of activation. This is not a realistic case, since households that offer flexibility should be compensated for altering their energy profile. This formulation serves to show how an agent would activate flexibility if there was no direct cost associated with altering the power consumption. However, the agent is penalised for changing the total daily energy demand in the power net. Note that it is not penalised for changing the consumption at individual loads as long as the total consumption in the network is preserved. The specific reward terms with weights are shown in table \ref{table:results:reward_formulation1}
+
+\begin{table}[ht]
+\centering
+\caption{Reward terms and weights for formulation 1}
+\label{table:results:reward_formulation1}
+\begin{tabular}{l|ll}
+
+Cost  & Weight & Comment
+\\ 
+\hline
+Voltage &
+1 &
+Per-unit values
+\\
+Current &
+$10^{-2}$ &
+Percentage of max current 
+\\
+Activation &
+0&
+No activation cost
+\\
+Imbalance &
+$10^{-4}$&
+Units of energy imbalance is kWh
+\\
+\hline
+\end{tabular}
+\end{table}
+The state space constructed to be as small as possible. The state is represented by a 4 hour forecast for both solar irradiance and active power demand. The power demand is assumed equal at each flexible load, so there is not a individual power demand for each load. The total power imbalance for the whole power network is also included. table \ref{table:results:state_formulation1} summarises the state space
+
+\begin{table}[ht]
+\centering
+\caption{}
+\label{table:results:state_formulation1}
+\begin{tabular}{l|lll}
+
+State space  & Size & Comment
+\\ 
+\hline
+Solar forecast      &  4  &  4 hour solar forecast
+\\ 
+
+Demand forecast    &4 & One 4 hour forecast for all loads
+\\ 
+Imbalance state & 1  & Total energy imbalance for all loads
+\\
+\hline
+\end{tabular}
+\end{table}
 
 \end{document}
