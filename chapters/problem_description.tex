@@ -28,7 +28,7 @@ The idea is to modify the demand of electric power to follow the production prof
 
 The specific setup in this thesis is based on several assumptions for a hypothetical future power grid. The electrical power grid used is constructed by the International Council on Large Electric Systems (CIGRE) as a benchmark network that can be used for analysis of DER integration\cite{cigre}. The network is predefined in pandapower and can be defined with different renewable energy sources connected at different buses. The grid used is visualised in figure \ref{fig:problem:cigre_network}. 
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \includegraphics[height=14cm, width=13.5cm]{figures/cigre_network_mv_der.png}
     \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm}
     \label{fig:problem:cigre_network}
@@ -40,7 +40,7 @@ All loads have an hourly forecast of energy consumption that is used to update t
 \section{Network variables}
 The CIGRE network shown in figure \ref{fig:problem:cigre_network} is the power net the reinforcement algorithm is control. The number of components are summarised in table \ref{table:cigre_components}
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{Component in the CIGRE network}
 \label{table:cigre_components}
@@ -92,7 +92,7 @@ The agent should also get information that ensures that the consumption at a loa
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:commitment_state}
-\mathcal{S}_{commitment} = \{ c_{i} | i = 1,...,F\}
+\mathcal{S}_{commitment} = \{ c_{i} | \;i = 1,...,F\}
     \end{aligned} 
 \end{equation}
 where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of flexible load $i$ in a $k$-period commitment period in a grid with $F$ flexible loads.
@@ -100,7 +100,7 @@ where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of flexible load $i$ in a
 The agent does not have follow a predefined commitment signal to ensure that the power consumption is shifted, but instead be penalised for changing the total consumption during a day, as explained in section \ref{section:reward}. The agent must then be fed some information about the power balance at the flexible loads, i.e if the loads have consumed more or less power than the original demand. Let  $\mathcal{S}_{imbalance} \subseteq \mathbb{R}^{F}$  be the state space representing the power imbalance, defined by \begin{equation}
    \begin{aligned}
    \label{eq:problem:imbalance_state}
-\mathcal{S}_{imbalance} = \{ B_{i} | i = 1,...,F\}
+\mathcal{S}_{imbalance} = \{ B_{i} |\; i = 1,...,F\}
     \end{aligned} 
 \end{equation}
 where $B_{i}$ is the energy imbalance at flexible load $i$ defined by \eqref{eq:problem:balance}.
@@ -108,7 +108,7 @@ where $B_{i}$ is the energy imbalance at flexible load $i$ defined by \eqref{eq:
 
 Table \ref{table:state_spaces} summarises the different state spaces. The reinforcement algorithm will be tested with several combinations of the spaces presented. In every case, the final state variable is constructed by concatenating the state vectors from different state spaces used. 
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $F$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ are respectively the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ and $B_{i}$ are respectively the commitment stage and energy imbalance of flexible load \textit{i}}
 \label{table:state_spaces}
@@ -135,7 +135,7 @@ The grid is controlled using demand response, which means that reinforcement age
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:action_space}
-\mathcal{A}= \{a_{i} | i = 1,...,L\}
+\mathcal{A}= \{a_{i} | \;i = 1,...,L\}
     \end{aligned} 
 \end{equation}
 where $a_{i} \in [-1,1]$ is the activation at flexible load $i$ in the power grid. $a_{i} = 1$ means that load $i$ increases its active power consumption as much as possible. The change in demand $\Delta P_{i}$ is then scaled up according to the action signal $a_{i}$ by
@@ -194,7 +194,7 @@ $\Delta P_{i,t-k}$ is the change in power consumption $k$ time steps before $t$ 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:balance_cost}
-    C_{imbalance,i} = |B_{i,t-1}| - |B_{i,t}|
+    C_{imbalance,i} = |B_{i,t}| - |B_{i,t-1}|
     \end{aligned} 
 \end{equation}
 where the balance $B_{i,t}$ is given by equation \eqref{eq:problem:balance}. The agent is penalised if the result of an action increases the energy imbalance in absolute magnitude.  
@@ -221,7 +221,7 @@ Where \textit{L}, \textit{F} and \textit{N} are the number of lines, flexible lo
 \end{equation}
 where the total cost $C$ is defined by \eqref{eq:problem:total_cost}. Table \ref{table:reward_terms} summarises the different costs and their definition. 
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{Cost terms that can be used in the reinforcement algorithm. The subscripts 'upper' and 'lower' means the upper and lower safety margins. $\lambda$ is the unit cost for activation of a flexible load ($\pounds/MWh$). $\Delta P_{i}$ is the change in consumption of flexible load \textit{i}. $B_{i,t}$ is the daily energy imbalance as defined in \eqref{eq:problem:balance}}
 \label{table:reward_terms}
