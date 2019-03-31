@@ -68,7 +68,7 @@ Imbalance state & 1  & Total energy imbalance for all loads
 \hline
 \end{tabular}
 \end{table}
-The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix ??. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance. This helps the system because the energy need not be transported out to the grid, but is consumed locally, close to production. Simply put, it is desired that the actions follow the curve of the solar irradiance. By inspecting figure \ref{fig:results:configuration1} it is clear that the agent  for several loads activate flexibility in times with much solar production. For instance, the plot \texttt{load = sun 10} in the bottom row clearly follows this pattern. The agent increases its power consumption during periods with high solar production, and reduces it later to ensure that the energy consumption is shifted, and not altered in absolute magnitude. The first plot in the top row \texttt{load = load 1} show some peculiar behaviour. Clearly, the actions do not follow the solar profile that day, but seem to be negative most of the day. This behaviour could be a result of how the reward function is defined in this configuration. The agent is penalised according to the total energy imbalance in the system, not at individual loads. As a result, if the energy imbalance is +10 MWh at one load and -10 MWh at another load, they perfectly cancel each other, and the agent is not penalised. From the agent's perspective, the system is in energy balance, although individual loads have a large absolute energy imbalance. This illustrates the problem with constructing state variable that accounts for the system as a whole, and not individual loads.  
+The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix ??. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance. This helps the system because the energy need not be transported out to the grid, but is consumed locally, close to production. Simply put, it is desired that the actions follow the curve of the solar irradiance. 
 
 \begin{figure}[ht]
     \center
@@ -76,5 +76,19 @@ The DDPG agent was trained for 100 000 time steps. A complete summary with all h
     \caption[size = 9]{Activation of flexibility at the different flexible loads of the trained DDPG throughout a day. The orange line is the solar irradiance during the day, which is the same for all loads. The actions in blue is the activation of flexibility. Action = 1 means that the flexible load increases its power consumption with 10 \%, while action = -1 means that it decreases its power consumption with 10 \%}
     \label{fig:results:configuration1}
 \end{figure}
+By inspecting figure \ref{fig:results:configuration1} it is clear that the agent activates flexibility in times with much solar production for several of the loads. The plot \texttt{load = sun 10} in the bottom row is plotted alone in figure \ref{fig:results:configuration1_follows_sun}, and clearly follows this pattern. The agent increases its power consumption during periods with high solar production, and reduces it later to ensure that the energy consumption is shifted, and not altered in absolute magnitude.
 
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/configuration1_follows_sun.png}
+    \caption[size = 9]{Action of the agent and solar profile during a day. The consumed power is increased in periods with high solar production}
+    \label{fig:results:configuration1_follows_sun}
+\end{figure}
+ The first plot in the top row \texttt{load = load 1} is plotted larger in figure \ref{fig:results:configuration1_negative_actions}, and show some peculiar behaviour. Clearly, the actions do not follow the solar profile that day, but are negative most of the day. This behaviour could be a result of how the reward function is defined in this configuration. The agent is penalised according to the total energy imbalance in the system, not at individual loads. As a result, if the energy imbalance is +10 MWh at one load and -10 MWh at another load, they perfectly cancel each other, and the agent is not penalised. From the agent's perspective, the system is in energy balance, although individual loads have a large absolute energy imbalance. This illustrates the problem with constructing state variable that accounts for the system as a whole, and not individual loads. The agent uses the same strategy consistently at this load. It appears as if this load functions as a energy balance, whose main job is to ensure that the total power imbalance in the grid is kept as small as possible.
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/configuration1_negative_actions.png}
+    \caption[size = 9]{Action of the agent and solar profile during a day}
+    \label{fig:results:configuration1_negative_actions}
+\end{figure}
 \end{document}
