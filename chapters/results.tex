@@ -15,9 +15,9 @@
 \pgfplotsset{compat=1.15}
 
 \begin{document}
-There are many ways of setting up the state space and reward function that can result in very different behaviour of the agent. This chapter will present results from certain formulation of the reinforcement environment.
+There are many ways of setting up the state space and reward function that can result in very different behaviour of the agent. This chapter will present results from certain formulation of the reinforcement algorithm. In all cases, deep deterministic policy gradient (DDPG) is used to train the agent. 
 \section{Formulation 1 - Free activation}
-A reinforcement agent was trained with reward function that does not include cost of activation. This is not a realistic case, since households that offer flexibility should be compensated for altering their energy profile. This formulation serves to show how an agent would activate flexibility if there was no direct cost associated with altering the power consumption. However, the agent is penalised for changing the total daily energy demand in the power net. Note that it is not penalised for changing the daily consumption at individual loads as long as the total consumption in the network is preserved. The specific reward terms with weights are shown in table \ref{table:results:reward_formulation1}
+A reinforcement agent is trained with reward function that does not include cost of activation. This is not a realistic case, since households that offer flexibility should be compensated for altering their energy profile. This formulation serves to show how an agent would activate flexibility if there was no direct cost associated with altering the power consumption. However, the agent is penalised for changing the total daily energy demand in the power net. Note that it is not penalised for changing the daily consumption at individual loads as long as the total consumption in the network is preserved. The specific reward terms with weights are shown in table \ref{table:results:reward_formulation1}
 
 \begin{table}[ht]
 \centering
@@ -68,7 +68,7 @@ Imbalance state & 1  & Total energy imbalance for all loads
 \hline
 \end{tabular}
 \end{table}
-The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix ??. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance. This helps the system because the energy need not be transported out to the grid, but is consumed locally, close to production. Simply put, it is desired that the actions follow the curve of the solar irradiance. 
+The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix ??. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance. This helps the system because the power is not transported out to the grid, but instead is consumed locally, close to production. Simply put, it is desired that the actions follow the curve of the solar irradiance. 
 
 \begin{figure}[ht]
     \center
@@ -84,11 +84,23 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
     \caption[size = 9]{Action of the agent and solar profile during a day. The consumed power is increased in periods with high solar production}
     \label{fig:results:configuration1_follows_sun}
 \end{figure}
- The first plot in the top row \texttt{load = load 1} is plotted larger in figure \ref{fig:results:configuration1_negative_actions}, and show some peculiar behaviour. Clearly, the actions do not follow the solar profile that day, but are negative most of the day. This behaviour could be a result of how the reward function is defined in this configuration. The agent is penalised according to the total energy imbalance in the system, not at individual loads. As a result, if the energy imbalance is +10 MWh at one load and -10 MWh at another load, they perfectly cancel each other, and the agent is not penalised. From the agent's perspective, the system is in energy balance, although individual loads have a large absolute energy imbalance. This illustrates the problem with constructing state variable that accounts for the system as a whole, and not individual loads. The agent uses the same strategy consistently at this load. It appears as if this load functions as a energy balance, whose main job is to ensure that the total power imbalance in the grid is kept as small as possible.
+
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/configuration1_negative_actions.png}
     \caption[size = 9]{Action of the agent and solar profile during a day}
     \label{fig:results:configuration1_negative_actions}
 \end{figure}
+
+ The first plot in the top row \texttt{load = load 1} is plotted larger in figure \ref{fig:results:configuration1_negative_actions}, and show some peculiar behaviour. Clearly, the actions do not follow the solar profile that day, but are negative most of the day. This behaviour could be a result of how the reward function is defined in this configuration. The agent is penalised according to the total energy imbalance in the system, not at individual loads. As a result, if the energy imbalance is +1 MWh at one load and -1 MWh at another load, they perfectly cancel each other, and the agent is not penalised. From the agent's perspective, the system is in energy balance, although individual loads may have a large absolute energy imbalance. This illustrates the problem with constructing state variable that accounts for the system as a whole, and not individual loads. The agent uses the same strategy consistently at this load. It appears as if this load functions as a energy balance, whose main job is to ensure that the total power imbalance in the grid is kept as small as possible. However, the behaviour of the agent gives a negative energy imbalance, as seen in figure \ref{fig:results:configuration1_energy_imbalance}. The agent controls a 200 hour long episode, and it is evident that the energy imbalance quickly decreases and reaches an equilibrium around -13 MWh. The agent prefers to decrease the total consumption in the system, which is an unexpected behaviour. In fact, the expected behaviour is that the agent would increase the energy imbalance of the system because it consumes more power in periods with high solar power. It may indicate that the reward function is not appropriately constructed. More specifically, the energy imbalance cost is designed to reward the agent every time the energy imbalance decreases in absolute magnitude. A problem with this approach could be that the agent is not penalised for having a large absolute power imbalance. The reward function considers an energy imbalance transition from -11 MWh to -10 MWh equally good as a transition from -1 MWh to 0 MWh.
+ 
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/configuration1_imbalance.png}
+    \caption[size = 9]{Total energy imbalance at all the flexible loads when the agent control a 200 hour episode}
+    \label{fig:results:configuration1_energy_imbalance}
+\end{figure}
+
+
+
 \end{document}

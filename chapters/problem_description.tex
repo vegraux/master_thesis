@@ -60,7 +60,7 @@ Transformer &- & 2
 \hline
 \end{tabular}
 \end{table}
-Only number of loads (\textit{L}) and number of buses \textit{B} is given since only they are relevant for describing reinforcement setup. Table \ref{table:cigre_components} shows that there are 18 loads and 15 buses in the system. The reason is that there are several loads connected to some buses which makes the number of loads greater than the number of buses.  
+Only number of flexible loads (\textit{F}) and number of buses \textit{N} is given since only they are relevant for describing reinforcement setup. Table \ref{table:cigre_components} shows that there are 18 loads and 15 buses in the system. The reason is that there are several loads connected to some buses which makes the number of loads greater than the number of buses.  
 
 
 
@@ -163,7 +163,15 @@ There are safety margins in terms of voltage magnitudes in the power system. In 
     C_{voltage,i} = \max(0,|V_{i}| - V_{upper}) + \max(0,V_{lower}- |V_{i}|)
     \end{aligned} 
 \end{equation}
-where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. Let $C_{current,i}$ be the cost of violating current margins in line $i$
+where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. The voltage cost for a node in the grid is visualised in figure \ref{fig:problem:voltage_cost}.
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/voltage_cost.png}
+    \caption[size = 9]{Voltage cost at a bus in the power system}
+    \label{fig:problem:voltage_cost}
+\end{figure}
+
+Let $C_{current,i}$ be the cost of violating current margins in line $i$
 
 \begin{equation}
    \begin{aligned}
@@ -171,7 +179,16 @@ where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit
     C_{current,i} = \max(0,|I_{i}| - I_{upper})
     \end{aligned} 
 \end{equation}
-where $I_{upper}$ is the per unit upper current limit in lines. It is necessary to incentives costumers to offer flexibility in a realistic modelling of demand response. In other words, costumers should be economically compensated when their flexibility is activated. In classical incentive based programs (IBP) for demand control, costumers are given some sort of participation payment, such as a discount rate\cite{demand_response_definition}. On the other hand, marked based IBP compensates the costumers based on how much they participate. The most natural cost to consider in this thesis is the marked based IBP because the agent can is continuously change the consumption of power at flexible loads. The activation cost $C_{activation,i}$ is defined as
+where $I_{upper}$ is the per unit upper current limit in lines. The current cost is plotted in figure  ??.
+
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/current_cost.png}
+    \caption[size = 9]{Current cost for a line in the power system}
+    \label{fig:problem:current_cost}
+\end{figure}
+
+It is necessary to incentives costumers to offer flexibility in a realistic modelling of demand response. In other words, costumers should be economically compensated when their flexibility is activated. In classical incentive based programs (IBP) for demand control, costumers are given some sort of participation payment, such as a discount rate\cite{demand_response_definition}. On the other hand, marked based IBP compensates the costumers based on how much they participate. The most natural cost to consider in this thesis is the marked based IBP because the agent can continuously change the consumption of power at flexible loads. The activation cost $C_{activation,i}$ is defined as
 
 \begin{equation}
    \begin{aligned}
@@ -243,7 +260,7 @@ $\lambda |\Delta P_{i}|$&
 Activating flexibility
 \\
 Imbalance &
-$|B_{i,t-1}| - |B_{i,t}|$&
+$|B_{i,t}|- |B_{i,t-1}|$&
 Changing daily energy consumption
 \\
 \hline
