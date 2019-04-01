@@ -163,13 +163,13 @@ class TestActions:
 
     def test_set_solar(self):
         """
-        Checks that the the solar power production is updates in every step,
+        Checks that the the solar power production updates in every step,
         and follows the solar forecast
         :return:
         """
-        env = ActiveEnv(look_ahead=5)
+        env = ActiveEnv()
         solar_forecast = env.get_solar_forecast()
-        for hour in range(5):
+        for hour in range(4):
             action = env.action_space.sample()
             ob, reward, episode_over, info = env.step(action)
             load_pu = -env.powergrid.sgen['p_kw'] / env.powergrid.sgen['sn_kva']

@@ -57,6 +57,8 @@ sol_bus = net.load['bus'].isin(net.sgen['bus'])
 
 data = []
 obs = powerenv.reset()
+
+
 for i in range(100):
     action,_ = powermodel.predict(obs)
     obs, rewards, dones, info = powerenv.step(action)

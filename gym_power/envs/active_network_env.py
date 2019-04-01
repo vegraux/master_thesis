@@ -28,6 +28,42 @@ DATA_PATH = os.getenv('DATA_PATH')
 
 class ActiveEnv(gym.Env):
 
+    parameters = {'episode_length': 200,
+                  'reward_terms':['voltage','current','imbalance','activation'],
+                  'voltage_weight':1,'current_weight':0.01,
+                  'imbalance_weight':10e-4,
+                  'activation_weight':0,
+                  'forecast_horizon':4,
+                  'flexibility':0.1,
+                  'state_space': ['sun','demand','bus','imbalance']}
+
+    @classmethod
+    def set_parameters(cls, new_parameters):
+        """
+        sets parameters for animals
+        :param new_parameters: New parameter value
+        :type new_parameters: dictionary
+        """
+        allowed_keys = ['episode_length', 'reward_terms', 'voltage_weight',
+                        'current_weight', 'imbalance_weight',
+                        'forecast_horizon', 'activation_weight', 'flexibility',
+                        'state_space']
+        non_negative = ['voltage_weight', 'current_weight', 'imbalance_weight',
+                        'activation_weight']
+        zero_to_one = ['flexibility']
+        for key in new_parameters:
+            if key not in allowed_keys:
+                raise KeyError('Invalid parameter name' + key)
+            if key in non_negative and new_parameters[key] < 0:
+                raise ValueError('Invalid parameter value, negative values '
+                                 'not allowed: ' + key)
+            if key in zero_to_one and (
+                    new_parameters[key] < 0 or new_parameters[key] > 1):
+                raise ValueError('Invalid parameter value, value must be'
+                                 ' between 0 and 1: ' + key)
+
+            cls.parameters = {**cls.parameters, **new_parameters}
+
     def __init__(self,episode_length=200, look_ahead=4, solar_scale=0.8,
                  do_action=True, flexibility=0.1, force_commitments=True,
                  bus_in_state=False):
@@ -97,8 +133,9 @@ class ActiveEnv(gym.Env):
         """
         forecasts = []
         t = self.current_step
+        horizon = self.parameters['forecast_horizon']
         for load in self.demand_forcasts:
-            day_forecast = load[t:t+self.look_ahead]
+            day_forecast = load[t:t+horizon]
             forecasts.append(day_forecast)
 
         return forecasts
@@ -112,7 +149,8 @@ class ActiveEnv(gym.Env):
         :return:
         """
         t = self.current_step
-        return self.solar_forecasts[t:t+self.look_ahead]
+        horizon = self.parameters['forecast_horizon']
+        return self.solar_forecasts[t:t+horizon]
 
     def get_scaled_solar_forecast(self):
         """
@@ -139,7 +177,8 @@ class ActiveEnv(gym.Env):
         gets the forecasts for all loads in the episode
         :return:
         """
-        nr_days = (self.episode_length // 24) + 3 #margin
+        episode_length = self.parameters['episode_length']
+        nr_days = (episode_length // 24) + 3 #margin
         episode_forecasts = []
         for k in range(1):#range(len(self.powergrid.load)):
             demand_forcast = []
@@ -152,16 +191,7 @@ class ActiveEnv(gym.Env):
 
         return episode_forecasts
 
-    def _create_initial_state(self):
-        """
-        Creates the initial network using the forecast
-        :return:
-        """
-        loads = []
-        for load in self.demand_forcasts:
-            loads.append(load[0])
 
-        self.powergrid.load['p_kw'] = loads
 
     def select_start_hour(self):
         """
@@ -183,6 +213,7 @@ class ActiveEnv(gym.Env):
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forcasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
+        self._balance = np.zeros(self.episode_length)
 
         return self._get_obs()
 
@@ -404,12 +435,10 @@ class ActiveEnv(gym.Env):
 
 
 if __name__ == '__main__':
-    env = ActiveEnv(force_commitments=False)
-    env._get_obs()
-    hours = 100
-    for hour in range(hours):
-        action = 0.5*np.ones(len(env.powergrid.load))
+    env = ActiveEnv()
+    solar_forecast = env.get_solar_forecast()
+    for hour in range(4):
+        action = env.action_space.sample()
         ob, reward, episode_over, info = env.step(action)
-
-    env.plot_demand_and_solar(hours=hours)
-    print('para aquí')
+        load_pu = -env.powergrid.sgen['p_kw'] / env.powergrid.sgen['sn_kva']
+        assert np.linalg.norm(load_pu - solar_forecast[hour]) < 10e-7
