@@ -245,3 +245,17 @@ class TestReset:
 
 
 
+class TestParameters:
+
+    def test_set_parameters(self):
+        """
+        Checks that observation space is updated if state_space parameters
+        are updated
+        """
+        env = ActiveEnv()
+        env.set_parameters({'state_space': ['sun', 'demand', 'imbalance','bus']})
+        state0 = env.observation_space.shape[0]
+        env.set_parameters({'state_space': ['sun', 'demand', 'imbalance']})
+        state1 = env.observation_space.shape[0]
+        assert state1 < state0
+

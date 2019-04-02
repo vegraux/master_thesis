@@ -68,7 +68,13 @@ class ActiveEnv(gym.Env):
                 raise ValueError('Invalid parameter value, value must be'
                                  ' between 0 and 1: ' + key)
 
-            self.params = {**self.params, **new_parameters}
+
+        self.params = {**self.params, **new_parameters}
+        if 'state_space' in new_parameters:
+            self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
+                                                shape=self._get_obs().shape,
+                                                dtype=np.float32)
+
 
     def __init__(self,episode_length=200, look_ahead=4,
                  do_action=True, flexibility=0.1, force_commitments=False,

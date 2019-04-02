@@ -25,7 +25,9 @@ import tensorflow as tf
 
 #powerenv = PowerEnvSparse()
 #powerenv = PowerEnv()
-powerenv = ActiveEnv(force_commitments=False)
+powerenv = ActiveEnv()
+powerenv.set_parameters({'state_space': ['sun', 'demand', 'imbalance']})
+
 #powerenv = PowerEnvOld()
 powerenv = DummyVecEnv([lambda: powerenv])
 #powerenv = VecNormalize(powerenv, norm_reward=False)
@@ -70,7 +72,7 @@ for i in range(100):
 df = pd.DataFrame(data)
 df['demand'] =env.get_episode_demand_forecast()[0][:100]
 df['sol'] =env.get_episode_solar_forecast()[:100]
-df.loc[:,['demand','sol',7]].plot()
+df.loc[:,['demand','sol',3]].plot()
 plt.show()
 
 
