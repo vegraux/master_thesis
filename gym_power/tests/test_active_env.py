@@ -22,12 +22,14 @@ class TestForecasts:
     def test_initial_forecasts(self):
         """
         Checks that there are forecasts for every load, and that there always
-        exist forecasts 24 hours in the future for all time steps.
+        exist forecasts k hours in the future for all time steps.
         """
         episode_load_forecasts = ENV.get_episode_demand_forecast()
         assert len(episode_load_forecasts) == 1#len(ENV.powergrid.load)
+        horizon = ENV.params['forecast_horizon']
+        episode_length = ENV.params['episode_length']
         for load in episode_load_forecasts:
-            assert load.shape[0] - ENV.episode_length >= ENV.look_ahead
+            assert load.shape[0] - episode_length >= horizon
 
     def test_daily_forecast(self):
         """
@@ -37,21 +39,27 @@ class TestForecasts:
         """
         daily_demand_forecast = ENV.get_demand_forecast()
         assert len(daily_demand_forecast) == 1#len(ENV.powergrid.load)
+        horizon = ENV.params['forecast_horizon']
 
         for load in daily_demand_forecast:
-            assert load.shape[0] == ENV.look_ahead
+            assert load.shape[0] == horizon
 
     def test_episode_solar_forecast(self):
         """Checks that end of the episode at least has a 24 hour forecast"""
         episode_solar_forecasts = ENV.get_episode_solar_forecast()
-        assert len(episode_solar_forecasts) - ENV.episode_length > ENV.look_ahead
+        horizon = ENV.params['forecast_horizon']
+        episode_length = ENV.params['episode_length']
+
+        assert len(episode_solar_forecasts) - episode_length> horizon
 
     def test_daily_solar_forecast(self):
         """
-        checks that daily_solar_forecast is look_ahead hours
+        checks that daily_solar_forecast is forecast_horizon hours
         """
         daily_solar_forecast = ENV.get_solar_forecast()
-        assert len(daily_solar_forecast) == ENV.look_ahead
+        horizon = ENV.params['forecast_horizon']
+
+        assert len(daily_solar_forecast) == horizon
 
 
     def test_initial_state(self):
@@ -123,7 +131,7 @@ class TestComitments:
         are updated correctly
         :return:
         """
-        env = ActiveEnv()
+        env = ActiveEnv(force_commitments=True)
         env._commitments[0] = True
         env.last_action[0] = 2
         action = np.ones_like(env.last_action)
@@ -143,7 +151,7 @@ class TestActions:
         :return:
         """
         flex = 0.1
-        env = ActiveEnv(flexibility=flex)
+        env = ActiveEnv(flexibility=flex, force_commitments=True)
         env.set_demand_and_solar()
         demand = copy.copy(env.powergrid.load['p_kw'].values)
         action1 = np.ones_like(env.last_action)

@@ -37,7 +37,7 @@ action_noise = OrnsteinUhlenbeckActionNoise(mean=action_mean, sigma=action_sigma
 
 param_noise = AdaptiveParamNoiseSpec(initial_stddev=0.2, desired_action_stddev=0.01)
 
-t_steps = 100000
+t_steps = 20000
 powermodel = DDPG(LnMlpPolicy, powerenv,
                   verbose=2,
                   action_noise=action_noise,
