@@ -3,6 +3,7 @@
 """
 
 """
+import os
 
 __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'
@@ -16,7 +17,7 @@ from stable_baselines.ddpg.policies import MlpPolicy, LnMlpPolicy
 from stable_baselines.ddpg.noise import OrnsteinUhlenbeckActionNoise
 from stable_baselines import DDPG
 from stable_baselines.ddpg.noise import AdaptiveParamNoiseSpec
-
+import pickle
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -26,7 +27,12 @@ import tensorflow as tf
 #powerenv = PowerEnvSparse()
 #powerenv = PowerEnv()
 powerenv = ActiveEnv()
-powerenv.set_parameters({'state_space': ['sun', 'demand', 'imbalance']})
+powerenv.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
+                         'voltage_weight':10,
+                         'current_weight':0.1,
+                        'reward_terms': ['voltage', 'current', 'imbalance']
+                         })
+
 
 #powerenv = PowerEnvOld()
 powerenv = DummyVecEnv([lambda: powerenv])
@@ -39,10 +45,11 @@ action_noise = OrnsteinUhlenbeckActionNoise(mean=action_mean, sigma=action_sigma
 
 param_noise = AdaptiveParamNoiseSpec(initial_stddev=0.2, desired_action_stddev=0.01)
 
-t_steps = 20000
+t_steps = 10000
 powermodel = DDPG(LnMlpPolicy, powerenv,
                   verbose=2,
                   action_noise=action_noise,
+                  gamma=0.6,
                   #param_noise=param_noise,
                   tensorboard_log='C:\\Users\\vegar\\Dropbox\\Master\\logs',
                   memory_limit=int(t_steps),
@@ -59,6 +66,16 @@ sol_bus = net.load['bus'].isin(net.sgen['bus'])
 
 data = []
 obs = powerenv.reset()
+
+
+model_name = 'discount_06'
+path = 'models/' + model_name +'.pkl'
+while os.path.isfile(path):
+    model_name += '1'
+    path = 'models/' + model_name + '.pkl'
+powermodel.save('models/'+model_name)
+with open('models/' + model_name + '_params.p', 'wb') as f:
+    pickle.dump(env.params, f)
 
 
 for i in range(100):

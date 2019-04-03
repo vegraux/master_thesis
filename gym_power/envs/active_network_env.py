@@ -53,13 +53,14 @@ class ActiveEnv(gym.Env):
         allowed_keys = ['episode_length', 'reward_terms', 'voltage_weight',
                         'current_weight', 'imbalance_weight',
                         'forecast_horizon', 'activation_weight', 'flexibility',
-                        'state_space','solar_scale', 'demand_scale']
+                        'state_space','solar_scale', 'demand_scale','v_lower',
+                        'v_upper','i_upper']
         non_negative = ['voltage_weight', 'current_weight', 'imbalance_weight',
                         'activation_weight']
         zero_to_one = ['flexibility']
         for key in new_parameters:
             if key not in allowed_keys:
-                raise KeyError('Invalid parameter name' + key)
+                raise KeyError('Invalid parameter name: ' + key)
             if key in non_negative and new_parameters[key] < 0:
                 raise ValueError('Invalid parameter value, negative values '
                                  'not allowed: ' + key)
@@ -468,7 +469,12 @@ class ActiveEnv(gym.Env):
 
 if __name__ == '__main__':
     env = ActiveEnv()
-    env.set_parameters({'activation_weight':1e-4})
+    env.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
+                             'voltage_weight': 100,
+                             'current_weight': 1,
+                             'reward_terms': ['voltage', 'current', 'imbalance']
+                             })
+
     for hour in range(28):
         action = env.action_space.sample()
         ob, reward, episode_over, info = env.step(action)
