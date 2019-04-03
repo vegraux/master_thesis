@@ -100,6 +100,7 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
     \caption[size = 9]{Total energy imbalance at all the flexible loads when the agent control a 200 hour episode}
     \label{fig:results:configuration1_energy_imbalance}
 \end{figure}
+Figure ?? plots the rewards given in every step in a 200-hour long episode for the trained agent and an agent taking no actions. The curve corresponding to no agent is equivalent to a scenario with no reinforcement algorithm, since no actions are taken. By definition, the imbalance cost will be 0 for the no-action scenario because it never alters the energy consumption. Consequently, the no action scenario is only penalised based on violation of safety margins on voltage and line current. The rewards illustrate some clear weaknesses in the trained agent. The original goal of the agent is to take actions to prevent violations of voltage and line current safety margins. Those periods correspond to the spikes in figure ?? when the solar power production is high. It is evident that the trained agent actually is worse in those critical periods, and has not learned the desired behaviour. The trained agent occasionally gets a positive rewards when the energy imbalance in the system decreases. On average, the total episodic reward is about the same, but it is clear that the reward function is not well tuned. The agent should be more penalised for violating safety margins for voltage and line current.
 
 
 
