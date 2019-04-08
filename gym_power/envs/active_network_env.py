@@ -42,7 +42,8 @@ class ActiveEnv(gym.Env):
               'v_upper':1.04,
               'v_lower':0.96,
               'i_upper':90,
-              }
+              'demand_std':0.03,
+              'solar_std':0.03}
 
     def set_parameters(self, new_parameters):
         """
@@ -54,7 +55,7 @@ class ActiveEnv(gym.Env):
                         'current_weight', 'imbalance_weight',
                         'forecast_horizon', 'activation_weight', 'flexibility',
                         'state_space','solar_scale', 'demand_scale','v_lower',
-                        'v_upper','i_upper']
+                        'v_upper','i_upper', 'demand_std','solar_std']
         non_negative = ['voltage_weight', 'current_weight', 'imbalance_weight',
                         'activation_weight']
         zero_to_one = ['flexibility']
@@ -75,11 +76,11 @@ class ActiveEnv(gym.Env):
             self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                                 shape=self._get_obs().shape,
                                                 dtype=np.float32)
+        if ('demand_std' in new_parameters) or ('solar_std' in new_parameters):
+            self.set_demand_and_solar()
 
 
-    def __init__(self,episode_length=200, look_ahead=4,
-                 do_action=True, flexibility=0.1, force_commitments=False,
-                 bus_in_state=False):
+    def __init__(self,do_action=True, force_commitments=False):
         self.np_random = None
         self.seed()
         #time attributes
@@ -243,7 +244,9 @@ class ActiveEnv(gym.Env):
         """
         episode_length = self.params['episode_length']
         horizon = self.params['forecast_horizon']
-        start_day = self.np_random.choice(365-episode_length//24 - 2)
+        solar_days = (self.solar_data.index[-1] - self.solar_data.index[0])
+        solar_days = solar_days.days
+        start_day = self.np_random.choice(solar_days-episode_length//24 - 2)
         start = self._episode_start_hour + start_day * 24
         nr_hours = episode_length + horizon + 1 #margin of 1
         episode_solar_forecast = self.solar_data[start:start+nr_hours].values
@@ -260,7 +263,7 @@ class ActiveEnv(gym.Env):
 
 
     def load_solar_data(self):
-        solar_path = os.path.join(DATA_PATH,'solar_irradiance_2015.csv')
+        solar_path = os.path.join(DATA_PATH,'hourly_solar_data.csv')
         solar = pd.read_csv(solar_path)
         solar.index = pd.to_datetime(solar.iloc[:, 0])
         solar.index.name = 'time'
@@ -369,10 +372,15 @@ class ActiveEnv(gym.Env):
 
     def set_demand_and_solar(self):
         """
-        Updates the demand and solar production according to the forecasts
+        Updates the demand and solar production according to the forecasts, with
+        some n
         """
         solar_pu = self.get_solar_forecast()[0]
+        solar_pu += solar_pu*self.params['solar_std']*self.np_random.randn()
+
         demand_pu = self.get_demand_forecast()[0][0]
+        demand_pu += demand_pu*self.params['demand_std']*self.np_random.randn()
+
         self.powergrid.sgen['p_kw'] = - solar_pu * self.powergrid.sgen['sn_kva']
         self.powergrid.load['p_kw'] = demand_pu * self.powergrid.load['sn_kva']
         self.powergrid.load['q_kvar'] = self.powergrid.load['p_kw'] * self.pq_ratio
@@ -469,14 +477,15 @@ class ActiveEnv(gym.Env):
 
 if __name__ == '__main__':
     env = ActiveEnv()
-    env.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
-                             'voltage_weight': 100,
-                             'current_weight': 1,
-                             'reward_terms': ['voltage', 'current', 'imbalance']
-                             })
-
-    for hour in range(28):
+    for hour in range(10):
         action = env.action_space.sample()
         ob, reward, episode_over, info = env.step(action)
-    solar_forecast = env.get_solar_forecast()
-    env.calc_imbalance()
+
+    net = copy.copy(env.powergrid)
+    env.reset()
+    vars = ['p_kw', 'q_kvar']
+    assert np.linalg.norm(
+        net.load.loc[:, vars] - env.powergrid.load.loc[:, vars]) > 0.001
+    assert np.linalg.norm(
+        net.sgen.loc[:, vars] - env.powergrid.sgen.loc[:, vars]) > 0.001
+

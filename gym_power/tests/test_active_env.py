@@ -68,12 +68,14 @@ class TestForecasts:
         (arbitrary definition)
         :return:
         """
-        loads = ENV.powergrid.load['p_kw']
+        env = ActiveEnv()
+        env.set_parameters({'demand_std':0})
+        loads = env.powergrid.load['p_kw']
         demand_forecast = []
-        for load in ENV.demand_forcasts:
+        for load in env.demand_forcasts:
             demand_forecast.append(load[0])
         demand_forecast = np.array(demand_forecast)
-        demand_forecast *= ENV.powergrid.load['sn_kva']
+        demand_forecast *= env.powergrid.load['sn_kva']
 
         assert norm(demand_forecast - loads) < 10e-6
 
@@ -91,22 +93,6 @@ class TestForecasts:
 
 class TestState:
 
-    def test_state_dimensions(self):
-        """
-        Checks that state dimensions are good. It will probably fail when I
-        change state representation, so I guess it will be deleted at some point
-
-        state = ENV._get_obs()
-        state_size = len(state)
-        bus_state_size = len(ENV.powergrid.bus) * 4
-        demand_forecast = ENV.get_demand_forecast()
-        demand_forecast_state_size = len(demand_forecast)*len(demand_forecast[0])
-        solar_forecast_state_size =  len(ENV.get_solar_forecast())
-        sum_size = bus_state_size + solar_forecast_state_size + demand_forecast_state_size
-        assert state_size == sum_size
-
-        """
-        pass
     def test_initial_loads(self):
         """
         Checks that set_demand_and_solar is called and updates the loads of
@@ -114,6 +100,7 @@ class TestState:
         if set_demand_and_solar is called when timestep is the same.
         """
         env = ActiveEnv()
+        env.set_parameters({'demand_std':0})
         initial_loads = copy.copy(env.powergrid.load)
         env.set_demand_and_solar()
         loads = env.powergrid.load
@@ -151,7 +138,8 @@ class TestActions:
         :return:
         """
         flex = 0.1
-        env = ActiveEnv(flexibility=flex, force_commitments=True)
+        env = ActiveEnv(force_commitments=True)
+        env.set_parameters({'flexibility':flex})
         env.set_demand_and_solar()
         demand = copy.copy(env.powergrid.load['p_kw'].values)
         action1 = np.ones_like(env.last_action)
@@ -176,6 +164,7 @@ class TestActions:
         :return:
         """
         env = ActiveEnv()
+        env.set_parameters({'solar_std':0})
         solar_forecast = env.get_solar_forecast()
         for hour in range(4):
             action = env.action_space.sample()
@@ -191,6 +180,7 @@ class TestActions:
         This should hold when 'hours' is even
         """
         env = ActiveEnv(force_commitments=True)
+        env.set_parameters({'demand_std':0})
         hours = 100
         for hour in range(hours):
             action = 1 * np.ones(len(env.powergrid.load))
