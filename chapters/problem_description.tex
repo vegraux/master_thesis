@@ -15,7 +15,7 @@
 \pgfplotsset{compat=1.15}
 
 \begin{document}
-\section{Problem description}
+\section{Problem description}\label{section:problem_description}
 Solar power production occurs during day-time and is, not surprisingly, controlled by the sun. Figure ?? shows a typical solar profile for a day. As photovoltaic modules become common in residential areas, they will grow to a size where they produce a significant amount of power that must be transported out on the grid. A consequence of this can can be that safety bounds for both voltage and line capacity are violated. A strategy for avoiding is called demand response. Albadi and El-Saadany give the following definition of demand response.\cite{demand_response_definition}
 
 \begin{displayquote}
@@ -33,7 +33,19 @@ The specific setup in this thesis is based on several assumptions for a hypothet
     \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm}
     \label{fig:problem:cigre_network}
 \end{figure}
-The left-most feeder has several solar producing units connected and wind power connected to bus 7. The time resolution in this task is chosen to be hourly. In other words, the demand and solar production at every bus is updated every hour, and assumed constant in between hours. The demand profile is generated using \textit{enlopy}, a python toolkit for energy demand time series\cite{enlopy}. The demand signal is generated based on data of the energy consumption of private households. A data set with solar irradiance in Konongo, Ghana is used as input to define the production of solar power. The signal of solar production and power demand is assumed equal at all buses and scaled up based on nominal values of the loads at each bus. This reduces the state space, as there is no need for a unique demand forecast for all the loads.  For simplicity, the power factor is assumed constant at every bus, meaning the reactive power at each load is a percentage of the active power at all times. The power factor at each load is the same as the default values in the CIGRE network. The values of the solar production are intentionally amplified so that the safety margins for line current and voltage magnitudes in the grid frequently are violated if no actions are taken.  
+The left-most feeder has several solar producing units connected and wind power connected to bus 7. The time resolution in this task is chosen to be hourly. In other words, the demand and solar production at every bus is updated every hour, and assumed constant in between hours. The demand profile is generated using \textit{enlopy}, a python toolkit for energy demand time series \cite{enlopy}. The demand signal is generated based on data of the energy consumption of private households.
+
+A data set with satellite-derived solar irradiance in central Norway is used as input to define the production of solar power\cite{solar_data}. Figure \ref{fig:problem:solar_data} plots a time series of the solar irradiance, and a couple of example days. The solar data is scaled so the maximum value is 1.
+
+\begin{figure}[ht]
+    \includegraphics[height=9cm, width=13.5cm]{figures/solar_data.png}
+    \caption[size = 9]{The solar irradiance data used in the reinforcement model. The period is 2004-02-11 to 2004-10-03, generated from SoDa \cite{solar_data}. (lon,lat) = (63.395,10.381) }
+    \label{fig:problem:solar_data}
+\end{figure}
+
+
+
+The signal of solar production and power demand is assumed equal at all buses and scaled up based on nominal values of the loads at each bus. This reduces the state space, as there is no need for a unique demand forecast for all the loads.  For simplicity, the power factor is assumed constant at every bus, meaning the reactive power at each load is a percentage of the active power at all times. The power factor at each load is the same as the default values in the CIGRE network. The values of the solar production are intentionally amplified so that the safety margins for line current and voltage magnitudes in the grid frequently are violated if no actions are taken.  
 
 All loads have an hourly forecast of energy consumption that is used to update the active and reactive powers at every time step. It is assumed that the loads at all buses have some flexibility, say 10 \% of the actual demand, that can be centrally controlled at every hour.
 
@@ -52,7 +64,7 @@ Component  & Symbol & Amount
 Bus & N & 15 \\
 Switch & - & 8 \\
 Static generator &-& 9 \\ 
-Line & - & 15 \\
+Line & L & 15 \\
 Load &F & 18 \\
 Transformer &- & 2
 
@@ -60,7 +72,7 @@ Transformer &- & 2
 \hline
 \end{tabular}
 \end{table}
-Only number of flexible loads (\textit{F}) and number of buses \textit{N} is given since only they are relevant for describing reinforcement setup. Table \ref{table:cigre_components} shows that there are 18 loads and 15 buses in the system. The reason is that there are several loads connected to some buses which makes the number of loads greater than the number of buses.  
+Only the number of flexible loads \textit{F}, buses \textit{N} and lines \textit{L} are given since only they are relevant for describing reinforcement setup. Table \ref{table:cigre_components} shows that there are 18 loads and 15 buses in the system. The reason is that there are several loads connected to some buses which makes the number of loads greater than the number of buses.  
 
 
 
@@ -266,5 +278,6 @@ Changing daily energy consumption
 \hline
 \end{tabular}
 \end{table}
+
 
 \end{document}
