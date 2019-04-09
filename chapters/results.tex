@@ -16,6 +16,28 @@
 
 \begin{document}
 There are many ways of setting up the state space and reward function that can result in very different behaviour of the agent. This chapter will present results from certain formulation of the reinforcement algorithm. In all cases, deep deterministic policy gradient (DDPG) is used to train the agent. 
+
+\section{Baseline}
+It is important to have a baseline to which a trained reinforcement agent can be compared. It is necessary to discuss the physical challenges, and the kind of behaviour that would improve the condition of the electrical grid. As mentioned in \ref{section:problem_description}, the main challenges for the network is that large amount of power must imported and exported out to the external grid in a normal day. Figure \ref{fig:results:demand_and_solar} plots the daily mean solar irradiance signal and power demand used for training the reinforcement agent. The first period that is critical for the grid is when the solar irradiance is at its maximum. The excess solar power produced must be transported out to the grid through many lines due to a large amount of local power production. This can cause overloads in the lines carrying the current and high voltage magnitudes at the bus bars. The second critical period is during peak demand because large amount of energy must be imported from the grid. The problem with importing large amounts of power is potential overloads in the lines, in addition to low voltage magnitudes. A solution to this problem is that profile for the solar production and power demand overlap more. It is not possible to control when the sun shines, but it is possible to manipulate when power is consumed.
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/demand_and_solar.png}
+    \caption[size = 9]{Mean hourly power demand curve and solar irradiance}
+    \label{fig:results:demand_and_solar}
+\end{figure}
+
+The reinforcement agent is trained with a certain flexibility. It is necessary to inspect what effect the activation of flexibility has on voltage magnitude and line current before a trained agent can be evaluated. Figure \ref{fig:results:increase_demand_current} illustrates the effect activation of flexibility (increasing consumption) has on the current in a critical line. The consumption of active power is increased by 25 \% for all the loads in every hour. The first and second peak in line current correspond, respectively, to the solar peak and the power demand peak. It is clear from the first peak that increasing the consumption decreases the line current. This is because the loads in this period generate so much solar power that they act as producers and not consumers. Increasing the consumption means that less power needs to be transported out to the external grid, which decreases the line current. As a result, the desired behaviour in periods with high solar irradiation is to increase the consumption.
+
+The effect of increasing consumption in the second peak is the opposite of that in the first peak. This is because the loads now act as consumers, and active power must therefore be imported from the external grid. Increasing the consumption in this period simply corresponds to drawing even more power from the external grid, which in turn increases the line current. 
+
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/increase_demand_current.png}
+    \caption[size = 9]{Current in a critical line when increasing load with 25 \% in all hours and regular situation. The line connecting bus 1 and 2 is showed}
+    \label{fig:results:increase_demand_current}
+\end{figure}
+
+
 \section{Formulation 1 - Free activation}
 A reinforcement agent is trained with reward function that does not include cost of activation. This is not a realistic case, since households that offer flexibility should be compensated for altering their energy profile. This formulation serves to show how an agent would activate flexibility if there was no direct cost associated with altering the power consumption. However, the agent is penalised for changing the total daily energy demand in the power net. Note that it is not penalised for changing the daily consumption at individual loads as long as the total consumption in the network is preserved. The specific reward terms with weights are shown in table \ref{table:results:reward_formulation1}
 
@@ -100,7 +122,7 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
     \caption[size = 9]{Total energy imbalance at all the flexible loads when the agent control a 200 hour episode}
     \label{fig:results:configuration1_energy_imbalance}
 \end{figure}
-Figure ?? plots the rewards given in every step in a 200-hour long episode for the trained agent and an agent taking no actions. The curve corresponding to no agent is equivalent to a scenario with no reinforcement algorithm, since no actions are taken. By definition, the imbalance cost will be 0 for the no-action scenario because it never alters the energy consumption. Consequently, the no action scenario is only penalised based on violation of safety margins on voltage and line current. The rewards illustrate some clear weaknesses in the trained agent. The original goal of the agent is to take actions to prevent violations of voltage and line current safety margins. Those periods correspond to the spikes in figure ?? when the solar power production is high. It is evident that the trained agent actually is worse in those critical periods, and has not learned the desired behaviour. The trained agent occasionally gets a positive rewards when the energy imbalance in the system decreases. On average, the total episodic reward is about the same, but it is clear that the reward function is not well tuned. The agent should be more penalised for violating safety margins for voltage and line current.
+Figure ?? plots the rewards given in every step in a 200-hour long episode for the trained agent and an agent taking no actions. The curve corresponding to no agent is equivalent to a scenario with no reinforcement algorithm, since no actions are taken. By definition, the imbalance cost will be 0 for the no-action scenario because it never alters the energy consumption. Consequently, the no action scenario is only penalised based on violation of safety margins on voltage and line current. The rewards illustrate some clear weaknesses in the trained agent. The original goal of the agent is to take actions to prevent violations of voltage and line current safety margins. Those periods correspond to the spikes in figure ??, which is when the solar power production is high. It is evident that the trained agent actually is worse in those critical periods, and has not learned the desired behaviour. The trained agent occasionally gets a positive rewards when the energy imbalance in the system decreases. On average, the total episodic reward is about the same, but it is clear that the reward function is not well tuned. The agent should be more penalised for violating safety margins for voltage and line current.
 
 
 
