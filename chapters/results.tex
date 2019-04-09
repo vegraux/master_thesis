@@ -28,14 +28,28 @@ It is important to have a baseline to which a trained reinforcement agent can be
 
 The reinforcement agent is trained with a certain flexibility. It is necessary to inspect what effect the activation of flexibility has on voltage magnitude and line current before a trained agent can be evaluated. Figure \ref{fig:results:increase_demand_current} illustrates the effect activation of flexibility (increasing consumption) has on the current in a critical line. The consumption of active power is increased by 25 \% for all the loads in every hour. The first and second peak in line current correspond, respectively, to the solar peak and the power demand peak. It is clear from the first peak that increasing the consumption decreases the line current. This is because the loads in this period generate so much solar power that they act as producers and not consumers. Increasing the consumption means that less power needs to be transported out to the external grid, which decreases the line current. As a result, the desired behaviour in periods with high solar irradiation is to increase the consumption.
 
-The effect of increasing consumption in the second peak is the opposite of that in the first peak. This is because the loads now act as consumers, and active power must therefore be imported from the external grid. Increasing the consumption in this period simply corresponds to drawing even more power from the external grid, which in turn increases the line current. 
+The effect of increasing consumption in the second peak is the opposite of that in the first peak. This is because the loads now act as consumers since there is no solar production. The active power must therefore be imported from the external grid. Increasing the consumption in this period simply corresponds to drawing even more power from the external grid, which in turn increases the line current. The desired behaviour in this period is therefore to lower the power consumption, since this would decrease the current in the line. 
 
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/increase_demand_current.png}
-    \caption[size = 9]{Current in a critical line when increasing load with 25 \% in all hours and regular situation. The line connecting bus 1 and 2 is showed}
+    \caption[size = 9]{Current capacity in a critical line when increasing the power consumption with 25 \% in all hours and regular situation. The line connecting bus 1 and 2 in figure \ref{fig:problem:cigre_network} is showed}
     \label{fig:results:increase_demand_current}
 \end{figure}
+
+Figure\ref{fig:results:decrease_demand_voltage} illustrates the effect activation of flexibility has on voltage magnitude at a critical bus bar. In this case, the consumption of active power is decreased by 25 \% at all loads in the network. There are two critical periods during a normal day for this case as well. The effect of decreasing the consumption in periods with high solar is that the voltage magnitude increases. This can be seen between around hour 13 in figure \ref{fig:results:decrease_demand_voltage}. The bus bar is in this period acting as a producer because of the excess solar power that is transported out to the external grid. Generally, higher production at a bus bar means higher voltage magnitude. Reducing the consumption means that even more power from solar production must be sent out to the external grid, raising the voltage magnitude ever further. Consequently, decreasing the consumption in periods with high solar irradiance is not a desired behaviour. 
+
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/decrease_demand_voltage.png}
+    \caption[size = 9]{Voltage magnitude in a critical line when the power consumption is reduced with 25 \% in all hours and regular situation. Bus bar 9 in \ref{fig:problem:cigre_network} is used}
+    \label{fig:results:decrease_demand_voltage}
+\end{figure}
+The second critical period in a normal day can be seen around hour 20 in figure \ref{fig:results:decrease_demand_voltage}. At this point, there is no solar power production, and power must be imported from the external grid. The voltage magnitude is now lower than its nominal value because the loads consume. Generally, higher consumption means lower voltage magnitude. Therefore it is better to reduce the consumption of power in this period because the voltage magnitude generally will be closer to nominal values.
+
+The desired behaviour in terms of both current and voltage safety margins is to increase consumption in periods with high solar irradiance and decrease it when the production of solar energy has ended in a day. 
+
+
 
 
 \section{Formulation 1 - Free activation}
