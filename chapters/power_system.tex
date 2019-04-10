@@ -21,7 +21,7 @@ The reinforcement agent is working within an electrical power system and it is t
 
 \section{Electric circuit theory}
 \subsection{Voltage, current and power}
-An electric circuit is a model that describes how electrical power is transferred from a electrical source unit to a load. An example of a source is a power socket on the wall and a load can be a light bulb or a vacuum cleaner. A model of a simple electric circuit is shown in figure \ref{fig:theory:simple_circuit}, where \textit{U} is placed next to the electrical source and \textit{R} next to the load. 
+An electric circuit is a model that describes how electrical power is transferred from a electrical source unit to a load. An example of a source is a power socket on the wall and a load can be a light bulb or a vacuum cleaner. A model of a simple electric circuit is shown in figure \ref{fig:theory:simple_circuit}, where \textit{U} is placed next to the electrical source and \textit{R} next to the load. The electric transmission system is analogous to this configuration, except it with several electrical sources (power plants) and loads (cities) connected. 
 
 \begin{figure}[ht!]
     \centering
@@ -183,7 +183,7 @@ Current, voltage, impedance and and power are all expressed as complex numbers i
     \caption[size = 9]
     {Circuit with a resistor and a inductance connected i parallel}\label{fig:theory:complex_current_circuit}
 \end{figure}
-The resistor will draw a current $I_{p}$ that is in phase with the source voltage. The inductor will draw a current $I_{q}$ that lags the voltage by 90 degrees. The resultant current drawn from the source will therefore be a linear combination of two phase shifted sinusoidal signals. The equations for summing phase-shifted sinusoidal are complicated, and not not easy to work with. Euler's formula states that a complex number $A$ can be expressed by
+The resistor will draw a current $I_{p}$ that is in phase with the source voltage. The inductor will draw a current $I_{q}$ that lags the voltage by 90 degrees. The resultant current drawn from the source will therefore be a linear combination of two phase shifted sinusoidal signals. The equations for summing phase-shifted sinusoidal signals are complicated, and not not easy to work with. Euler's formula states that a complex number $A$ can be expressed by
 
 \begin{equation}\label{eq:eulers_equation}
     A = Re^{j\omega t} = R\cos{(\omega t)} + jR\sin{(\omega t)}
