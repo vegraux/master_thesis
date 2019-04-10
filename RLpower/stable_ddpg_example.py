@@ -27,10 +27,9 @@ import tensorflow as tf
 #powerenv = PowerEnvSparse()
 #powerenv = PowerEnv()
 powerenv = ActiveEnv()
-powerenv.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
-                         'voltage_weight':10,
-                         'current_weight':0.1,
-                        'reward_terms': ['voltage', 'current', 'imbalance']
+powerenv.set_parameters({'state_space': ['sun', 'demand','imbalance'],
+                        'reward_terms': ['voltage', 'current','imbalance'],
+                         'flexibility': 0.25
                          })
 
 
@@ -45,11 +44,11 @@ action_noise = OrnsteinUhlenbeckActionNoise(mean=action_mean, sigma=action_sigma
 
 param_noise = AdaptiveParamNoiseSpec(initial_stddev=0.2, desired_action_stddev=0.01)
 
-t_steps = 10000
+t_steps = 100000
 powermodel = DDPG(LnMlpPolicy, powerenv,
                   verbose=2,
                   action_noise=action_noise,
-                  gamma=0.6,
+                  gamma=0.99,
                   #param_noise=param_noise,
                   tensorboard_log='C:\\Users\\vegar\\Dropbox\\Master\\logs',
                   memory_limit=int(t_steps),
@@ -68,7 +67,7 @@ data = []
 obs = powerenv.reset()
 
 
-model_name = 'discount_06'
+model_name = 'flex_25'
 path = 'models/' + model_name +'.pkl'
 while os.path.isfile(path):
     model_name += '1'

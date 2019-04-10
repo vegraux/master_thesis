@@ -29,6 +29,11 @@ ENV_NAME = 'Pendulum-v0'
 # Get the environment and extract the number of actions.
 #powergrid = gym.make(ENV_NAME)
 env =ActiveEnv()
+env.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
+                         'voltage_weight':10,
+                         'current_weight':0.1,
+                        'reward_terms': ['voltage', 'current', 'imbalance']
+                         })
 #env = PowerEnvOldNormalized()
 #env = PowerEnvStep()
 

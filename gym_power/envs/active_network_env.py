@@ -43,7 +43,8 @@ class ActiveEnv(gym.Env):
               'v_lower':0.96,
               'i_upper':90,
               'demand_std':0.03,
-              'solar_std':0.03}
+              'solar_std':0.03,
+              'total_imbalance':False}
 
     def set_parameters(self, new_parameters):
         """
@@ -55,7 +56,8 @@ class ActiveEnv(gym.Env):
                         'current_weight', 'imbalance_weight',
                         'forecast_horizon', 'activation_weight', 'flexibility',
                         'state_space','solar_scale', 'demand_scale','v_lower',
-                        'v_upper','i_upper', 'demand_std','solar_std']
+                        'v_upper','i_upper', 'demand_std','solar_std',
+                        'total_imbalance']
         non_negative = ['voltage_weight', 'current_weight', 'imbalance_weight',
                         'activation_weight']
         zero_to_one = ['flexibility']
@@ -72,17 +74,19 @@ class ActiveEnv(gym.Env):
 
 
         self.params = {**self.params, **new_parameters}
-        if 'state_space' in new_parameters:
+
+        if ('state_space' in new_parameters) or ('total_imbalance' in new_parameters):
             self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                                 shape=self._get_obs().shape,
                                                 dtype=np.float32)
-        if ('demand_std' in new_parameters) or ('solar_std' in new_parameters):
-            self.set_demand_and_solar()
+        #if ('demand_std' in new_parameters) or ('solar_std' in new_parameters):
+        #    self.set_demand_and_solar()
 
+        _ = self.reset()
 
-    def __init__(self,do_action=True, force_commitments=False):
+    def __init__(self,do_action=True, force_commitments=False, seed=None):
         self.np_random = None
-        self.seed()
+        self._seed = self.seed(seed)
         #time attributes
         self._current_step = 0
         self._episode_start_hour = self.select_start_hour()
@@ -100,12 +104,12 @@ class ActiveEnv(gym.Env):
         #state variables, forecast + commitment
         self.solar_data = self.load_solar_data()
         self.solar_forecasts = self.get_episode_solar_forecast()
-        self.demand_forcasts = self.get_episode_demand_forecast()
+        self.demand_forecasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
         self.force_commitments = force_commitments
         self._commitments = np.zeros(len(self.powergrid.load)) != 0
         self.resulting_demand = np.zeros(self.params['episode_length'])
-        self._imbalance = np.zeros(self.params['episode_length'])
+        self._imbalance = self.empty_imbalance()
 
 
 
@@ -145,7 +149,7 @@ class ActiveEnv(gym.Env):
         forecasts = []
         t = self._current_step
         horizon = self.params['forecast_horizon']
-        for load in self.demand_forcasts:
+        for load in self.demand_forecasts:
             day_forecast = load[t:t+horizon]
             forecasts.append(day_forecast)
 
@@ -175,7 +179,7 @@ class ActiveEnv(gym.Env):
         return np.array(scaled_solar)
 
     def get_scaled_demand_forecast(self):
-        demand_pu = self.demand_forcasts[0]
+        demand_pu = self.demand_forecasts[0]
         scaled_demand = []
         for demand in demand_pu:
             scaled_demand.append((demand*self.powergrid.load['sn_kva']).sum())
@@ -223,11 +227,20 @@ class ActiveEnv(gym.Env):
         self.powergrid = copy.deepcopy(self.base_powergrid)
         self._episode_start_hour = self.select_start_hour()
         self.solar_forecasts = self.get_episode_solar_forecast()
-        self.demand_forcasts = self.get_episode_demand_forecast()
+        self.demand_forecasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
-        self._imbalance = np.zeros(self.params['episode_length'])
+        self._imbalance = self.empty_imbalance()
 
         return self._get_obs()
+
+    def empty_imbalance(self):
+        """
+        Creates imbalance array, all 0.
+        :return:
+        """
+        nr_loads = len(self.flexible_load_indices)
+        episode_length = self.params['episode_length']
+        return np.zeros((nr_loads,episode_length))
 
     def get_bus_state(self):
         """
@@ -250,7 +263,7 @@ class ActiveEnv(gym.Env):
         start = self._episode_start_hour + start_day * 24
         nr_hours = episode_length + horizon + 1 #margin of 1
         episode_solar_forecast = self.solar_data[start:start+nr_hours].values
-        return episode_solar_forecast.ravel()
+        return episode_solar_forecast.ravel() *self.params['solar_scale']
 
     def get_commitment_state(self):
         """
@@ -269,7 +282,7 @@ class ActiveEnv(gym.Env):
         solar.index.name = 'time'
         solar = solar.iloc[:, [1]]
 
-        return self.params['solar_scale'] * solar
+        return solar
 
     def _check_commitment(self, action):
         """
@@ -315,7 +328,10 @@ class ActiveEnv(gym.Env):
 
         if 'imbalance' in self.params['state_space']:
             balance = self.calc_imbalance() / 30000
-            state += [balance]
+            if self.params['total_imbalance']:
+                state += [balance.sum()]
+            else:
+                state +=list(balance)
 
         return np.array(state)
 
@@ -329,12 +345,15 @@ class ActiveEnv(gym.Env):
         """
         t = self._current_step
         if t > 24:
-            modifications = self._imbalance[t - 24:t]
+            modifications = self._imbalance[:,t - 24:t]
+
+        elif t>0:
+            modifications = self._imbalance[:,:t]
 
         else:
-            modifications = self._imbalance[:t]
+            modifications = np.zeros((len(self.flexible_load_indices),1))
 
-        return modifications.sum()
+        return modifications.sum(axis=1)
 
 
     def log_resulting_demand(self):
@@ -357,7 +376,7 @@ class ActiveEnv(gym.Env):
         if self.force_commitments:
             action = self._check_commitment(action)
 
-        self._imbalance[self._current_step] = action.sum()
+        self._imbalance[:,self._current_step] = action
 
         load_index = self.load_dict['p_kw']
 
@@ -407,7 +426,7 @@ class ActiveEnv(gym.Env):
         if 'imbalance' in self.params['reward_terms']:
             balance = self.calc_imbalance()
             balance_change = np.abs(balance) - np.abs(old_imbalance)
-            state_loss += balance_change*self.params['imbalance_weight']
+            state_loss += balance_change.sum()*self.params['imbalance_weight']
 
         if 'activation' in self.params['reward_terms']:
             action *= self.params['flexibility'] * self.powergrid.load['p_kw']
@@ -476,16 +495,22 @@ class ActiveEnv(gym.Env):
 
 
 if __name__ == '__main__':
-    env = ActiveEnv()
+    env1 = ActiveEnv(seed=3)
+    env2 = ActiveEnv(seed=3)
+    env3 = ActiveEnv(seed=4)
+
+    demand1 = env1.get_episode_solar_forecast()
+    demand2 = env2.get_episode_solar_forecast()
+    demand3 = env3.get_episode_solar_forecast()
+
+    assert  demand1 == demand2
+
+    env1.set_parameters({'total_imbalance':True,
+                        'solar_scale':10})
+    for hour in range(100):
+        action = env1.action_space.sample()
+        ob, reward, episode_over, info = env1.step(action)
+
     for hour in range(10):
-        action = env.action_space.sample()
-        ob, reward, episode_over, info = env.step(action)
-
-    net = copy.copy(env.powergrid)
-    env.reset()
-    vars = ['p_kw', 'q_kvar']
-    assert np.linalg.norm(
-        net.load.loc[:, vars] - env.powergrid.load.loc[:, vars]) > 0.001
-    assert np.linalg.norm(
-        net.sgen.loc[:, vars] - env.powergrid.sgen.loc[:, vars]) > 0.001
-
+        action = env1.action_space.sample()
+        ob, reward, episode_over, info = env1.step(action)

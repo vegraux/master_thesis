@@ -72,7 +72,7 @@ class TestForecasts:
         env.set_parameters({'demand_std':0})
         loads = env.powergrid.load['p_kw']
         demand_forecast = []
-        for load in env.demand_forcasts:
+        for load in env.demand_forecasts:
             demand_forecast.append(load[0])
         demand_forecast = np.array(demand_forecast)
         demand_forecast *= env.powergrid.load['sn_kva']
@@ -219,7 +219,7 @@ class TestReset:
         env.reset()
 
         assert norm(start_env.solar_forecasts - env.solar_forecasts) > 0.001
-        assert norm(start_env.demand_forcasts[0][:24] - env.demand_forcasts[0][:24]) > 0.001
+        assert norm(start_env.demand_forecasts[0][:24] - env.demand_forecasts[0][:24]) > 0.001
 
 
     def test_reset_episode_start_hour(self):
@@ -231,6 +231,23 @@ class TestReset:
         env._episode_start_hour = 100
         env.reset()
         assert env._episode_start_hour != 100
+
+class TestSeeding:
+
+    def test_solar_seed(self):
+        """
+        Checks that same solar data is used for same seed
+        """
+        env1 = ActiveEnv(seed=3)
+        env2 = ActiveEnv(seed=3)
+        env3 = ActiveEnv(seed=4)
+
+        demand1 = env1.get_episode_solar_forecast()
+        demand2 = env2.get_episode_solar_forecast()
+        demand3 = env3.get_episode_solar_forecast()
+        assert all(demand1 == demand2)
+        assert any(demand1 != demand3)
+
 
 
 
