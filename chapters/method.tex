@@ -13,7 +13,7 @@
 
 \begin{document}
 \section{Programming software}
-Python is the programming language used for this solving this task. Python is an open-source software that has several packages for machine learning and power flow calculations \cite{python_web}. In this thesis, \textit{pandapower} is the python package used for defining an electric power system and preforming power flow calculations\cite{pandapower}. \textit{Keras} is the Python package used for training a reinforcement agent \cite{keras_chollet2015}.
+Python is the programming language used for this solving this task. Python is an open-source software that has several packages for machine learning and power flow calculations \cite{python_web}. In this thesis, \textit{pandapower} is the python package used for defining an electric power system and preforming power flow calculations \cite{pandapower}. \textit{Keras} is the Python package used for training a reinforcement agent \cite{keras_chollet2015}.
 
 \section{Pandapower}
 Pandapower is a time independent simulation tool, which means that it finds steady state solutions to a power flow problem. Consequently, the transitions from one state to another is not covered in this thesis.
@@ -62,7 +62,7 @@ All of the components will have a result table after the power flow calculation 
 \end{figure}
 
 \section{Plotting results}
-It is important to be able to inspect the resulting state after a reinforcement agent performs an action on the system. This can be complicated for large network with many buses and lines that each have a voltage magnitude, voltage angle and so on. Luckily, pandapower has support for plotting both grid architecture and results from the power flow. It is possible to get static plots using matplotlib and interactive plots using plotly\cite{plotly}. Figure \ref{fig:method:oberrhein_grid_results_plotly} shows the interactive results from a power flow calculation performed on the Oberrhein power grid using plotly. The lines are coloured based on the line loading (100\% means maximum current), while the buses are coloured based on the voltage magnitude. Such plots help to get a overview of the grid and quickly identify critical areas in the transmission system. Since the plot is interactive, it is easy to zoom and it is possible to click on a line or bus to see the relevant values. 
+It is important to be able to inspect the resulting state after a reinforcement agent performs an action on the system. This can be complicated for large network with many buses and lines that each have a voltage magnitude, voltage angle and so on. Luckily, pandapower has support for plotting both grid architecture and results from the power flow. It is possible to get static plots using matplotlib and interactive plots using plotly \cite{plotly}. Figure \ref{fig:method:oberrhein_grid_results_plotly} shows the interactive results from a power flow calculation performed on the Oberrhein power grid using plotly. The lines are coloured based on the line loading (100\% means maximum current), while the buses are coloured based on the voltage magnitude. Such plots help to get a overview of the grid and quickly identify critical areas in the transmission system. Since the plot is interactive, it is easy to zoom and it is possible to click on a line or bus to see the relevant values. 
 
 
 \begin{figure}[H]

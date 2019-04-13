@@ -57,8 +57,6 @@ A reinforcement agent is trained with reward function that does not include cost
 
 \begin{table}[ht]
 \centering
-\caption{Reward terms and weights for formulation 1}
-\label{table:results:reward_formulation1}
 \begin{tabular}{l|ll}
 
 Cost  & Weight & Comment
@@ -82,13 +80,13 @@ Units of energy imbalance is kWh
 \\
 \hline
 \end{tabular}
+\caption{Reward terms and weights for formulation 1}
+\label{table:results:reward_formulation1}
 \end{table}
 The state space is constructed to be as small as possible. The state is represented by a 4 hour forecast for both solar irradiance and active power demand. The power demand is assumed equal at each flexible load, so there is not a individual power demand for each load. The total power imbalance for the whole power network is also included. Table \ref{table:results:state_formulation1} summarises the state space
 
 \begin{table}[ht]
 \centering
-\caption{State used in formulation 1}
-\label{table:results:state_formulation1}
 \begin{tabular}{l|lll}
 
 State space  & Size & Comment
@@ -103,6 +101,8 @@ Imbalance state & 1  & Total energy imbalance for all loads
 \\
 \hline
 \end{tabular}
+\caption{State used in formulation 1}
+\label{table:results:state_formulation1}
 \end{table}
 The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix ??. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance. This helps the system because the power is not transported out to the grid, but instead is consumed locally, close to production. Simply put, it is desired that the actions follow the curve of the solar irradiance. 
 
@@ -114,14 +114,14 @@ The DDPG agent was trained for 100 000 time steps. A complete summary with all h
 \end{figure}
 By inspecting figure \ref{fig:results:configuration1} it is clear that the agent activates flexibility in times with much solar production for several of the loads. The plot \texttt{load = sun 10} in the bottom row is plotted alone in figure \ref{fig:results:configuration1_follows_sun}, and clearly follows this pattern. The agent increases its power consumption during periods with high solar production, and reduces it later to ensure that the energy consumption is shifted, and not altered in absolute magnitude.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/configuration1_follows_sun.png}
     \caption[size = 9]{Action of the agent and solar profile during a day. The consumed power is increased in periods with high solar production}
     \label{fig:results:configuration1_follows_sun}
 \end{figure}
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/configuration1_negative_actions.png}
     \caption[size = 9]{Action of the agent and solar profile during a day}
@@ -130,7 +130,7 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
 
  The first plot in the top row \texttt{load = load 1} is plotted larger in figure \ref{fig:results:configuration1_negative_actions}, and show some peculiar behaviour. Clearly, the actions do not follow the solar profile that day, but are negative most of the day. This behaviour could be a result of how the reward function is defined in this configuration. The agent is penalised according to the total energy imbalance in the system, not at individual loads. As a result, if the energy imbalance is +1 MWh at one load and -1 MWh at another load, they perfectly cancel each other, and the agent is not penalised. From the agent's perspective, the system is in energy balance, although individual loads may have a large absolute energy imbalance. This illustrates the problem with constructing state variable that accounts for the system as a whole, and not individual loads. The agent uses the same strategy consistently at this load. It appears as if this load functions as a energy balance, whose main job is to ensure that the total power imbalance in the grid is kept as small as possible. However, the behaviour of the agent gives a negative energy imbalance, as seen in figure \ref{fig:results:configuration1_energy_imbalance}. The agent controls a 200 hour long episode, and it is evident that the energy imbalance quickly decreases and reaches an equilibrium around -13 MWh. The agent prefers to decrease the total consumption in the system, which is an unexpected behaviour. In fact, the expected behaviour is that the agent would increase the energy imbalance of the system because it consumes more power in periods with high solar power. It may indicate that the reward function is not appropriately constructed. More specifically, the energy imbalance cost is designed to reward the agent every time the energy imbalance decreases in absolute magnitude. A problem with this approach could be that the agent is not penalised for having a large absolute power imbalance. The reward function considers an energy imbalance transition from -11 MWh to -10 MWh equally good as a transition from -1 MWh to 0 MWh.
  
-\begin{figure}[ht]
+\begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/configuration1_imbalance.png}
     \caption[size = 9]{Total energy imbalance at all the flexible loads when the agent control a 200 hour episode}
@@ -141,7 +141,7 @@ Figure ?? plots the rewards given in every step in a 200-hour long episode for t
 \subsection{Testing the trained model}
 The reward function had an energy imbalance term during training that was meant to incentives the model to shift energy consumption. However, the main goal of the agent is to keep the values for current and voltage within safety margins. Therefore, it is interesting to see the rewards of the trained model when the energy imbalance term is removed. In other words, it is only penalised for violating safety margins for current and voltage in the grid. Figure \ref{fig:results:configuration1_reward_200_hours} plots the rewards in a 200 hour episode for the trained agent and for a no-agent situation that does not change the power consumption.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/reward_200_steps_config1.png}
     \caption[size = 9]{Rewards given to the trained agent and no agent scenario in a 200 hour episode}
@@ -150,11 +150,10 @@ The reward function had an energy imbalance term during training that was meant 
 
 
 
-The rewards are zero for the most part because the safety margins are generally satisfied. It is clear that the trained agent has learned a strategy that pulls current and voltage values closer to nominal values. Table \label{table:results:configuration1_reward_200_hours} shows statistics for when the agents are are penalised (non-zero reward). The trained agent reduces the number of violations from 26 to 16, a decrease of 39 \%.  Inspecting the rewards further reveals that the agent is mainly preventing violation of voltage margins.
+The rewards are zero for the most part because the safety margins are generally satisfied. It is clear that the trained agent has learned a strategy that pulls current and voltage values closer to nominal values. Table \ref{table:results:configuration1_reward_200_hours} shows statistics for when the agents are penalised (non-zero reward). The trained agent reduces the number of violations from 26 to 16, a decrease of 39 \%.  In addition, it the mean reward is higher than for the trained agent. Inspecting the rewards further reveals that the agent is mainly preventing violation of voltage margins.
 
 \begin{table}[ht]
-\label{table:results:configuration1_reward_200_hours}
-\caption{Statistics of the rewards given to the trained agent and no agent scenario in a 200 hour episode}
+
 
 \center
 \begin{tabular}{l|rrrrrrr}
@@ -164,15 +163,13 @@ Agent    & 16 & -0.026 & 0.028 & -0.091 & -0.040 & -0.017 & -0.002 \\
 No agent & 26 & -0.031 & 0.034 & -0.120 & -0.049 & -0.014 & -0.006\\
 \hline
 \end{tabular}
+\caption{Statistics of the rewards given to the trained agent and no agent scenario in a 200 hour episode}
+\label{table:results:configuration1_reward_200_hours}
 \end{table}
 
-Although the behaviour looks promising, it is still necessary to test the agent in several episodes. The trained agent and no agent scenario were tested for 50 episodes, each consisting of 200 hours. The current penalty is removed from the reward function to be able to investigate the effect on voltage. The statistics from the simulation are presented in table \ref{table:results:configuration1_reward_50_episodes}. It is clear that there is no significant difference between the trained agent and the no agent scenario in terms of mean reward. Still, the trained agent reduces the number of safety margin violations by 9 \% from 900 to 817. This reduction is impressive since it is no guarantee that it is physically feasible to satisfy safety margins given a flexibility of 10 \%.
+Although the behaviour looks promising, it is still necessary to test the agent in several episodes. The trained agent and no agent scenario were tested for 50 episodes, each consisting of 200 hours. The current penalty is removed from the reward function to be able to investigate the effect on voltage. The statistics from the simulation are presented in table \ref{table:results:configuration1_reward_50_episodes}. It is clear that there is no significant difference between the trained agent and the no agent scenario in terms of mean reward. In fact, the trained agent is slightly worse, with a mean reward of -0.034 compared to -0.033 for the no agent scenario. Still, the trained agent reduces the number of safety margin violations by 9 \% from 900 to 817. This reduction is impressive since there is no guarantee that it is physically feasible to satisfy safety margins given a demand flexibility of 10 \%.
 \begin{table}[ht]
 \center
-\label{table:results:configuration1_reward_50_episodes}
-\caption{Statistics of the rewards given to the trained agent and no agent scenario over 50 episodes with 200 hours each}
-
-
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
 \hline
@@ -180,32 +177,34 @@ Agent    & 817   & -0.034 & 0.037 & -0.180 & -0.055 & -0.019 & -0.006 \\
 No agent & 900   & -0.033 & 0.034 & -0.180 & -0.050 & -0.019 & -0.007 \\
 \hline
 \end{tabular}
+\caption{Statistics of the rewards given to the trained agent and no agent scenario over 50 episodes with 200 hours each}
+\label{table:results:configuration1_reward_50_episodes}
 \end{table}
 
 Figure \ref{fig:results:configuration1_violin_voltage} shows the reward distribution for the trained agent and no agent scenario for hours with violations of voltage safety margins. The trained agent is better than no agent in critical situations, as more of the rewards are centred closer to zero.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/violin_voltage_reward_config1.png}
     \caption[size = 9]{Violin plot of the reward distribution of the trained agent and no agent scenario for hours where safety margins are violated}
     \label{fig:results:configuration1_violin_voltage}
 \end{figure}
 
-The statistics is presented in table \ref{table:results:configuration1_reward_50_ep_preventive} show that the penalty for the trained agent is reduced by 30 \% in crucial periods. This means that the agent have found an appropriate behaviour in critical periods. However, as table
+The statistics presented in table \ref{table:results:configuration1_reward_50_ep_preventive} show that the penalty for the trained agent is reduced by 30 \% in crucial periods. This means that the agent have found an appropriate behaviour in critical periods. However, as table
 \ref{table:results:configuration1_reward_50_episodes} shows, the average performance of the trained agent is not better than the no agent scenario. This means that there are situations where the trained agent pushes the voltage out of the safety margins.    
 
 
-\begin{table}[]
+\begin{table}[ht]
 \center
-\label{table:results:configuration1_reward_50_ep_preventive}
-\caption{Statistics of the rewards given to the trained agent and no agent scenario over 50 episodes with 200 hours each}
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
 \hline
 Agent    & 900   & -0.023 & 0.035 & -0.173 & -0.035 & -0.004 & 0.000  \\
-No agent & 900   & -0.033 & 0.034 & -0.180 & -0.050 & -0.019 & -0.007\\
-hline
+No agent & 900   & -0.033 & 0.034 & -0.180 & -0.050 & -0.019 & -0.007 \\
+\hline
 \end{tabular}
+\caption{Statistics of the rewards given to the trained agent and no agent scenario over 50 episodes with 200 hours each}
+\label{table:results:configuration1_reward_50_ep_preventive}
 \end{table}
 
 
