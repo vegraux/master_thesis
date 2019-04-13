@@ -372,7 +372,7 @@ A bus is electrically modelled as a point where electrical power is injected. A 
 
 \subsection{Types of buses}\label{theory:subsection:bus_types}
 
-There are three types of buses in an electric power system\cite{opf_intro}.
+There are three types of buses in an electric power system \cite{opf_intro}.
 
 \begin{itemize}
   \item Slack bus / reference bus
@@ -453,7 +453,7 @@ Q_{1} =  \frac{|U_{1}|}{|Z|}(|U_{1}| - |U_{2}|)
 where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2 respectively and $|Z|$ is the impedance magnitude of the line. The voltage angle $\delta$ is assumed to be small so that $cos(\delta) \approx 1$. Equation \eqref{eq:two_port_reactive_power_lossless} shows that the direction of the reactive power is determined by the difference of the voltage magnitudes. In other words, the bus with the highest voltage magnitude is supplying reactive power in a two bus system.
 
 \section{The power flow equations}
-Figure \ref{fig:theory:powerflow_injected_bus} is an electrical model of bus \textit{k} in a power system consisting of \textit{n} buses. $I_{k}$ is the net injected current to the grid from bus \textit{k}\cite{opf_intro}. The current flowing from bus \textit{k} to bus \textit{i} is $I_{i} = (U_{k} - U_{i})Y_{ki}$. The current flowing out of bus \textit{k} must equal the injected current $I_{k}$. This gives
+Figure \ref{fig:theory:powerflow_injected_bus} is an electrical model of bus \textit{k} in a power system consisting of \textit{n} buses. $I_{k}$ is the net injected current to the grid from bus \textit{k} \cite{opf_intro}. The current flowing from bus \textit{k} to bus \textit{i} is $I_{i} = (U_{k} - U_{i})Y_{ki}$. The current flowing out of bus \textit{k} must equal the injected current $I_{k}$. This gives
 
 \begin{equation}\label{eq:powerflow_currentsum}
 I_{k} =  U_{k}Y_{k0}
@@ -545,7 +545,7 @@ The equations in \eqref{eq:theory:power_flow_equation} are known as the power fl
 As mention in section \ref{theory:subsection:bus_types} there are 3 bus types in a power system. Table \ref{table:bus_types} summarises known and unknown quantities at different bus types.
 
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \caption{Specified and unknown quantities at different bus types in a system with \textit{n} buses in total. }
 \label{table:bus_types}
@@ -579,15 +579,15 @@ The generators in coal, gas, nuclear and hydro power plants in a steady state po
 \begin{figure}[H]
     \center
     \includegraphics[height=13cm, width=14cm]{figures/ENTSO-E-member-states.png}
-    \caption[size = 9]{Synchronous areas in Europa\cite{synchronous_regions}.}
+    \caption[size = 9]{Synchronous areas in Europa \cite{synchronous_regions}.}
     \label{fig:theory:entso-synchronous-area}
 \end{figure}
 
-The power producing units in a conventionally electric power system have typically consisted of spinning masses. The generators and turbines have a large masses and together give the power system an associated moment of inertia \textit{J}. The system inertia naturally gives frequency stability to the system. However, renewable energy sources do not have any natural inertia that helps the stability in frequency. Wind power have rotating masses, but they generally use asynchronous generators that do not follow the frequency of the grid SOURCE. Harnessing solar power by using photo voltaic (PV) modules does not involve physical inertia, and does therefore not contribute to frequency stability. A possible solution to this problem is to use virtual inertia on renewable power that mimics the reaction of a synchronous generator\cite{virtual_inertia}. From the transmission system operator's perspective, renewable energy sources can look as if they are synchronous generators.
+The power producing units in a conventionally electric power system have typically consisted of spinning masses. The generators and turbines have a large masses and together give the power system an associated moment of inertia \textit{J}. The system inertia naturally gives frequency stability to the system. However, renewable energy sources do not have any natural inertia that helps the stability in frequency. Wind power have rotating masses, but they generally use asynchronous generators that do not follow the frequency of the grid SOURCE. Harnessing solar power by using photo voltaic (PV) modules does not involve physical inertia, and does therefore not contribute to frequency stability. A possible solution to this problem is to use virtual inertia on renewable power that mimics the reaction of a synchronous generator \cite{virtual_inertia}. From the transmission system operator's perspective, renewable energy sources can look as if they are synchronous generators.
 
 
 \section{Active network management}
-Active network management (ANM) is a control strategy too avoid that components in a network exceeds its safety margins in stressed situations\cite{active_network_management}. This is specially relevant with the rising installation of solar panels in private households and large wind wind farms. A transmission system is constructed to produce power at centralised power plants, and the goal of the transmission system operator is to transport this power through the network and to the consumers. However, the role of the consumer has changed with the rising use of solar panels in private households. In sunny days, households with solar panels will become producers of energy, and send a large amount of power to the grid. The transmission grid is evolving from a centralised to a distributed energy system, with many smaller production units. This is called distributed energy resources (DER) and offers new challenges in terms of overloads and congestion in the grid. 
+Active network management (ANM) is a control strategy too avoid that components in a network exceeds its safety margins in stressed situations \cite{active_network_management}. This is specially relevant with the rising installation of solar panels in private households and large wind farms. A transmission system is constructed to produce power at centralised power plants, and the goal of the transmission system operator is to transport this power through the network and to the consumers. However, the role of the consumer has changed with the rising use of solar panels in private households. In sunny days, households with solar panels will become producers of energy, and send a large amount of power to the grid. The transmission grid is evolving from a centralised to a distributed energy system, with many smaller production units. This is called distributed energy resources (DER) and offers new challenges in terms of overloads and congestion in the grid. 
 
 
 \end{document}
