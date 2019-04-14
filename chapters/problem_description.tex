@@ -281,11 +281,11 @@ Changing daily energy consumption
 \end{table}
 
 \section{Playing an episode}
-This section will describe how the the state of the electric grid is updated in an episode. The time resolution in the setup is hourly. In other words, the agent takes 24 action in a day. The reinforcement agent is each hour given a state that representing the system, which includes a forecast for power demand and solar irradiance. Naturally, no forecasts are perfect, so the actual power demand and solar irradiance should deviate from the estimated values. This is done by adding an noise term to the forecasted values. The noise terms for the demand and solar irradiance follow a Gaussian distribution with mean 0 and standard deviation that is proportional to the forecast in that hour. The hyper parameters $\sigma_{solar}$ and $\sigma_{demand}$ determine the uncertainty in the forecasts, and the default value is set to 3 \% in both cases.
+This section will describe how the the state of the electric grid is updated in an episode. The reinforcement agent is each hour given a state that represents the system, which includes a forecast for power demand and solar irradiance. Naturally, no forecasts are perfect, so the actual power demand and solar irradiance should deviate from the estimated values. This is done by adding an noise term to the forecasted values. The noise terms for the demand and solar irradiance are assumed to follow a Gaussian distribution with mean 0 and standard deviation that is proportional to the forecast in that hour. The hyper parameters $\sigma_{solar}$ and $\sigma_{demand}$ determine the uncertainty in the forecasts, and the default values are set to 3 \% in both cases.
 
 
 
-The reinforcement agent evaluates a state $s$ and picks an action $a$ to perform in each hour. The action determines the change in power consumption at the flexible loads in the power grid. The power flow equation are ready to be solved when resulting consumption from the action is computed. There are no voltage regulating generators in the power grid that is used. Consequently, all the buses in the network are modelled as PQ-buses, except for the external grid which is the slack bus where active power $P$ and voltage angle $\delta$ are known. After the resulting
+The reinforcement agent evaluates a state $s$ and picks an action $a$ to perform in each hour. The action determines the change in power consumption at the flexible loads in the power grid. The power flow equation are ready to be solved when the power demand resulting from the action is computed. There are no voltage regulating generators in the power grid that is used. Consequently, all the buses in the network are modelled as PQ-buses, except for the external grid (slack bus) where active power $P$ and voltage angle $\delta$ are known. After the power flow calculations have been performed, the reward is calculated and used to evaluate the action of the agent. Finally, the forecasts for demand and solar irradiance are updated and the state $s_{t+1}$ for the next hour is found. This concludes the processes involved in one time step of the reinforcement model. The learning process is summarised in pseudo code in algorithm \ref{problem:algorithm_playing_episode} 
 
 
 \begin{algorithm}[H]
@@ -332,7 +332,7 @@ Update power demand $P$ based on the agent's action $a$ and flexibility f
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:update_demand_algorithm}
-    P \leftarrow P + f P a
+    P \leftarrow P + a f P_{forecast}
     \end{aligned} 
 \end{equation}
 }
@@ -349,6 +349,7 @@ Find next state $s_{t+1}$
   }
  }
  \caption{Process for updating power demand and solar production in the electrical power grid}
+ \label{problem:algorithm_playing_episode}
 \end{algorithm}
 
 
