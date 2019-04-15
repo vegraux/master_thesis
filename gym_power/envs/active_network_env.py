@@ -5,7 +5,12 @@ environment for active network management for controlling flexible load
 and/or generation control
 """
 import os
+import pickle
+
 import dotenv
+
+from stable_baselines import DDPG
+
 dotenv.load_dotenv()
 import gym
 import matplotlib.pyplot as plt
@@ -371,8 +376,10 @@ class ActiveEnv(gym.Env):
         Takes the action vector, scales it and modifies the flexible loads
         :return:
         """
+        nominal_load = self.powergrid.load['sn_kva']
+        forecasted_load = nominal_load*self.get_demand_forecast()[0][0]
 
-        action *= self.params['flexibility'] * self.powergrid.load['p_kw']
+        action *= self.params['flexibility'] * forecasted_load
         if self.force_commitments:
             action = self._check_commitment(action)
 
@@ -469,16 +476,12 @@ class ActiveEnv(gym.Env):
             episode_over = False
 
         self._current_step += 1
-        if self._current_step >= self.params['episode_length']:
+        reward = self.calc_reward(old_balance, action)
+
+        if (self._current_step >= self.params['episode_length']) or episode_over:
             ob = self.reset()
-
-        if not episode_over:
-            reward = self.calc_reward(old_balance,action)
-            ob = self._get_obs()
-
         else:
-            reward = -10
-            ob = self.reset()
+            ob = self._get_obs()
 
         return ob, reward, episode_over, {}
 
@@ -491,26 +494,24 @@ class ActiveEnv(gym.Env):
 
 
 
+def load_env(model_name='flexible_load_first',seed=9):
+#flexible_load_first, overnight, larger_margin_cost, discount_06, flex50
+    location = 'C:\\Users\\vegar\\Dropbox\\Master\\thesis.git\\RLpower\\models\\'
+    params_name = model_name +'_params.p'
+    model = DDPG.load(location + model_name)
+    env = ActiveEnv(seed=seed)
+    with open(location + params_name,'rb') as f:
+        params = pickle.load(f)
 
+    env.set_parameters(params)
+    model.set_env(env)
+    return model, env
 
 
 if __name__ == '__main__':
-    env1 = ActiveEnv(seed=3)
-    env2 = ActiveEnv(seed=3)
-    env3 = ActiveEnv(seed=4)
-
-    demand1 = env1.get_episode_solar_forecast()
-    demand2 = env2.get_episode_solar_forecast()
-    demand3 = env3.get_episode_solar_forecast()
-
-    assert  demand1 == demand2
-
-    env1.set_parameters({'total_imbalance':True,
-                        'solar_scale':10})
-    for hour in range(100):
-        action = env1.action_space.sample()
-        ob, reward, episode_over, info = env1.step(action)
-
-    for hour in range(10):
-        action = env1.action_space.sample()
-        ob, reward, episode_over, info = env1.step(action)
+    env = ActiveEnv()
+    env.set_parameters({'solar_std': 0.1})
+    nominal_sun = env.powergrid.sgen['sn_kva']
+    solar_forecast = nominal_sun * env.get_solar_forecast()[0]
+    solar = -env.powergrid.sgen['p_kw']
+    assert np.linalg.norm(solar_forecast - solar) > 0.1

@@ -107,6 +107,35 @@ class TestState:
         assert norm(initial_loads['p_kw'] - loads['p_kw']) < 10e-4
         assert norm(initial_loads['q_kvar'] - loads['q_kvar']) < 10e-4
 
+    def test_error_term_solar(self):
+        """
+        Checks that the forecast values for solar irradiance deviates from
+        the actual values
+        """
+        env = ActiveEnv()
+        env.set_parameters({'solar_std': 0.1})
+        while env.get_solar_forecast()[0] < 0.01: # to avoid night (no sun)
+            action = env.action_space.sample()
+            env.step(action)
+
+        nominal_sun = env.powergrid.sgen['sn_kva']
+        solar_forecast = nominal_sun*env.get_solar_forecast()[0]
+        solar = -env.powergrid.sgen['p_kw']
+        assert norm(solar_forecast- solar) > 0.1
+
+    def test_error_term_demand(self):
+        """
+        Checks that the forecast values for solar irradiance deviates from
+        the actual values
+        """
+        env = ActiveEnv()
+        env.set_parameters({'demand_std': 0.1})
+        nominal_load = env.powergrid.load['sn_kva']
+        demand_forecast = nominal_load*env.get_demand_forecast()[0][0]
+        demand = env.powergrid.load['p_kw']
+        assert norm(demand - demand_forecast) > 0.1
+
+
 
 
 
@@ -139,7 +168,8 @@ class TestActions:
         """
         flex = 0.1
         env = ActiveEnv(force_commitments=True)
-        env.set_parameters({'flexibility':flex})
+        env.set_parameters({'flexibility':flex,
+                            'demand_std':0})
         env.set_demand_and_solar()
         demand = copy.copy(env.powergrid.load['p_kw'].values)
         action1 = np.ones_like(env.last_action)
