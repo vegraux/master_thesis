@@ -154,6 +154,48 @@ No agent & 1824  & -0.036 & 0.037 & -0.207 & -0.056 & -0.024 & -0.007 \\
 \label{table:results:configuration1_reward_100_episodes}
 \end{table}
 
+Figure \ref{fig:results:config1_voltage_violin} shows the voltage reward distribution for the trained agent and no agent scenario for hours with violations of voltage safety margins. These hours are termed critical since there would be voltage violations if no actions were taken. The trained agent is better than no agent in critical situations, as more of the rewards are centred closer to zero.
+
+\begin{figure}[H]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/config1_voltage_violin.png}
+    \caption[size = 9]{Violin plot of the reward distribution of the trained agent and no agent scenario for critical hours where safety margins are violated}
+    \label{fig:results:config1_voltage_violin}
+\end{figure}
+
+The statistics presented in table \ref{table:results:configuration1_reward_100_ep_preventive} show that the mean voltage penalty for the trained agent is reduced by 25 \% in critical hours. However, as table
+\ref{table:results:configuration1_reward_100_episodes} shows, the average voltage penalty of the trained agent is about the same as the no agent scenario. This means that there are situations where the trained agent pushes the voltage out of the safety margins.    
+
+
+\begin{table}[ht]
+\center
+\begin{tabular}{l|rrrrrrr}
+         & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
+\hline
+Agent    & 1824 & -0.027 & 0.035 & -0.186 & -0.041 & -0.011 & 0.000  \\
+No agent & 1824 & -0.036 & 0.037 & -0.207 & -0.056 & -0.024 & -0.007 \\
+\hline
+\end{tabular}
+\caption{Statistics of the rewards given to the trained agent and no agent scenario over 100 episodes with 200 hours each}
+\label{table:results:configuration1_reward_100_ep_preventive}
+\end{table}
+
+
+
+All rewards corresponding to the hours when voltage margins are violated for the no-agent scenario are sorted and plotted in figure \ref{fig:results:config1_sorted_voltage}. The corresponding rewards given to the trained agent are also plotted. This is done to see if the trained agent is better in very critical periods with high voltage penalty or if it performs well overall. The plot shows that the trained agent for the most part receives lower voltage penalties regardless of the size of the violation. 
+
+
+\begin{figure}[ht]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/config1_sorted_voltage.png}
+    \caption[size = 9]{Rewards given to the trained agent and no agent scenario in 50 episodes with 200 steps. The rewards are sorted for the no agent scenario from best to worst}
+    \label{fig:results:config1_sorted_voltage}
+\end{figure}
+
+
+The electric grid is within safety margins 91 \% of the time in the 50 episode simulation. It is very important that the trained agent finds appropriate behaviour in these periods as well as in the critical periods. Investigating the voltage penalty given to the agent in this period reveals that the agent 
+
+
 
 Figure \ref{fig:results:config1_400hour_good_voltage} plots the voltage rewards in a 400 hour episode for the trained agent and for a no-agent. This is period where the agent behaves well and reduces the number of violations of voltage safety margins. 
 
@@ -166,11 +208,9 @@ Figure \ref{fig:results:config1_400hour_good_voltage} plots the voltage rewards 
 
 
 
-The rewards are zero for the most part because the safety margins are generally satisfied. It is clear that in the episode the trained agent has learned a strategy that pulls voltage values closer to nominal values. Table \ref{table:results:config1_400hour_good_voltage} shows statistics for when the trained agent and no-agent scenario violate voltage safety margins (non-zero reward). The trained agent reduces the number of violations from 37 to 23, a decrease of 38 \%.  In addition, the mean voltage penalty is 21 \% lower for the trained agent. Inspecting the rewards from the 400 episode shown in figure \ref{fig:results:config1_400hour_good_voltage} reveals that the agent in all cases prevents violation of voltage margins in peak demand periods. Consequently, the trained agent has learned a desired behaviour that decreases the peak power demand and thus keeps the voltage magnitude above the lower safety margin.
+The rewards are zero for the most part because the safety margins are generally satisfied. It is clear that in the episode the trained agent has learned a strategy that pulls voltage values close to nominal values. Table \ref{table:results:config1_400hour_good_voltage} shows statistics for when the trained agent and no-agent scenario violate voltage safety margins (non-zero reward). The trained agent reduces the number of violations from 37 to 23, a decrease of 38 \%.  In addition, the mean voltage penalty is 21 \% lower for the trained agent. Inspecting the rewards from the 400 episode shown in figure \ref{fig:results:config1_400hour_good_voltage} reveals that the agent in all cases prevents violation of voltage margins in peak demand periods. Consequently, the trained agent has learned a desired behaviour that decreases the peak power demand and thus keeps the voltage magnitude above the lower safety margin.
 
 \begin{table}[ht]
-
-
 \center
 \begin{tabular}{l|rrrrrrr}
          & count  & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
@@ -179,8 +219,8 @@ Agent    & 23 & -0.033 & 0.046 & -0.148 & -0.031 & -0.019 & -0.004 \\
 No agent & 37 & -0.042 & 0.050 & -0.193 & -0.054 & -0.022 & -0.009 \\
 \hline
 \end{tabular}
-\caption{Statistics of the rewards given to the trained agent and no agent scenario in a 200 hour episode}
-\label{table:results:configuration1_reward_200_hours}
+\caption{Statistics of the rewards given to the trained agent and no agent scenario in a 400 hour episode when the trained agent behaves well}
+\label{table:results:config1_400hour_good_voltage}
 \end{table}
 
 Figure \ref{fig:results:config1_150hour_bad_voltage} plots the voltage rewards in a 150 hour episode where the trained agent behaves badly. The trained agent makes matter worse in most cases.
@@ -191,65 +231,21 @@ Figure \ref{fig:results:config1_150hour_bad_voltage} plots the voltage rewards i
     \caption[size = 9]{Voltage rewards in a period the trained agent behaves badly and aggravates the situation}
     \label{fig:results:config1_150hour_bad_voltage}
 \end{figure}
-Table ?? shows the statistics for the hours the trained agent and no-agent scenario violate voltage safety margins (non-zero reward)
+Table \ref{table:results:config1_150hour_bad_voltage} shows the statistics for the hours the trained agent and no-agent scenario violate voltage safety margins (non-zero rewards). The trained agent increase the number of voltage violation from 30 to 31. All of the times the trained agent is worse in figure \ref{fig:results:config1_150hour_bad_voltage} correspond to hours of peak solar production. This suggests that the agent has not learned the appropriate behaviour in hours of heavy power. The spikes where it improves the situation correspond to periods with peak demand. As already mentioned, the trained agent has learned that it must decrease consumption in periods peak demand hours. On the contrary, it has not learned that it has to increase consumption in hours with heavy solar power production. In fact, it decreases the power consumption, which in turn makes the excess solar production even greater and thus increases voltage magnitudes in the grid.  
 
 \begin{table}[ht]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count  & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
 \hline
-Agent    & 23 & -0.033 & 0.046 & -0.148 & -0.031 & -0.019 & -0.004 \\
-No agent & 37 & -0.042 & 0.050 & -0.193 & -0.054 & -0.022 & -0.009 \\
+Agent    & 31    & -0.043 & 0.038 & -0.117 & -0.070 & -0.034 & -0.010 \\
+No agent & 30    & -0.043 & 0.033 & -0.109 & -0.061 & -0.038 & -0.017 \\
 \hline
 \end{tabular}
-\caption{Statistics of the rewards given to the trained agent and no agent scenario in a 200 hour episode}
-\label{table:results:configuration1_reward_200_hours}
+\caption{Statistics of the rewards given to the trained agent and no agent scenario in a 150 hour episode when the trained agent behaves poorly}
+\label{table:results:config1_150hour_bad_voltage}
 \end{table}
 
-
-Figure \ref{fig:results:configuration1_violin_voltage} shows the reward distribution for the trained agent and no agent scenario for hours with violations of voltage safety margins. The trained agent is better than no agent in critical situations, as more of the rewards are centred closer to zero.
-
-\begin{figure}[H]
-    \center
-\includegraphics[height=8cm, width=12cm]{figures/violin_voltage_reward_config1.png}
-    \caption[size = 9]{Violin plot of the reward distribution of the trained agent and no agent scenario for hours where safety margins are violated}
-    \label{fig:results:configuration1_violin_voltage}
-\end{figure}
-
-The statistics presented in table \ref{table:results:configuration1_reward_50_ep_preventive} show that the penalty for the trained agent is reduced by 30 \% in crucial periods. This means that the agent have found an appropriate behaviour in critical periods. However, as table
-\ref{table:results:configuration1_reward_50_episodes} shows, the average performance of the trained agent is not better than the no agent scenario. This means that there are situations where the trained agent pushes the voltage out of the safety margins.    
-
-
-\begin{table}[ht]
-\center
-\begin{tabular}{l|rrrrrrr}
-         & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
-\hline
-Agent    & 900   & -0.023 & 0.035 & -0.173 & -0.035 & -0.004 & 0.000  \\
-No agent & 900   & -0.033 & 0.034 & -0.180 & -0.050 & -0.019 & -0.007 \\
-\hline
-\end{tabular}
-\caption{Statistics of the rewards given to the trained agent and no agent scenario over 50 episodes with 200 hours each}
-\label{table:results:configuration1_reward_50_ep_preventive}
-\end{table}
-The electric grid is within safety margins 91 \% of the time in the 50 episode simulation. It is very important that the trained agent finds appropriate behaviour in these periods as well as in the critical periods. Investigating the voltage penalty given to the agent in this period reveals that the agent 
-
-
-All rewards corresponding to the hours when voltage margins are violated for the no-agent scenario are sorted and plotted in figure \ref{fig:results:configuration1_sorted_reward_voltage}. The corresponding rewards given to the trained agent are also plotted. 
-
-
-\begin{figure}[ht]
-    \center
-\includegraphics[height=8cm, width=12cm]{figures/sorted_reward_voltage_config1.png}
-    \caption[size = 9]{Rewards given to the trained agent and no agent scenario in 50 episodes with 200 steps. The rewards are sorted for the no agent scenario from best to worst}
-    \label{fig:results:configuration1_sorted_reward_voltage}
-\end{figure}
-
-
-
- This plots illustrates how the trained agent acts when safety margins would be violated if no actions were taken. In other words, it illustrates if it is able to prevent safety margin violations. 
-
-it can be noted that there are situation when the agent aggravate the voltage magnitudes in the grid. In other words, the agent is not able to generalise to all situations. The 
 
 
 \end{document}
