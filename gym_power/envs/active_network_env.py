@@ -509,9 +509,10 @@ def load_env(model_name='flexible_load_first',seed=9):
 
 
 if __name__ == '__main__':
-    env = ActiveEnv()
+    env = ActiveEnv(seed=9)
     env.set_parameters({'solar_std': 0.1})
-    nominal_sun = env.powergrid.sgen['sn_kva']
-    solar_forecast = nominal_sun * env.get_solar_forecast()[0]
-    solar = -env.powergrid.sgen['p_kw']
-    assert np.linalg.norm(solar_forecast - solar) > 0.1
+    sol = env.solar_forecasts
+    demand = env.demand_forecasts[0]
+    df = pd.DataFrame(sol[:200],columns=['sun'])
+    df['demand'] = demand[:200]
+    df.plot(), plt.show()
