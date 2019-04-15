@@ -281,7 +281,7 @@ Changing daily energy consumption
 \end{table}
 
 \section{Playing an episode}
-This section will describe how the the state of the electric grid is updated in an episode. The reinforcement agent is each hour given a state that represents the system, which includes a forecast for power demand and solar irradiance. Naturally, no forecasts are perfect, so the actual power demand and solar irradiance should deviate from the estimated values. This is done by adding an noise term to the forecasted values. The noise terms for the demand and solar irradiance are assumed to follow a Gaussian distribution with mean 0 and standard deviation that is proportional to the forecast in that hour. The hyper parameters $\sigma_{solar}$ and $\sigma_{demand}$ determine the uncertainty in the forecasts, and the default values are set to 3 \% in both cases.
+This section will describe how the the state of the electric grid is updated in an episode. The reinforcement agent is each hour given a state that represents the system, which includes a forecast for power demand and solar irradiance. Naturally, no forecasts are perfect, so the actual power demand and solar irradiance should deviate from the estimated values. This is done by adding a noise term to the forecasted values. The noise terms for the demand and solar irradiance are assumed to follow a Gaussian distribution with mean 0 and a standard deviation that is proportional to the forecast in that hour. The hyper parameters $\sigma_{solar}$ and $\sigma_{demand}$ determine the uncertainty in the forecasts, and the default values are set to 3 \% in both cases.
 
 
 
