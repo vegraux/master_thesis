@@ -156,11 +156,11 @@ where $a_{i} \in [-1,1]$ is the activation at flexible load $i$ in the power gri
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:update_demand}
-    \Delta P_{i}& = f_{i}P_{i}a_{i} \\
+    \Delta P_{i}& = f_{i}a_{i}P_{i,forecast} \\
     P_{i}& \leftarrow P_{i} + \Delta P_{i}
     \end{aligned} 
 \end{equation}
-where $f_{i}$ is the flexibility at load, $P_{i}$ is the active power demand.
+where $f_{i}$ is the flexibility at load, $P_{i}$ is the active power demand and $P_{i,forecast}$ is the forecasted power demand. 
 
 It is possible to include more control variables that the agent can control. For instance, the reinforcement agent could control the tap position of the transformer and the switches in the system. There is also a CIGRE benchmark network in pandapower that has storage units in the power net. A possible extension is to let the agent control the charging and discharging of storage units.
 
