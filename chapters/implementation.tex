@@ -8,6 +8,9 @@
             ]{biblatex} %none gir bibliografi i sitert rekkefølge
 \addbibresource{reference.bib}
 \usepackage{csquotes}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
 \usepackage{float}
 
 
@@ -16,9 +19,16 @@
 Python is the programming language used for this solving this task. Python is an open-source software that has several packages for machine learning and power flow calculations \cite{python_web}. In this thesis, \textit{pandapower} is the python package used for defining an electric power system and preforming power flow calculations \cite{pandapower}. \textit{Keras} is the Python package used for training a reinforcement agent \cite{keras_chollet2015}.
 
 \section{Pandapower}
-Pandapower is a time independent simulation tool, which means that it finds steady state solutions to a power flow problem. Consequently, the transitions from one state to another is not covered in this thesis.
+The central goal in this thesis is to keep values for current and voltage in an electrical power system within safety margins. It is therefore necessary to have a way to solve the power flow equations (\eqref{eq:theory:power_flow_equation}) and use results to see if safety margins are violated. The tool for solving the power flow equation in this thesis is the Python package \textit{pandapower} \cite{pandapower}. Their web site gives the following introduction \cite{pandapower_website}:
 
-This section will describe the different electrical elements available in pandapower and how they are physically modelled.
+\begin{displayquote}
+pandapower builds on the data analysis library pandas and the power system analysis toolbox PYPOWER to create an easy to use network calculation program aimed at automation of analysis and optimization in power systems. What started as a convenience wrapper around PYPOWER has evolved into a stand-alone power systems analysis toolbox with extensive power system model library, an improved power flow solver and many other power systems analysis functions.
+\end{displayquote}
+
+Pandapower is a time independent simulation tool that finds steady state solutions to a power flow problem. The power consumption and production at nodes in the power system can easily be updated as desired, and the power flow calculation will give the resulting voltage and current magnitudes.
+
+This section will describe the different electrical elements available in pandapower and how they are physically modelled. In addition, it is shown how to take actions in the power system using the API of pandapower. It should be noted that this thesis uses version 1.6.1 of pandapower, which have some differences compared to the 2.0.1 version available at the current time of writing. For instance, the base power unit in the 1.6.1 is kilowatts, while it for the 2.0.1 is megawatts.
+
 \subsection{Lines}
 A line element can be added and connected between two buses by using the \texttt{pandapower.create\_line} method. Pandapower offers many standard types lines for both underground cables and overhead transmission lines. Alternatively a custom line can be specified with the method \texttt{pandapower.create\_line\_from\_parameters}. The line are modelled using the $\pi$-equivalent model, mentioned in section \ref{section:pi_model}.
 
