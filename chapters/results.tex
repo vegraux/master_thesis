@@ -288,6 +288,45 @@ The agent has clearly not learned how to behave in periods with current violatio
     \label{fig:results:config1_bad_current}
 \end{figure}
 
+\subsection{Summary}
+The trained agent shows a desired behaviour in terms of voltage magnitudes in periods of peak power demand. The consumption is decreased in those periods which keeps the voltage magnitudes above the lower safety margins. However, the trained agent has not found a strategy that keeps voltage magnitudes below upper margins in periods with heavy solar production.
+
+The agent performs poorly in terms of avoiding current overloads in the lines. This is only a problem in periods of peak solar production and not in hours of peak demand. There were no current overloads in the lines in hours of peek demand and the trained agent can consequently not be rated in that situation. The behaviour of the agent in the hours of peak demand and peak solar production is summarised in table \ref{table:results:config1_behaviour}.
+
+\begin{table}[ht]
+\center
+\begin{tabular}{l|ll}
+                      & Current behaviour     & Voltage behaviour \\
+\hline
+Peak demand           & - & Good              \\
+Peak solar production & Poor                  & Poor \\
+\hline
+\end{tabular}
+\caption{Behaviour of the agent in critical periods in terms of current and voltage safety margins}
+\label{table:results:config1_behaviour}
+\end{table}
+A summary of performance in terms of voltage and current is presented in table \ref{table:results:config1_summary}
+
+
+\begin{table}[ht]
+\center
+\begin{tabular}{l|rrr}
+                   & Agent & No agent & Change \\
+\hline
+Current violations & 356   & 329      & 27     \\
+Mean current cost  & 0,18  & 0,16     & 0,02  \\
+Total current cost & 65,5  & 52,6     & 12,9   \\
+Voltage violations & 1435  & 1824     & -389   \\
+Mean voltage cost  & 0,035 & 0,036    & -0,001 \\
+Total voltage cost & 50,2  & 65,7     & -15,4  \\
+Total cost         & 115,7 & 118,3    & -2,6  \\
+\hline
+\end{tabular}
+\caption{Summary of number of violations and mean costs in terms of current and voltage for the trained agent and the no agent scenario}
+\label{table:results:config1_summary}
+\end{table}
+
+
 
 
 \end{document}
