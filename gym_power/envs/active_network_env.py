@@ -49,7 +49,8 @@ class ActiveEnv(gym.Env):
               'i_upper':90,
               'demand_std':0.03,
               'solar_std':0.03,
-              'total_imbalance':False}
+              'total_imbalance':False,
+              'reactive_power':True}
 
     def set_parameters(self, new_parameters):
         """
@@ -62,7 +63,7 @@ class ActiveEnv(gym.Env):
                         'forecast_horizon', 'activation_weight', 'flexibility',
                         'state_space','solar_scale', 'demand_scale','v_lower',
                         'v_upper','i_upper', 'demand_std','solar_std',
-                        'total_imbalance']
+                        'total_imbalance','reactive_power']
         non_negative = ['voltage_weight', 'current_weight', 'imbalance_weight',
                         'activation_weight']
         zero_to_one = ['flexibility']
@@ -385,9 +386,14 @@ class ActiveEnv(gym.Env):
 
         self._imbalance[:,self._current_step] = action
 
-        load_index = self.load_dict['p_kw']
+        p_index = self.load_dict['p_kw']
+        q_index = self.load_dict['q_kvar']
 
-        self.powergrid.load.iloc[self.flexible_load_indices, load_index] += action
+        self.powergrid.load.iloc[self.flexible_load_indices, p_index] += action
+        if self.params['reactive_power']:
+            self.powergrid.load.iloc[
+                self.flexible_load_indices, q_index] += action*self.pq_ratio
+
         try:
             pp.runpp(self.powergrid)
             self.log_resulting_demand()

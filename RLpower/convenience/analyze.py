@@ -282,6 +282,27 @@ def reward_agent_vs_no_action(model_name='flexible_load_first'
     df[''] = hues
     return df
 
+def update_param_dict(for_reals=False):
+    if for_reals:
+        env = ActiveEnv()
+        model_dir = 'C:\\Users\\vegar\Dropbox\Master\\thesis.git\RLpower\models'
+        for model in os.listdir(model_dir):
+            if 'params' in model:
+                with open(os.path.join(model_dir,model),'rb') as f:
+                    olds_params = pickle.load(f)
+                    missing_params = [p for p in env.params if p not in olds_params]
+                    params_values = {'reactive_power':False,
+                                     'solar_std': 0,
+                                     'total_imbalance':True,
+                                     'demand_std': 0}
+                    for param in missing_params:
+                        olds_params[param] = params_values[param]
+
+                assert all([p in env.params for p in olds_params])
+                with open(os.path.join(model_dir,model),'wb') as f:
+                    pickle.dump(olds_params,f)
+
+
 
 if __name__ == '__main__':
-    df = reward_agent_vs_no_action()
+    pass

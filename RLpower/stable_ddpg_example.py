@@ -27,11 +27,11 @@ import tensorflow as tf
 #powerenv = PowerEnvSparse()
 #powerenv = PowerEnv()
 powerenv = ActiveEnv()
-powerenv.set_parameters({'state_space': ['sun', 'demand','imbalance'],
-                        'reward_terms': ['voltage', 'current','imbalance'],
-                         'flexibility': 0.25
-                         })
+with open('models/flexible_load_first_params.p','rb') as f:
+    params = pickle.load(f)
 
+params['reactive_power'] = True
+powerenv.set_parameters(params)
 
 #powerenv = PowerEnvOld()
 powerenv = DummyVecEnv([lambda: powerenv])
@@ -67,7 +67,7 @@ data = []
 obs = powerenv.reset()
 
 
-model_name = 'flex_25'
+model_name = 'reactive_first'
 path = 'models/' + model_name +'.pkl'
 while os.path.isfile(path):
     model_name += '1'
