@@ -25,12 +25,16 @@ This algorithm is similar to how humans and animals learn. Imagine a dog seeing 
 The dog training is similar to an reinforcement learning algorithm. The dog is the agent that tries to figure out what actions to do, while the owner is the reward system. The advantage of a reinforcement algorithm is that it does not need a physical reward, and the agent can experiment much more quickly than a dog can. 
 
 \section{Reinforcement algorithms}
-Algorithms in machine learning and artificial intelligence are often divided into either supervised or unsupervised learning. Supervised learning is an algorithm using input data and labelled output data (target). The algorithm tries to map the input to the target in a manner that generalises well to unseen input data. Examples of supervised learning are regression and classification algorithms. Unsupervised learning is algorithms attempting to find structure in unlabelled data. Examples of such are clustering and anomaly detection. The terms \textit{supervised} and \textit{unsupervised} do not describe well the mechanisms of reinforcement learning algorithms. An reinforcement learning agent learns from interacting with an environment and receiving rewards based the action it takes. The agent's goal is not to use labelled data in some sense or explicitly finding general structures in the data. As a result, reinforcement learning is considered to be a category of its own \cite{Sutton1998}. 
+Algorithms in machine learning and artificial intelligence are often divided into either supervised or unsupervised learning. Supervised learning is an algorithm using input data and labelled output data (target). The algorithm tries to map the input to the target in a manner that generalises well to unseen input data. Examples of supervised learning are regression and classification algorithms. Unsupervised learning is algorithms attempting to find structure in unlabelled data. Examples of such are clustering and anomaly detection. The terms \textit{supervised} and \textit{unsupervised} do not describe well the mechanisms of reinforcement learning algorithms. A reinforcement learning agent learns from interacting with an environment and receiving rewards based the action it takes. The agent's goal is not to use labelled data in some sense or explicitly finding general structures in the data. As a result, reinforcement learning is considered to be a category of its own \cite{Sutton1998}. 
 
 \section{Markov decision process}\label{section:markov_decision_process}
 
+Fundamental to any reinforcement learning algorithms is the agent and the environment with which the agent is interacting. As mentioned in the introduction, an agent is the decision maker that observes a state $s$ and decides what action $a$ to take. An example can be a self-driving vehicle that receives an observation $s$ in the from of input from cameras and sensors placed on the vehicle. The observation $s$ represent the state of the system, and based on that the self-driving car must chose an action $a$. The action might be to turn the wheel to the right which in turn leads to a new observation from the cameras and sensors on the vehicle.
+
+The set of possible actions and states are respectively called the action space $\mathcal{A}$ and state space $\mathcal{S}$. For some reinforcement learning tasks, such as chess, the action space depends on the state $s$. For instance, it is not allowed to castle if an opponents piece is attacking your king. In such cases, the action space $\mathcal{A}(s)$ is given by the state $s$. The action space in an electric power system is dependent on the state, for instance if a power plant or transmission line is out of operation. A central element in the reinforcement algorithm is the reward function $r: \mathcal{S} \times \mathcal{A} \to \mathcal{R} \subseteq \mathbb{R}$ that evaluates how "good" action $a$ is in state $s$. For instance, the reward given to the agent in car race can be the the speed of the car so that the agent is incentived to drive fast.
+
 A Markov decision process is a mathematical framework describing sequential decision making and interaction with an environment, where the outcome can be stochastic. This is precisely what
-a general reinforcement algorithm attempts to do. The set of possible actions and states are respectively called the action space $\mathcal{A}$ and state space $\mathcal{S}$. For some reinforcement learning tasks, such as chess, the action space depends on the state $s$. For instance, it is not allowed to castle if an opponents piece is attacking some of the squares over which the king will move. In such cases, the action space $\mathcal{A}(s)$ is given by the state. The action space in an electric power system is dependent on the state, for instance if a power plant is out of operation. The environment starts at $t=0$ and is described by a state $s_{0} \in \mathcal{S}$. The agent preforms some action $a_{0}\in \mathcal{A}$ and receives a reward $r_{1}\in \mathcal{R} \subseteq \mathbb{R} $ based on how "good" that action is. The action $a_{0}$ interacts with the environment and gives a new state $s_{1}$. This starts the sequence of states, actions and rewards.
+a general reinforcement algorithm attempts to do. The environment starts at $t=0$ and is described by an initial state $s_{0} \in \mathcal{S}$. The agent preforms some action $a_{0}\in \mathcal{A}$ and receives a reward $r_{1}\in \mathcal{R} \subseteq \mathbb{R} $ based on how good that action is. The action $a_{0}$ interacts with the environment and gives a new state $s_{1}$. This starts the sequence of states, actions and rewards.
 
 
 \begin{equation}
@@ -38,8 +42,7 @@ a general reinforcement algorithm attempts to do. The set of possible actions an
 s_{0},a_{0},r_{1},s_{1}, a_{1},r_{2},s_{2},...
 \end{aligned} 
 \end{equation}
-
-The interaction between the agent and environment is visualised in figure \ref{fig:theory:markov_decision_process} as a feedback loop.
+The interaction between the agent and environment is visualised in figure \ref{fig:theory:markov_decision_process} as a feedback loop. The loop continues until the environment reaches a terminal state, for instance when the self-driving car reaches its destination or if it crashes. The transitions from start state $s_{0}$ to terminal state $s_{T}$ constitutes an episode in the reinforcement algorithm.  
 
 \begin{figure}[ht!]
     \center
@@ -50,7 +53,7 @@ The interaction between the agent and environment is visualised in figure \ref{f
 
 
 
-The goal at each time step $t$ is to maximise the rewards in the future. How to formally define the reward maximising criterion depends on the nature of the task. Some tasks, such as playing a video game, are called episodic and have well-defined boundaries for start and end state. On the other hand, the electric power system is a continuous task that never should end if the agent does its job. For continuous tasks, let the discounted return $r^{\gamma}_{t}$ at time $t$ be defined as 
+The goal at each time step $t$ is to maximise the rewards in the future. How to formally define the reward maximising criterion depends on the nature of the task. Some tasks, such as playing a video game, are called episodic and have well-defined boundaries for initial and terminal state. On the other hand, the electric power system is a continuous task that never should end if the agent does its job. For continuous tasks, let the discounted return $r^{\gamma}_{t}$ at time $t$ be defined as 
 
 
 \begin{equation}
@@ -59,12 +62,11 @@ r^{\gamma}_{t} = r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...
 = \sum_{k=t}^{\infty} \gamma^{k-t}r_{k+1}
 \end{aligned} 
 \end{equation}
-where $r_{t}$ is the reward received after action $a_{t}$ and $\gamma \in (0,1)$ is the discount factor. The goal of the agent at every time step $t$ could be to maximise the discounted return $r^{\gamma}_{t}$.
+where $r_{t+1}$ is the reward received after taking action $a_{t}$ in state $s_{t}$,and $\gamma \in [0,1]$ is the discount factor. The goal of the agent at every time step $t$ can be defined to maximise the discounted return $r^{\gamma}_{t}$. The gamma term is a hyper-parameter that can be tuned, and it determines how relevant future rewards are. If $\gamma = 0$, then the agent only considers the immediate reward. If $\gamma = 1$ then all future rewards count equally to the total future reward $r^{\gamma}_{t}$. 
 
 
 
 \section{Value and policy functions}
-
 An agent selects actions in a given state is through its policy $\pi$. The policy of the agent decides what action to take in a given state by mapping the state space to the action space, $\pi: \mathcal{S} \to \mathcal{A}$. The policy can both be deterministic and stochastic. A deterministic policy maps a given state to the same action every time, while a stochastic policy maps the state to a probability distribution over the action space. For the deterministic case, the policy function $\pi$ is given by
 
 
@@ -73,7 +75,7 @@ An agent selects actions in a given state is through its policy $\pi$. The polic
 \pi(s) = a
 \end{aligned} 
 \end{equation}
-where $a$ is the action chosen by the policy. Fot the stochastic case, it gives the probability of choosing action $a$.
+where $a$ is the action chosen by the policy. For the stochastic case, it gives the probability of choosing action $a$.
 
 
 \begin{equation}
@@ -85,7 +87,7 @@ where $a$ is the action chosen by the policy. Fot the stochastic case, it gives 
 
 The reinforcement algorithms used in this thesis are restricted to policy-gradient methods. These are methods that approximate the policy function using a neural network and updates its parameters using gradients. 
 
-It is very convenient to able to evaluate a certain state before taking an action. $V^{\pi}$ is called the value function $V$ under the policy $\pi$ and gives a metric for the "value" of the current state. The reason for including "under the policy $\pi$" is that a state is valued differently depending on the policy used. For instance, the start position in chess will be evaluated better under the policy of a chess grand master, than under the policy of an amateur. The value function $V_{\pi}(s)$ is the expected discounted reward $r^{\gamma}_{t}$ as defined by \eqref{eq:theory:discounted_reward} given state $s$ and following the policy $\pi$.
+It is very convenient to able to evaluate a certain state before taking an action. $V^{\pi}$ is called the value function $V$ under the policy $\pi$ and gives a metric for the value of the current state. The reason for including "under the policy $\pi$" is that a state is valued differently depending on the policy used. For instance, the start position in chess will be evaluated better under the policy of a chess grand master, than under the policy of an amateur. The value function $V_{\pi}(s)$ is the expected discounted reward $r^{\gamma}_{t}$ as defined by \eqref{eq:theory:discounted_reward} given state $s$ and following the policy $\pi$.
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:value_function}
@@ -96,7 +98,7 @@ V_{\pi}(s)
 \end{aligned} 
 \end{equation}
 
-$Q_{\pi}(s,a)$ is called the action-value function, which quantifies the expected discounted return given the action $a_{t}$ in state $s_{t}$ and that the policy $\pi$ is followed thereafter. In other words, it can evaluate a specific action in a given state.  
+The action-value function $Q_{\pi}(s,a)$, also called the Q-function, which quantifies the expected discounted return given the action $a_{t}$ in state $s_{t}$ and that the policy $\pi$ is followed thereafter. In other words, it can evaluate a specific action in a given state, in contrast to the value function $V$ that only evaluates the state.
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:action_value_function}
@@ -106,6 +108,14 @@ Q_{\pi}(s_{t},a_{t})
 &= \mathbb{E}_{\pi}[ r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...|a=a_{t} ,s=s_{t}]
 \end{aligned} 
 \end{equation}
+The Q-function $Q_{\pi}$ and value function $V_{\pi}$ are similar to each other and can togeather be used to measure the advantage of an action $a$. The advantage A(a,s) of action $a$ in state $s$ is defined as 
+
+\begin{equation}
+   \begin{aligned}\label{eq:theory:advantage_function}
+A(s,a) =  Q_{\pi}(s,a) - V_{\pi}(s)
+\end{aligned} 
+\end{equation}
+If the advantage is positive, it means that it is better to take action $a$ than following the action chosen by the policy in state $s$. Similarly, a negative advantage means that action $a$ is worse than following the action chosen by the policy. 
 
 
 

@@ -19,10 +19,10 @@
 Python is the programming language used for this solving this task. Python is an open-source software that has several packages for machine learning and power flow calculations \cite{python_web}. In this thesis, \textit{pandapower} is the python package used for defining an electric power system and preforming power flow calculations \cite{pandapower}. \textit{Keras} is the Python package used for training a reinforcement agent \cite{keras_chollet2015}.
 
 \section{Pandapower}
-The central goal in this thesis is to keep values for current and voltage in an electrical power system within safety margins. It is therefore necessary to have a way to solve the power flow equations (\eqref{eq:theory:power_flow_equation}) and use results to see if safety margins are violated. The tool for solving the power flow equation in this thesis is the Python package \textit{pandapower} \cite{pandapower}. Their web site gives the following introduction \cite{pandapower_website}:
+The central goal in this thesis is to keep values for current and voltage in an electrical power system within safety margins. It is therefore necessary to have a way to solve the power flow equations (\eqref{eq:theory:power_flow_equation}) and use the results to see if safety margins are violated. The tool for solving the power flow equation in this thesis is the Python package \textit{pandapower} \cite{pandapower}. They describe themselves in the following way:
 
 \begin{displayquote}
-pandapower builds on the data analysis library pandas and the power system analysis toolbox PYPOWER to create an easy to use network calculation program aimed at automation of analysis and optimization in power systems. What started as a convenience wrapper around PYPOWER has evolved into a stand-alone power systems analysis toolbox with extensive power system model library, an improved power flow solver and many other power systems analysis functions.
+"pandapower builds on the data analysis library pandas and the power system analysis toolbox PYPOWER to create an easy to use network calculation program aimed at automation of analysis and optimization in power systems. What started as a convenience wrapper around PYPOWER has evolved into a stand-alone power systems analysis toolbox with extensive power system model library, an improved power flow solver and many other power systems analysis functions." \cite{pandapower_website}
 \end{displayquote}
 
 Pandapower is a time independent simulation tool that finds steady state solutions to a power flow problem. The power consumption and production at nodes in the power system can easily be updated as desired, and the power flow calculation will give the resulting voltage and current magnitudes.
@@ -30,7 +30,7 @@ Pandapower is a time independent simulation tool that finds steady state solutio
 This section will describe the different electrical elements available in pandapower and how they are physically modelled. In addition, it is shown how to take actions in the power system using the API of pandapower. It should be noted that this thesis uses version 1.6.1 of pandapower, which have some differences compared to the 2.0.1 version available at the current time of writing. For instance, the base power unit in the 1.6.1 is kilowatts, while it for the 2.0.1 is megawatts.
 
 \subsection{Lines}
-A line element can be added and connected between two buses by using the \texttt{pandapower.create\_line} method. Pandapower offers many standard types lines for both underground cables and overhead transmission lines. Alternatively a custom line can be specified with the method \texttt{pandapower.create\_line\_from\_parameters}. The line are modelled using the $\pi$-equivalent model, mentioned in section \ref{section:pi_model}.
+A line element can be added and connected between two buses by using the \texttt{pandapower.create\_line} method. Pandapower offers many standard types lines for both underground cables and overhead transmission lines. Alternatively a line with costume parameters for impedance, line length, line diameter etc. can be specified with the method \texttt{pandapower.create\_line\_from\_parameters}. The lines are modelled using the $\pi$-equivalent model, described in section \ref{section:pi_model}.
 
 \subsection{Generators}
 Pandapower has two generator types. The first type is simply called generator and is modelled as a PV-bus. In other words, the active power production $P$ and voltage magnitude $|U|$ are known when solving the power flow equations. Generators can be created using the method \texttt{pandapower.create\_gen}, where nominal values for apparent power and voltage can be specified. The second type is the static generator, where the active power $P$ and reactive power $Q$ is specified (PQ-bus). Static generators are created using \texttt{pandapower.create\_sgen}. Pandapower models power from the consumer perspective, so negative values for active power $P$ corresponds to generation of power.
@@ -46,7 +46,7 @@ Pandapower offers both two-winding and three-winding transformers that can be cr
 It is possible to connect a storage element to a power grid using the \texttt{pandapower.create\_storage} method. The storage element is modelled as a PQ-node. Because simulations in pandapower is time-independent and only find steady state solution, it does not update the capacity of a storage during power flow calculations. Available energy in the storage element must therefore be updated manually according to some predefined timescale when several power flow calculations are performed.  
 
 
-\section{Data structures in pandapower}
+\subsection{Data structures in pandapower}
 
 Pandapower stores information about elements in an electric transmission system in pandas DataFrames, which make it easy to inspect the numeric output of a power flow calculation. Figure \ref{fig:method:loading_example_net} shows a 4 bus case net and the components included in it. 
 
@@ -59,32 +59,32 @@ Pandapower stores information about elements in an electric transmission system 
 Each of the elements listed have a corresponding pandas DataFrame. The elements without "res" at the beginning are parameter tables and have information about nominal and max/min values for the components. Figure \ref{fig:method:line_bus_dataframe} shows the parameter table for the line and bus.
 
 \begin{figure}[H]
-    \includegraphics[height=7cm, width=13.5cm]{figures/case4g_line_bus.PNG}
-    \caption[size = 9]{Parameter table in pandapower. There are more columns in net.line}
+    \includegraphics[height=8cm, width=13.5cm]{figures/case4g_line_bus.PNG}
+    \caption[size = 9]{Parameter table in pandapower. There are more columns in \texttt{net.line}}
     \label{fig:method:line_bus_dataframe}
 \end{figure}
-All of the components will have a result table after the power flow calculation is performed, using the method \texttt{pandapower.runpp}. Figure \ref{fig:method:res_line_bus_dataframe} shows the result table for the bus and line.
+All of the components will have a result table after the power flow calculation is performed, using the method \texttt{pandapower.runpp}. Figure \ref{fig:method:res_line_bus_dataframe} shows the result table for the bus and line. Note that values for active and reactive power are from the consumer perspective. In other words, positive values means consumption of power, while negative values means production.
 
 \begin{figure}[H]
     \includegraphics[height=8cm, width=14cm]{figures/case4g_line_bus_res.PNG}
-    \caption[size = 9]{Result table in pandapower. There are more columns in net.res\_line}
+    \caption[size = 9]{Result table in pandapower. There are more columns in \texttt{net.res\_line}}
     \label{fig:method:res_line_bus_dataframe}
 \end{figure}
 
-\section{Plotting results}
-It is important to be able to inspect the resulting state after a reinforcement agent performs an action on the system. This can be complicated for large network with many buses and lines that each have a voltage magnitude, voltage angle and so on. Luckily, pandapower has support for plotting both grid architecture and results from the power flow. It is possible to get static plots using matplotlib and interactive plots using plotly \cite{plotly}. Figure \ref{fig:method:oberrhein_grid_results_plotly} shows the interactive results from a power flow calculation performed on the Oberrhein power grid using plotly. The lines are coloured based on the line loading (100\% means maximum current), while the buses are coloured based on the voltage magnitude. Such plots help to get a overview of the grid and quickly identify critical areas in the transmission system. Since the plot is interactive, it is easy to zoom and it is possible to click on a line or bus to see the relevant values. 
+\subsection{Plotting results}
+It is important to be able to inspect the resulting state after a reinforcement agent performs an action on the system. This can be complicated for large network with many buses and lines that each have a voltage magnitude, voltage angle and so on. Fortunately, pandapower has support for plotting both grid architecture and results from the power flow. It is possible to get static plots using matplotlib and interactive plots using plotly \cite{plotly}. Figure \ref{fig:method:oberrhein_grid_results_plotly} shows the interactive results from a power flow calculation performed on the Oberrhein power grid using plotly. The lines are coloured based on the line loading (100\% means maximum current), while the buses are coloured based on the voltage magnitude. Such plots help to get a overview of the grid and quickly identify critical areas in the transmission system. It is possible to zoom into the net since the plot is interactive, and by clicking on a line or bus you can see the values for voltage, current and power. The lines and buses are colour coded according to line capacity used and voltage magnitudes respectively. This can be used to quickly identify critical areas in the grid.
 
 
 \begin{figure}[H]
     \center
-    \includegraphics[height=13cm, width=12cm]{figures/results_pp_oberrhein.png}
+    \includegraphics[height=15cm, width=12cm]{figures/results_pp_oberrhein.png}
     \caption[size = 9]{Interactive plot of the results from a power flow calculation on the Oberrhein case power grid using plotly. The grid consist of 179 lines and 180 buses}
     \label{fig:method:oberrhein_grid_results_plotly}
 \end{figure}
 
 
-\section{Controlling a pandapower net}
-Reinforcement learning is all about taking actions and getting rewards based on how good that action was. It must therefore be possible to control certain elements in a pandapower net. This section will show how to perform certain actions in pandapowers. \texttt{net.gen} gives a DataFrame where all the generators in the system is represented as a row. Because a generator is modelled as a PV-bus, it is possible to control the voltage and power by overwriting the parameters in \texttt{net.gen}. Figure \ref{fig:method:case4g_controll_vm_p_kw} shows how to set the active power production to 100000 kW and voltage magnitude to 0.99. The last row in the \texttt{net.res\_bus} is the bus where the generator is connected, and we see that the voltage magnitude is the same as the generator voltage magnitude. The power production if different from 100000 kW because there is a 80000 kW load connected to the same bus, and the table shows the sum of production and consumption at each bus. 
+\subsection{Controlling a pandapower net}
+Reinforcement learning is all about taking actions and getting rewards based on how good that action was. It must therefore be possible to control certain elements in a pandapower net. This section will show how to perform certain actions in pandapower. \texttt{net.gen} gives a DataFrame where all the generators in the system is represented as a row. Because a generator is modelled as a PV-bus, it is possible to control the voltage and power by overwriting the parameters in \texttt{net.gen}. Figure \ref{fig:method:case4g_controll_vm_p_kw} shows how to set the active power production to 100000 kW and voltage magnitude to 0.99. The last row in the \texttt{net.res\_bus} is the bus where the generator is connected, and we see that the voltage magnitude is the same as the generator voltage magnitude. The power production if different from 100000 kW because there is a 80000 kW load connected to the same bus, and the table shows the sum of production and consumption at each bus. 
 
 
 
