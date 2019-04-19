@@ -62,11 +62,18 @@ The interaction between the agent and environment is visualised in figure \ref{f
     \caption[size = 9]{Interaction in a Markov decision process. Source: Sutton \cite{Sutton1998}}
     \label{fig:theory:markov_decision_process}
 \end{figure}
-The probability of transitioning to the next state $s_{t+1}$ and receiving $r_{t+1}$ only depends on the previous state $s_{t}$ and action $a_{t}$ in a Markov decision process \cite{Sutton1998}. Formally, a state $s_{t}$ is Markov if and only if 
+Formally, a finite Markov decision process $\mathcal{M}$ is a tuple
+\begin{equation}
+   \begin{aligned}\label{eq:theory:markov_formal}
+\mathcal{M} = \langle \mathcal{S},\mathcal{A},\mathcal{P},\mathcal{R},\gamma \rangle
+\end{aligned} 
+\end{equation}
+where $\mathcal{S}$ and $\mathcal{A}$ respectively are finite sets of states and actions, $\mathcal{P}$ is the matrix with state transition probabilities,
+$\mathcal{R}$ is a reward function and $\gamma$ is a discount factor \cite{silver_course}. The probability of transitioning to the next state $s_{t+1}$ and receiving $r_{t+1}$ only depends on the previous state $s_{t}$ and action $a_{t}$ in a Markov decision process \cite{Sutton1998}. Formally, a state $s_{t}$ is Markov if and only if 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:markov_property}
-    \mathbb{P}[s_{t+1}|s_{t}] = \mathbb{P}[s_{t+1}|s_{t},s_{t-1},...,s_{0}]
+    \mathbb{P}[s_{t+1}|a_{t},\;s_{t}] = \mathbb{P}[s_{t+1}|a_{t},\;s_{t},s_{t-1},...,s_{0}]
 \end{aligned} 
 \end{equation}
 This is called the Markov property of the state \cite{silver_course}. In other words, the history of states leading up to the current state is not relevant for the probability of transition to state $s_{t+1}$. Let the transition function $p: \mathcal{S} \times \mathcal{R} \times \mathcal{S} \times \mathcal{A} \to [0,1]$ be the probability of transitioning from state $s$ to $s'$ and receiving reward $r$ given the action $a$
@@ -84,7 +91,7 @@ If the transition function $p$ in \eqref{eq:theory:markov_transition} is known, 
 
 
 \section{Value and policy functions}
-The agent selects an action in a given state through its policy $\pi$. The policy of the agent decides what action to take in a given state by mapping the state space to the action space, $\pi: \mathcal{S} \to \mathcal{A}$. The policy can both be deterministic and stochastic. A deterministic policy maps a given state to the same action every time, while a stochastic policy maps the state to a probability distribution over the action space. For the deterministic case, the policy function $\pi$ is given by
+The reinforcement agent selects an action in a given state through its policy $\pi$. The policy of the agent decides what action to take in a given state by mapping the state space to the action space, $\pi: \mathcal{S} \to \mathcal{A}$. The policy can both be deterministic and stochastic. A deterministic policy maps a given state to the same action every time, while a stochastic policy maps the state to a probability distribution over the action space. For the deterministic case, the policy function $\pi$ is given by
 
 
 \begin{equation}
@@ -92,7 +99,7 @@ The agent selects an action in a given state through its policy $\pi$. The polic
 \pi(s) = a
 \end{aligned} 
 \end{equation}
-where $a$ is the action chosen by the policy. For the stochastic case, it gives the probability of choosing action $a$.
+where $a$ is the action chosen by the policy. For the stochastic case, it gives the probability of choosing action $a$ in state $s$.
 
 
 \begin{equation}
@@ -102,9 +109,9 @@ where $a$ is the action chosen by the policy. For the stochastic case, it gives 
 \end{equation}
 
 
-TODO: mode elsewhere. The reinforcement algorithms used in this thesis are restricted to policy-gradient methods. These are methods that approximate the policy function using a neural network and updates its parameters using gradients. 
+TODO: move elsewhere. The reinforcement algorithms used in this thesis are restricted to policy-gradient methods. These are methods that approximate the policy function using a neural network and updates its parameters using gradients. 
 
-It is very convenient to able to evaluate a certain state before taking an action. $V^{\pi}$ is called the value function $V$ under the policy $\pi$ and gives a metric for the value of the current state. The reason for including "under the policy $\pi$" is that a state is valued differently depending on the policy used. For instance, the start position in chess will be evaluated better under the policy of a chess grand master, than under the policy of an amateur. The value function $V_{\pi}(s)$ is the expected discounted reward $r^{\gamma}_{t}$ as defined by \eqref{eq:theory:discounted_reward} given state $s$ and following the policy $\pi$.
+A central tool in many reinforcement algorithms is to evaluate a certain state before taking an action. The state-value function $V_{\pi}$ is defined as the expected discounted future return in state $s$ under the policy $\pi$.
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:value_function}
@@ -115,7 +122,11 @@ V_{\pi}(s)
 \end{aligned} 
 \end{equation}
 
-The action-value function $Q_{\pi}(s,a)$, also called the Q-function, which quantifies the expected discounted return given the action $a_{t}$ in state $s_{t}$ and that the policy $\pi$ is followed thereafter. In other words, it can evaluate a specific action in a given state, in contrast to the value function $V$ that only evaluates the state.
+The reason for including "under the policy $\pi$" is that a state is valued differently depending on the policy used. For instance, the start position in chess will be evaluated better under the policy of a chess grand master than under the policy of an amateur, because the grand master has a much higher expected future reward. 
+
+
+
+The action-value function $Q_{\pi}$, also called the Q-function, quantifies the expected discounted return given the action $a_{t}$ in state $s_{t}$ and that the policy $\pi$ is followed thereafter. In other words, it can evaluate a specific action in a given state, in contrast to the value function $V$ that only evaluates the state.
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:action_value_function}
@@ -125,7 +136,7 @@ Q_{\pi}(s_{t},a_{t})
 &= \mathbb{E}_{\pi}[ r_{t+1} + \gamma r_{t+2} + \gamma^{2} r_{t+3} + ...|a=a_{t} ,s=s_{t}]
 \end{aligned} 
 \end{equation}
-The Q-function $Q_{\pi}$ and value function $V_{\pi}$ are similar to each other and can together be used to measure the advantage of an action $a$. The advantage $A(a,s)$ of action $a$ in state $s$ is defined as 
+The action-value function $Q_{\pi}$ and state-value function $V_{\pi}$ are similar to each other and can together be used to measure the advantage of an action $a$. The advantage $A(a,s)$ of action $a$ in state $s$ under policy is defined as 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:advantage_function}
@@ -134,14 +145,34 @@ A(s,a) =  Q_{\pi}(s,a) - V_{\pi}(s)
 \end{equation}
 If the advantage is positive, it means that it is better to take action $a$ than following the action chosen by the policy in state $s$. Similarly, a negative advantage means that action $a$ is worse than following the action chosen by the policy.
 
-\section{model based and model-free reinforcement learning}
-There are two main categories of reinforcement learning algorithms: model-based and model-free reinforcement learning. Model-based algorithm 
-
-
-
-
 \section{Off-policy and on-policy}
-A problem that arises when constructing a reinforcement learning algorithm is how to both be able to exploit a good policy and at the same time explore new policies. If an agent always follows its policy and picks the action it believes is the best, it will never explore new and perhaps better approaches to solve a problem. A solution to this problem is two have two different policies. One policy is called the target policy that is to be the optimal solution, while the other is called the behaviour policy and is for exploration of new behaviours \cite{Sutton1998}. A reinforcement learning algorithm using this approach is said to be learning off-policy.
+A problem that arises when constructing a reinforcement learning algorithm is how to both be able to exploit a good policy and at the same time explore new policies. If an agent always follows its policy and picks the action it believes is the best, it will never explore new and perhaps better approaches to solve a problem. A solution to this problem is two have two different policies. One policy is called the target policy that is to be the optimal solution, while the other is called the behaviour policy and is for exploration of new behaviours \cite{Sutton1998}. A reinforcement learning algorithm using this approach is said to be learning off-policy. On the other hand, on-policy algorithms only learn from the experiences of the agent.
+
+\section{Actor-critic reinforcement learning}
+There are two main categories of reinforcement learning algorithms: model-based and model-free reinforcement learning. Model-based algorithm uses the dynamics of the system to plan actions. For instance, the transition function $p$ in equation \eqref{eq:theory:markov_transition}  gives a probability distribution over the next state and reward, which can be used for planning in dynamic programming \cite{silver_course}. The reinforcement algorithm is explicitly using a model of the environment to chose actions. However, for many situations the transition function is unknown, and even if it is known it can be very computationally expensive to use in a reinforcement algorithm.
+
+The second category is called model-free reinforcement learning. As the name suggest, it requires no information about the dynamics in the environment. This is very useful in situations where there are no transition function that describes the dynamics in the environment, but experiences can be sampled. Model-free algorithms can be divides into two subcategories: Value-based and policy-based. The categories are visualised in figure \ref{fig:theory:rl_model_modelfree}.
+
+
+\begin{figure}[ht!]
+    \center
+    \includegraphics[height=5cm, width=10cm]{figures/rl_model_modelfree.png}
+    \caption[size = 9]{Classes of reinforcement algorithms}
+    \label{fig:theory:rl_model_modelfree}
+\end{figure}
+
+
+The first subcategory is called value-based reinforcement learning, where the approach is to approximate the action-value function $Q$, and use that to take an action. An example of value-based is Q-learning, SARSA and DQN \cite{Sutton1998}. An advantage of value-based methods is that they can learn off-policy, for instance by learning from the behaviour of experts \cite{value_based_policy_Nachum}. Value-based method are therefore very sample efficient as they do not need to find optimal moves themselves, but can learn from a behaviour that is known to be good. The disadvantage is that value-based methods are not well suited for function approximation, such as neural networks, as they tend to be unstable \cite{Sutton1998}. 
+
+Policy-based methods (also called policy gradient) directly parametrise the policy function $\pi$ that results in the best behaviour without involving the action-value function $Q$ in the decision-making \cite{Sutton1998}. In contrast to value-based methods, they are stable when using function approximation, but very sample inefficient \cite{value_based_policy_Nachum}. In other words, the weakness of value-based methods is the advantage of the policy-based methods, and vice versa. A natural idea is then to combine the two methods into a more robust method. Enter the the actor-critic model. The actor-critic model is a mix of policy-based and value-based reinforcement learning, as illustrated in figure \ref{fig:theory:Actor-critic}. The policy $\pi$ is called the actor, because it chose the action to take. The action-value function $Q$ is named the critic because it evalutes the action picked by the actor.
+
+\begin{figure}[ht!]
+    \center
+    \includegraphics[height=5cm, width=10cm]{figures/Actor-critic.png}
+    \caption[size = 9]{Actor-critic in relation to value-based and policy-based methods}
+    \label{fig:theory:Actor-critic}
+\end{figure}
+
 
 \section{Deep deterministic policy gradient}
 Silver et. al have developed an off-policy reinforcement algorithm called deep deterministic policy gradient (DDPG) \cite{pmlr-v32-silver14}. As the name suggest, the algorithm uses a deterministic approximation of the policy function instead of a stochastic version. The advantage with a deterministic policy is that it does not have to integrate over action space in the search for the best policy. This section will outline the differences between stochastic and deterministic policy function. Both cases share similarities with each other. DDPG models the problem as a Markov decision problem as described in section \ref{section:markov_decision_process}.
@@ -271,7 +302,7 @@ Q^{\mu}(s_{t},a_{t})
 [r(s_{t},a_{t}) +\gamma Q^{\mu}(s_{t+1},\mu(s_{t+1}))]
 \end{aligned} 
 \end{equation}
-This relation can be used in the design of the loss function for the action-value function approximator $Q(s,a|\theta^{Q})$. Let the action value target $y_{t} $ be defined as 
+This relation can be used in the design of the loss function for the action-value function approximator $Q(s,a|\theta^{Q})$. Let the action value target $y_{t}$ be defined as 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:action_value_target_bellman_equation}
@@ -355,7 +386,7 @@ Soft update the target weights
 \end{algorithm}
 
 \section{Hindsigth Experience Replay}
-
+TODO: Remove HER?
 \subsection{Challenging reward engineering}\label{theory:challenging_reward_shaping}
 
 Designing the reward for a reinforcement agent is often a challenging and time-consuming task. For algorithm attempting to play a game it is usually not a problem, since the reward could simply be the score in the game, or a positive reward every time the agent wins an episode. However, for other tasks there will often be a need for a lot of handcrafted rewards that require domain-specific knowledge. This section will present an example of this challenge in an electric power system.
