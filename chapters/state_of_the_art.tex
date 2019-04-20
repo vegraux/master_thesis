@@ -16,7 +16,13 @@
 
 \begin{document}
 \section{Reinforcement learning}
-Reinforcement learning is a discipline in rapid development
+Reinforcement learning is a discipline in rapid development as is the case in machine learning as well. Reinforcement algorithms have gain from the success of methods in supervised learning, such as convolutional neural networks (CNN) and  recurrent neural networks (RNN). Dan Cire\c{s}an et al. had a breakthrough in 2010 when they were able to train a dense neural network using back propagation with a graphic processor unit (GPU) instead of a conventional central processor unit (CPU) \cite{DNN_gpu_2010}. The neural network was trained on the MNIST dataset of handwritten digits using image augmentation such as rotations, horizontally shearing and scaling. Their result showed that the time of the back propagation routine was cut by a factor of 40 with the use of the GPU. They achieved a record breaking low error rate of 0.35 \% in the classification. In 2011 the team of Dan Cire\c{s}an et al. continued the development and presented an implementation of back propagation for CNN using GPU, cutting the training time from months to days \cite{CNN_gpu_2011}.
+
+In 2013, Mnih et al. at DeepMind Technologies implemented a Q-learning algorithm using CNN as function approximators for the action-value function \cite{DQN_Mnih_et_al_2013}. They call their method Deep Q-Network (DQN) and applied it on seven Atari 2600 games, where it beat all previous solutions in all games expect for space invaders. DQN only learns from raw pixel input, without using low dimensional feature engineering of the input values. In addition, the same network architecture and hyper-parameters were used for all games. Before DQN, most reinforcement learning used linear function approximators for the action-values function because nonlinear approximated had problems with divergence \cite{DQN_Mnih_et_al_2013}. In addition, Tsitsiklis and Van Roy presented a proof of convergence, in addition to a bound on the approximation error for linear approximators. 
+
+
+
+Mnih et. al converted the RGB-images to grayscale images     
 
 
 

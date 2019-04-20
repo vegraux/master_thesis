@@ -154,13 +154,13 @@ No agent & 1824  & -0.036 & 0.037 & -0.207 & -0.056 & -0.024 & -0.007 \\
 \label{table:results:configuration1_reward_100_episodes}
 \end{table}
 
-Figure \ref{fig:results:config1_voltage_violin} shows the voltage reward distribution for the trained agent and no agent scenario for hours with violations of voltage safety margins. These hours are termed critical since there would be voltage violations if no actions were taken. The trained agent is better in critical situations, as more of the rewards are centred closer to zero.
+Figure \ref{fig:results:config1_voltage_boxplot} shows the voltage reward distribution for the trained agent and no agent scenario for hours with violations of voltage safety margins. These hours are termed critical since there would be voltage violations if no actions were taken. The trained agent is better in critical situations, as more of the rewards are centred closer to zero.
 
 \begin{figure}[H]
     \center
-\includegraphics[height=8cm, width=12cm]{figures/config1_voltage_violin.png}
-    \caption[size = 9]{Violin plot of the reward distribution of the trained agent and no agent scenario for critical hours where safety margins are violated}
-    \label{fig:results:config1_voltage_violin}
+\includegraphics[height=8cm, width=12cm]{figures/config1_voltage_boxplot.png}
+    \caption[size = 9]{Box plot of the reward distribution of the trained agent and no agent scenario for critical hours where safety margins are violated}
+    \label{fig:results:config1_voltage_boxplot}
 \end{figure}
 
 The statistics presented in table \ref{table:results:configuration1_reward_100_ep_preventive} show that the mean voltage penalty for the trained agent is reduced by 25 \% in critical hours. However, as table
@@ -176,7 +176,7 @@ Agent    & 1824 & -0.027 & 0.035 & -0.186 & -0.041 & -0.011 & 0.000  \\
 No agent & 1824 & -0.036 & 0.037 & -0.207 & -0.056 & -0.024 & -0.007 \\
 \hline
 \end{tabular}
-\caption{Statistics of the rewards given to the trained agent and no agent scenario over 100 episodes with 200 hours each}
+\caption{Statistics of the voltage rewards given in critical hours to the trained agent and no agent scenario over 100 episodes simulation with 200 hours each}
 \label{table:results:configuration1_reward_100_ep_preventive}
 \end{table}
 
@@ -189,7 +189,7 @@ All rewards corresponding to the hours when voltage margins are violated for the
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_sorted_voltage.png}
-    \caption[size = 9]{Non-zero voltage rewards given to the trained agent and no agent scenario in 50 episodes with 200 steps. The rewards are sorted for the no agent scenario from best to worst}
+    \caption[size = 9]{Voltage rewards given to the trained agent and no agent scenario in critical hours. The rewards are sorted for the no agent scenario from best to worst}
     \label{fig:results:config1_sorted_voltage}
 \end{figure}
 
@@ -284,7 +284,7 @@ The agent has clearly not learned how to behave in periods with current violatio
 \begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_bad_current.png}
-    \caption[size = 9]{Current reward in critical hours sorted from best to worse for the trained agent and no agent scenario}
+    \caption[size = 9]{Current reward and solar irradiance profile in a three day period. The agent is not able to prevent current overloads in hours of peak solar irradiance.}
     \label{fig:results:config1_bad_current}
 \end{figure}
 
@@ -305,21 +305,25 @@ Peak solar production & Poor                  & Poor \\
 \caption{Behaviour of the agent in critical periods in terms of current and voltage safety margins}
 \label{table:results:config1_behaviour}
 \end{table}
-A summary of performance in terms of voltage and current is presented in table \ref{table:results:config1_summary}
+The trained agent is better in terms of the total cost received in the 100 episode simulation. The total cost in terms of both current and voltage is reduced by 2.2 \% from 118.3 to 115.7. A summary of performance in terms of voltage and current is presented in table \ref{table:results:config1_summary}
 
 
 \begin{table}[ht]
 \center
-\begin{tabular}{l|rrr}
-                   & Agent & No agent & Change \\
+\begin{tabular}{l|lrrr}
+Type      &               & Agent          & No agent       & Change        \\
 \hline
-Current violations & 356   & 329      & 27     \\
-Mean current cost  & 0,18  & 0,16     & 0,02  \\
-Total current cost & 65,5  & 52,6     & 12,9   \\
-Voltage violations & 1435  & 1824     & -389   \\
-Mean voltage cost  & 0,035 & 0,036    & -0,001 \\
-Total voltage cost & 50,2  & 65,7     & -15,4  \\
-Total cost         & 115,7 & 118,3    & -2,6  \\
+Current   & Violations    & 356            & 329            & 27            \\
+          & Mean cost     & 0,18           & 0,16           & 15 \%         \\
+          & Cost          & 65,5           & 52,6           & 24 \%         \\
+          &               &                &                &               \\
+Voltage   & Violations    & 1435           & 1824           & -389          \\
+          & Mean  cost    & 0,035          & 0,036          & -3\%          \\
+          & Cost          & 50,2           & 65,7           & -24 \%        \\
+          &               &                &                &               \\
+Total     & Violations    & 1791           & 2153           & -362          \\
+          & Mean cost     & 0.065          & 0.055          & 18 \%         \\
+\textbf{} & \textbf{Cost} & \textbf{115,7} & \textbf{118,3} & \textbf{-2\%} \\
 \hline
 \end{tabular}
 \caption{Summary of number of violations and mean costs in terms of current and voltage for the trained agent and the no agent scenario}
