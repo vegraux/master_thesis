@@ -33,13 +33,56 @@ Although DQN was a great improvement compared to existing methods, it is not abl
 
 in 2016, Lillicrap et al. presented the deep deterministic policy gradient (DDPG) as an continuous extension of the DQN algorithm  \cite{DBLP:journals/corr/LillicrapHPHETS15}. DDPG is an actor-critic model that builds on the deterministic policy gradient methods presented by Silver at. el in 2014, where it was shown that deterministic policy methods were better than stochastic methods, especially in tasks with a large action space \cite{pmlr-v32-silver14}. The extension made by Lillicrap et al. was to use a neural network, as in DQN, as function approximators. Specifically, they parametrise both the policy (actor) and action-value function (critic) by neural networks. DDPG also use the replay buffer to ensure uncorrelated samples during parameter updates. They use a separate target network for both the actor and the critic, in a similar fashion to DQN where target values parameters only are periodically updated. DDPG was tested on 33 physics tasks with continuous actions, such as the cartpole and pendulum  environment. They trained both on low-dimensional input data, such as angle velocities, acceleration etc, and also using raw pixels from rendering of the environment. DDPG performed well on most of the tasks, and was able to beat a model-based planning algorithm (iLQG) on several occasions, not only using low-dimensional features, but also using raw pixels as input \cite{DBLP:journals/corr/LillicrapHPHETS15}.
 
-The success of neural networks as function approximators continued in 2016 with AlphaGo (Silver et al.), a reinforcement algorithm trained to play the Chinese board game Go \cite{alphago}. Go is a complex game with a large state and action space that computer programs have been struggling with for decades, and AlphaGo was the first program to beat the current world champion of Go, winning 4 of 5 games against Lee Sedol \cite{Sutton1998}. AlphaGo was not entirely learning from self-play, but was pre-trained using using expert-moves. However, an extention of the method, called AlphaGo Zero, learned entirely from self-play through the use of Monte Carlo tree search and CNN as function approximators. Finally,  Silver et al. introduced AlphaZero, and showed that the same algorithm and neural network architecture could be generalised to learn chess and the Japanese board game Shogi through self-play \cite{alphazero}. AlphaZero was able to beat the current world-record computer programs in all three games, without any domain-specific knowledge or handcrafted features. 
+The success of neural networks as function approximators continued in 2016 with AlphaGo (Silver et al.), a reinforcement algorithm trained to play the Chinese board game Go \cite{alphago}. Go is a complex game with a large state and action space that computer programs have been struggling to solve for decades. AlphaGo was the first program to beat the current world champion of Go, winning 4 of 5 games against Lee Sedol \cite{Sutton1998}. AlphaGo was not entirely learning from self-play, but was pre-trained using using expert-moves. However, an extention of the method, called AlphaGo Zero, learned entirely from self-play through the use of Monte Carlo tree search and CNN as function approximators. Finally,  Silver et al. introduced AlphaZero, and showed that the same algorithm and neural network architecture could be generalised to learn chess and the Japanese board game Shogi through self-play \cite{alphazero}. AlphaZero was able to beat the current world-record computer programs in all three games, without any domain-specific knowledge or handcrafted features. 
 
-on April 13 2019, OpenAI Five became the first reinforcement algorithm to beat a world champion team in an esport event \cite{openai_dota}. OpenAi Five played against the world champions of Dota 2, a multiplayer online battle arena video game consisting of two teams of 5 playing against each other. The game is highly strategic, where planning and collection of resources is important to able to destroy the opponents main building. Once again, the successful reinforcement algorithm uses neural network as function approximators, although the exact algorithm (PPO) is different from DDPG \cite{PPO_openAI_Schulman}. Still, it shows that neural networks have not only been revolutionary in supervised learning, but also in reinforcement learning. 
+on April 13 2019, OpenAI Five became the first reinforcement algorithm to beat a world champion team in an esport event \cite{openai_dota}. OpenAi Five played against the world champions of Dota 2, a multiplayer online battle arena video game consisting of two teams of 5 playing against each other. The game is highly strategic, where is important to plan and collect resources to able to destroy the opponents main building \cite{dota_wiki}. Once again, the successful reinforcement algorithm uses neural network as function approximators, although the exact algorithm (PPO) is different from DDPG \cite{PPO_openAI_Schulman}. Still, it shows that neural networks have not only been revolutionary in supervised learning, but also in reinforcement learning. OpenAI Five demonstrates one of the main advantages of neural networks: it continually learns from new input data/experiences. OpenAI Five had a solid 10 month real-time training, corresponding to 45 000 year of self-play in Dota-2 \cite{openai_dota}.
 
 
+\section{Demand response}
+- Electricity for cooling: air conditioning (HVAC) and domestic hot water (DHW)
+Flexibility possibilities: Home appliances, e.g. dishwashers, washing machines, dryers,
+electric vehicles (EVs), batteries. 
 
-\section{Reinforcement learning and demand response}
+-Available flexibility in USA 2015: 6,6 \% in peak demand
+
+-Demand elasticity: extremely low.
+
+-RL should minimize user discomfort
+
+- Advantages with DR
+1. Improved grid stability due to increased demand flexibility.
+2. Shift of peak demand towards periods of peak renewable energy
+generation.
+3. Lower thermal costs and electricity prices. Since the peak to average
+ratio of the demand decreases, less peaking plants need to be operated.
+4. Reduction of the investments in generation, transmission, and distribution assets, which are sized to meet peak demand.
+5. Lower capacity reserves requirements.
+6. Reduced energy bills for consumers.
+
+- Similar studies, same grid effect, but different RL implementation:
+
+. Yang et al. used RL to
+control a building energy system with several photovoltaic-thermal
+panels, geothermal boreholes, and a heat pump [104]
+
+. Wang et al. used actor-critic RL to maximize occupants’
+thermal comfort and minimize the energy consumption of the HVAC
+system in a simulated office building
+
+. Claessens et al. used BRL in
+two simulated case studies for peak demand minimization and to reduce the cost of electricity
+
+.Dusparic et al. proposed a control system for the charging process of
+9 EVs in a neighborhood in which all the houses were connected to the
+same transformer [68]. ISH THE SAME WITH TRAFO
+
+. Kofinas et al. proposed a decentralized cooperative multi-agent
+RL algorithm to maximize the self-energy consumption in a microgrid
+[150]. Microgrid with PV, several agents decides how much power to draw from the PV production.
+Does not monitor voltages/current, as I do. 
+
+. Tan et al. used a centralized controller based on Q-learning
+to reduce the operational cost of an electric microgrid [151].
 
 
 
