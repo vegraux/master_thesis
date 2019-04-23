@@ -1,4 +1,5 @@
 \documentclass[class=book, crop=false]{standalone}
+\usepackage[utf8]{inputenc}
 \usepackage[subpreambles=true]{standalone}
 \usepackage{import}
 \usepackage[ruled,vlined]{algorithm2e}
@@ -28,21 +29,49 @@ In each time step, Mnih et al. converted the last 4 frames from RGB to grayscale
 In 2015, Mnih et al. tested DQN on more atari games, and outperformed 43 of the 47 games where reinforcement learning research previously had been conducted \cite{mnih2015_humanlevel}. The algorithm had a slight modification to that presented in the 2013 paper. The Bellman equation in \eqref{eq:theory:bellman_equation} is the foundation for calculating the target values used for updating the parameters in the function approximator. However, the parameters of the neural network are used to calculate the target values which in turn are used to calculate the parameter update. As a result, the learning situation can become unstable because the target values are changing as the network parameters are updated. To solve this, they only periodically updated the parameters used for calculating the target, thereby making it more stable during training. 
 
 
-Although DQN was a great improvement compared to existing methods, it is not able to tackle tasks with a continuous action space. A self-driving car must not only decide to turn left or right, but it must determine the exact angle to turn the wheel. A possible solution is to discretise the action space, for instance by dividing the possible wheel angles into 5 possible categories: $[-90^{o},-45^{o},0^{o},45^{o},90^{o}]$. This is realisable for tasks consisting of few independent action variables, albeit the steering would be very abrupt, but the action space grows exponentially with the number of variables. For instance, imagine a reinforcement task with 10 independent action variables that all should be discretised into 5 categories. The resulting action space is finite, but has a size of $5^{10} \approx 10, 000,000$. The consequence is that the final layer in the neural network in the DQN algorithm must consists of 10 million neurons, which all would have a parameter for all of the neurons in the previous layer, in addition to a bias. The number of parameters in the neural network would easily surpass 1 billion. Therefore, a better approach is to use policy gradient methods that are well suited for giving a continuous action. 
+Although DQN was a great improvement compared to existing methods, it is not able to tackle tasks with a continuous action space. A self-driving car must not only decide to turn left or right, but it must determine the exact turn angle of the wheel. A possible solution is to discretise the action space, for instance by dividing the possible wheel angles into 5 possible categories: $[-90^{o},-45^{o},0^{o},45^{o},90^{o}]$. This is realisable for tasks consisting of few independent action variables, albeit the steering would be very abrupt, but the action space grows exponentially with the number of variables. For instance, imagine a reinforcement task with 10 independent action variables that all should be discretised into 5 categories. The resulting action space is finite, but has a size of $5^{10} \approx 10, 000,000$. The consequence is that the final layer in the neural network in the DQN algorithm must consists of 10 million neurons, which all would have a parameter for all of the neurons in the previous layer, in addition to a bias. The number of parameters in the neural network would easily surpass 1 billion. Therefore, a better approach is to use policy gradient methods that are well suited for giving a continuous action. 
 
 
 in 2016, Lillicrap et al. presented the deep deterministic policy gradient (DDPG) as an continuous extension of the DQN algorithm  \cite{DBLP:journals/corr/LillicrapHPHETS15}. DDPG is an actor-critic model that builds on the deterministic policy gradient methods presented by Silver at. el in 2014, where it was shown that deterministic policy methods were better than stochastic methods, especially in tasks with a large action space \cite{pmlr-v32-silver14}. The extension made by Lillicrap et al. was to use a neural network, as in DQN, as function approximators. Specifically, they parametrise both the policy (actor) and action-value function (critic) by neural networks. DDPG also use the replay buffer to ensure uncorrelated samples during parameter updates. They use a separate target network for both the actor and the critic, in a similar fashion to DQN where target values parameters only are periodically updated. DDPG was tested on 33 physics tasks with continuous actions, such as the cartpole and pendulum  environment. They trained both on low-dimensional input data, such as angle velocities, acceleration etc, and also using raw pixels from rendering of the environment. DDPG performed well on most of the tasks, and was able to beat a model-based planning algorithm (iLQG) on several occasions, not only using low-dimensional features, but also using raw pixels as input \cite{DBLP:journals/corr/LillicrapHPHETS15}.
 
 The success of neural networks as function approximators continued in 2016 with AlphaGo (Silver et al.), a reinforcement algorithm trained to play the Chinese board game Go \cite{alphago}. Go is a complex game with a large state and action space that computer programs have been struggling to solve for decades. AlphaGo was the first program to beat the current world champion of Go, winning 4 of 5 games against Lee Sedol \cite{Sutton1998}. AlphaGo was not entirely learning from self-play, but was pre-trained using using expert-moves. However, an extention of the method, called AlphaGo Zero, learned entirely from self-play through the use of Monte Carlo tree search and CNN as function approximators. Finally,  Silver et al. introduced AlphaZero, and showed that the same algorithm and neural network architecture could be generalised to learn chess and the Japanese board game Shogi through self-play \cite{alphazero}. AlphaZero was able to beat the current world-record computer programs in all three games, without any domain-specific knowledge or handcrafted features. 
 
-on April 13 2019, OpenAI Five became the first reinforcement algorithm to beat a world champion team in an esport event \cite{openai_dota}. OpenAi Five played against the world champions of Dota 2, a multiplayer online battle arena video game consisting of two teams of 5 playing against each other. The game is highly strategic, where is important to plan and collect resources to able to destroy the opponents main building \cite{dota_wiki}. Once again, the successful reinforcement algorithm uses neural network as function approximators, although the exact algorithm (PPO) is different from DDPG \cite{PPO_openAI_Schulman}. Still, it shows that neural networks have not only been revolutionary in supervised learning, but also in reinforcement learning. OpenAI Five demonstrates one of the main advantages of neural networks: it continually learns from new input data/experiences. OpenAI Five had a solid 10 month real-time training, corresponding to 45 000 year of self-play in Dota-2 \cite{openai_dota}.
+On April 13 2019, OpenAI Five became the first reinforcement algorithm to beat a world champion team in an esport event \cite{openai_dota}. OpenAi Five played against the world champions of Dota 2, a multiplayer online battle arena video game consisting of two teams of 5 playing against each other. The game is highly strategic, where it is important to plan and collect resources to able to destroy the opponents main building \cite{dota_wiki}. Once again, the successful reinforcement algorithm uses neural network as function approximators, although the exact algorithm (PPO) is different from DDPG \cite{PPO_openAI_Schulman}. Still, it shows that neural networks have not only been revolutionary in supervised learning, but also in reinforcement learning. OpenAI Five demonstrates one of the main advantages of neural networks: it continually learns from new input data/experiences. OpenAI Five had a solid 10 month real-time training, corresponding to 45 000 year of self-play in Dota-2 \cite{openai_dota}.
 
 
 \section{Demand response}
-Demand response is a subject that is well researched. Vázquez-Canteli and Nagy have conducted a literature search where they make a review of published research concerning the use of reinforcement learning algorithms and demand response \cite{vazquez2019reinforcement}. This section will discuss their findings and its relevance for the research question in this thesis.
+Demand response is a subject that is well researched. Vázquez-Canteli and Nagy have conducted a literature search where they make a review of published research concerning the use of reinforcement learning algorithms and demand response \cite{vazquez2019reinforcement}. The different search terms are summarised in table \ref{table:soa:searchterms} and they used the following combination for a search in  Web of Science: \textit{A and \{B or (C and D)\}}
 
-The review includes a total 105 articles, mainly from a literature search in Web of Science. The studies have objectives such as minimising energy cost, peak energy, user discomfort. A way of minimising energy cost and peak energy is by shifting the demand to hours of peak solar production, which in turn helps the power system by avoiding voltage and current safety violations. However, the goal of the studies included in Vázquez-Canteli and Nagy's review do not explicitly use the voltages and line current in the reinforcement algorithm in a similar way as this thesis. In contrast, the studies often focuses on the energy system of individual houses or buildings. For instance,  Yang et al. focus on controlling a heat pumps, geothermal boreholes and PV modules to minimise a building's energy usage \cite{yang2015reinforcement}.  Dusparic et al. use reinforcement learning to control the charging of electrical vehicles such that the current limit for a transformer is not violated \cite{dusparic2013multi}. Gemine et al. have formulated a similar problem as the research question in this thesis, allowing the agent to not only change the consumption in but also to curtail generation of power \cite{active_network_management}. However, they do not solve the task using a reinforcement learning algorithm, although they formulate the problem as a Markov decision process, nor do they consider continuous actions. 
+\begin{table}[ht]
+\centering
+\begin{tabular}{llll}
+A                        & B                        & C                    & D           \\
+\hline
+"Reinforcement learning" & "Demand-side management" & Heating              & Building*   \\
+Q-learning               & "Demand response"        & Cooling              & House*      \\
+                         & "Electric vehicle*"      & "Electricity price*" & Residential \\
+                         & HVAC                     & Comfort              & Home*       \\
+                         &                          & Energy               & Household*  \\
+                         &                          & Photovoltaic         &             \\
+                         &                          & PV                   &             \\
+                         &                          & Solar                &            
+                        \\
+                        \hline
+\end{tabular}
+\caption{Search terms used by Vázquez-Canteli and Nagy to find literature about demand response and reinforcement. learning \cite{vazquez2019reinforcement}. * means that singular and plural form were used}
+\label{table:soa:searchterms}
+\end{table}
 
+The review includes 105 articles in total, mainly from the literature search in Web of Science. The studies have objectives such as minimising energy cost, peak energy and user discomfort. A way of minimising energy cost and peak energy is by shifting the demand to hours of peak solar production, which in turn helps the power system by avoiding voltage and current safety violations. However, the goal of the studies included in Vázquez-Canteli and Nagy's review do not explicitly use the voltages and line current in the reinforcement algorithm in a similar way as this thesis. In contrast, the studies often focuses on the energy system of individual houses or collection of houses. For instance,  Yang et al. focus on controlling a heat pumps, geothermal boreholes and PV modules to minimise a building's energy usage \cite{yang2015reinforcement}.  Dusparic et al. use reinforcement learning to control the charging of electrical vehicles such that the current limit for a transformer is not violated \cite{dusparic2013multi}. The problems are similar, but do not involve the power flow equations as part of the algorithm.
+
+Gemine et al. have formulated a similar problem as the research question in this thesis, allowing the agent to not only change the consumption in but also to curtail generation of power \cite{active_network_management}.They use tests grids of 5, 33 and 77 buses and the goal is to avoid violations operational limits at a low cost. They include the power flow equations explicitly in the problem, but do not solve the task using a reinforcement learning algorithm, although they formulate the problem as a Markov decision process. The safety margins for current and voltage are taken out of the objective function, and put as constraints into different mathematical programs. In addition, they do not consider continuous actions.
+
+Zarrabian et al. use Q-learning to avoid line congestion and cascade failure in an electric transmission system \cite{zarrabian2016reinforcement}. The agent is punished for increasing the current in an overloaded line and the agent's actions space is to increase or decrease the power produced at generators in the system. Again, the action space is discrete and not continuous as in this thesis. They test the agent for several scenarios, such as a N-1 and N-1-1 contingency. A scenario with a loss of a single transmission component is termed a N-1 contingency, and a scenario with two consequent losses of transmission components is termed N-1-1 contingency. The Q-learning approach is successful, and the agent is able to satisfy all power system constraints and at the same time avoiding cascading failures \cite{zarrabian2016reinforcement}. 
+
+
+The work of Gemine et al. and Zarrabian et al. are the most relevant studies found for the research question in this thesis. 
+
+TODO: REMVOVE
 has been used to control several many tasks 
 - Electricity for cooling: air conditioning (HVAC) and domestic hot water (DHW)
 Flexibility possibilities: Home appliances, e.g. dishwashers, washing machines, dryers,
@@ -62,27 +91,6 @@ ratio of the demand decreases, less peaking plants need to be operated.
 5. Lower capacity reserves requirements.
 6. Reduced energy bills for consumers.
 
-- Similar studies, same grid effect, but different RL implementation:
-
-
-. Wang et al. used actor-critic RL to maximize occupants’
-thermal comfort and minimize the energy consumption of the HVAC
-system in a simulated office building
-
-. Claessens et al. used BRL in
-two simulated case studies for peak demand minimization and to reduce the cost of electricity
-
-.Dusparic et al. proposed a control system for the charging process of
-9 EVs in a neighborhood in which all the houses were connected to the
-same transformer [68]. ISH THE SAME WITH TRAFO
-
-. Kofinas et al. proposed a decentralized cooperative multi-agent
-RL algorithm to maximize the self-energy consumption in a microgrid
-[150]. Microgrid with PV, several agents decides how much power to draw from the PV production.
-Does not monitor voltages/current, as I do. 
-
-. Tan et al. used a centralized controller based on Q-learning
-to reduce the operational cost of an electric microgrid [151].
 
 
 

@@ -1,4 +1,5 @@
 \documentclass[class=book, crop=false]{standalone}
+\usepackage[utf8]{inputenc}
 \usepackage[subpreambles=true]{standalone}
 \usepackage{import}
 \usepackage[ruled,vlined]{algorithm2e}
@@ -82,10 +83,10 @@ $\mathcal{R}$ is a reward function and $\gamma$ is a discount factor \cite{silve
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:markov_property}
-    \mathbb{P}[s_{t+1}|a_{t},\;s_{t}] = \mathbb{P}[s_{t+1}|a_{t},\;s_{t},s_{t-1},...,s_{0}]
+    \mathbb{P}[s_{t+1}|a_{t},\;s_{t}] = \mathbb{P}[s_{t+1}|a_{t},s_{t},\;a_{t-1},s_{t-1},...,a_{0},s_{0}]
 \end{aligned} 
 \end{equation}
-This is called the Markov property of the state \cite{silver_course}. In other words, the history of states leading up to the current state is not relevant for the probability of transition to state $s_{t+1}$. Let the transition function $p: \mathcal{S} \times \mathcal{R} \times \mathcal{S} \times \mathcal{A} \to [0,1]$ be the probability of transitioning from state $s$ to $s'$ and receiving reward $r$ given the action $a$
+This is called the Markov property of the state \cite{silver_course}. In other words, the history of states and actions leading up to the current state is not relevant for the probability of transition to state $s_{t+1}$. Let the transition function $p: \mathcal{S} \times \mathcal{R} \times \mathcal{S} \times \mathcal{A} \to [0,1]$ be the probability of transitioning from state $s$ to $s'$ and receiving reward $r$ given the action $a$
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:markov_transition}
@@ -117,8 +118,6 @@ where $a$ is the action chosen by the policy. For the stochastic case, it gives 
 \end{aligned} 
 \end{equation}
 
-
-TODO: move elsewhere. The reinforcement algorithms used in this thesis are restricted to policy-gradient methods. These are methods that approximate the policy function using a neural network and updates its parameters using gradients. 
 
 A central tool in many reinforcement algorithms is to evaluate a certain state before taking an action. The state-value function $V^{\pi}$ is defined as the expected discounted future return in state $s$ under the policy $\pi$.
 
@@ -156,7 +155,6 @@ Q^{\pi}(s_{t},a_{t})
 \end{equation}
 In other words, the action-value for state $s_{t}$ and action $a_{t}$ is the expected sum of the immediate reward $r_{t}$ and the action-value in the consequent state. The Bellman equation is used in several reinforcement algorithms to guide the estimates of the Q-values closer to the true values.
 
-TODO: Remove advantage?
 The action-value function $Q^{\pi}$ and state-value function $V^{\pi}$ are similar to each other and can together be used to measure the advantage of an action $a$. The advantage $A(a,s)$ of action $a$ in state $s$ under policy $\pi$ is defined as 
 
 \begin{equation}
