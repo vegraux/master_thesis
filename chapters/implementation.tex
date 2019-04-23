@@ -101,11 +101,14 @@ Transformers in a transmission system can have controllable taps that change the
 \begin{figure}[H]
     \center
     \includegraphics[height=12cm, width=12cm]{figures/control_transformer.PNG}
-    \caption[size = 9]{Code of of to control the tap position and phase angle for a transformer in pandapower}
+    \caption[size = 9]{Code showing how to control the tap position and phase angle for a transformer in pandapower}
     \label{fig:method:control_transformer}
 \end{figure}
 
+\section{Gym}
+The Python toolkit \texttt{gym} is developed by OpenAI and can be used to create reinforcement learning environments and comparing algorithms \cite{openai_gym}. It comes with thousands of predefined environments of classical video games and control theory tasks such as the cartpole, swinging pendulum etc. In addition, it is possible to construct own environments that easily can be used in reinforcement algorithms. OpenAI also has a toolkit called \texttt{baselines} with implementations of many reinforcements algorithm that can interact with \texttt{gym} environments \cite{openai_baselines}. However, the \texttt{baselines} library is currently lacking a unified code structure between the algorithms and generally have poor documentation. As a result, a fork called \texttt{stable-baseline} has been created by the AI community, that offers a major cleanup of the code, with a scikit-learn like interface \cite{stable_baselines}.
 
+The implementation of the reinforcement algorithm in this thesis is done by using \texttt{gym} and \texttt{stable-baselines}. Specifically, an environment class called \texttt{ActiveEnv} is implemented, that follows the standard \texttt{gym} environment structure. The main job \texttt{ActiveEnv} is to take in an action chosen by a reinforcement algorithm, perform that action, find the consequent state resulting from that action, and calculate the reward. Specifically, \texttt{ActiveEnv} receives an action vector $a$ where each component determines the percentage change in power consumption at each flexible load. First the consumption and production of power at nodes in the net are changed according to the demand forecast and solar forecast, respectively. The action vector is then processed and updates the power production at each load in the \texttt{pandapower} net. The power flow equations for the network are then solved using \texttt{pandapower}. Once the power flow equation have been solved, and the new voltage and current magnitudes in the net are determined, the reward can be calculated. This summarises the steps involved with one action in the reinforcement algorithm. A more detailed description can be found in \ref{section:problem_description}.   
 
 
 
