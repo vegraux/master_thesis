@@ -1,12 +1,50 @@
 \documentclass[class=book, crop=false]{standalone}
+\usepackage[utf8]{inputenc}
 \usepackage[subpreambles=true]{standalone}
-\usepackage[toc,page]{appendix}
+\usepackage{import}
+\usepackage[ruled,vlined]{algorithm2e}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[sorting = none,
+            doi = true]{biblatex}
+\addbibresource{reference.bib}
+\usepackage{csquotes}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+
+\pgfplotsset{compat=1.15}
+%\usepackage[toc,page]{appendix}
 
 \begin{document}
-
-
 \section{Configuration 1}
-The contents...
+Table \ref{apendix:config1:params} shows the parameters used in the \texttt{ActiveEnv} class in the simulation of configuration 1
+
+\begin{table}[ht]
+\begin{tabular}{ll}
+activation\_weight & 0.0001                                    \\
+current\_weight    & 0.01                                      \\
+demand\_scale      & 10                                        \\
+demand\_std        & 0                                         \\
+episode\_length    & 200                                       \\
+flexibility        & 0.1                                       \\
+forecast\_horizon  & 4                                         \\
+i\_upper           & 90                                        \\
+imbalance\_weight  & 0.0001                                    \\
+reactive\_power    & False                                     \\
+reward\_terms      & {[}'voltage',  'current',  'imbalance'{]} \\
+solar\_scale       & 0.8                                       \\
+solar\_std         & 0                                         \\
+state\_space       & {[}'sun', 'demand',  'imbalance'{]}       \\
+total\_imbalance   & True                                      \\
+v\_lower           & 0.95                                      \\
+v\_upper           & 1.05                                      \\
+voltage\_weight    & 1                                        
+\end{tabular}
+\caption{Parameters used in the \texttt{gym\_power} module}
+\label{apendix:config1:params}
+\end{table}
 
 \section{Configuration 2}
 The contents...
