@@ -10,6 +10,8 @@
 \usepackage{csquotes}
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{hyperref}
+\usepackage[toc,page]{appendix}
+
 
 \usepackage{import}
 \title{Reinforcement learning in an electric power system}
@@ -20,10 +22,15 @@
 \begin{document}
  
     \maketitle
+    \frontmatter
+    \chapter{Preface}
+    \import{chapters/}{preface}
+    
     \tableofcontents
     
-    \chapter{Background}
-    \import{chapters/}{background}
+    \mainmatter
+    \chapter{Introduction}
+    \import{chapters/}{introduction}
     
     \chapter{Power system}
     \import{chapters/}{power_system}
@@ -40,11 +47,20 @@
     \chapter{Problem Description}
     \import{chapters/}{problem_description}
     
+    
     \chapter{Results}
     \import{chapters/}{results}
     
     \chapter{Discussion}
     \import{chapters/}{discussion}
+    
+    
+    \appendix
+    \chapter{Model details}
+    \import{chapters/}{appendix}
+    
+    \chapter{Python code}
+    \import{chapters/}{code}
     
     \printbibliography
 \end{document}
