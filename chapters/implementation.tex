@@ -29,20 +29,20 @@ Pandapower is a time independent simulation tool that finds steady state solutio
 
 This section will describe the different electrical elements available in pandapower and how they are physically modelled. In addition, it is shown how to take actions in the power system using the API of pandapower. It should be noted that this thesis uses version 1.6.1 of pandapower, which have some differences compared to the 2.0.1 version available at the current time of writing. For instance, the base power unit in the 1.6.1 is kilowatts, while it for the 2.0.1 is megawatts.
 
-\subsection{Lines}
+\subsection*{Lines}
 A line element can be added and connected between two buses by using the \texttt{pandapower.create\_line} method. Pandapower offers many standard types lines for both underground cables and overhead transmission lines. Alternatively a line with costume parameters for impedance, line length, line diameter etc. can be specified with the method \texttt{pandapower.create\_line\_from\_parameters}. The lines are modelled using the $\pi$-equivalent model, described in section \ref{section:pi_model}.
 
-\subsection{Generators}
+\subsection*{Generators}
 Pandapower has two generator types. The first type is simply called generator and is modelled as a PV-bus. In other words, the active power production $P$ and voltage magnitude $|U|$ are known when solving the power flow equations. Generators can be created using the method \texttt{pandapower.create\_gen}, where nominal values for apparent power and voltage can be specified. The second type is the static generator, where the active power $P$ and reactive power $Q$ is specified (PQ-bus). Static generators are created using \texttt{pandapower.create\_sgen}. Pandapower models power from the consumer perspective, so negative values for active power $P$ corresponds to generation of power.
 
-\subsection{Loads}
+\subsection*{Loads}
 The load in pandapower is modelled as a PQ-bus, where active and reactive power are known. Loads are created using the method \texttt{pandapower.create\_load}. The loads can also be modelled with constant impedance $Z$, current $I$ and $P$. In other words, replacing reactive power with current and impedance.
 
-\subsection{Transformers}
+\subsection*{Transformers}
 Pandapower offers both two-winding and three-winding transformers that can be created from standard types using the \texttt{pandapower.create\_transformer} method, or from parameters using the method
 \texttt{pandapower.create\_transformer\_from\_parameters}. The transformers can be modelled as a $\pi$-transformer or a $t$-transformer. The transformers can have settings for tap-position and phase-shifting of the voltage, which are a possible control variables for a reinforcement agent.  
 
-\subsection{Storage}
+\subsection*{Storage}
 It is possible to connect a storage element to a power grid using the \texttt{pandapower.create\_storage} method. The storage element is modelled as a PQ-node. Because simulations in pandapower is time-independent and only find steady state solution, it does not update the capacity of a storage during power flow calculations. Available energy in the storage element must therefore be updated manually according to some predefined timescale when several power flow calculations are performed.  
 
 
