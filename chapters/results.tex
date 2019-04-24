@@ -105,7 +105,9 @@ Imbalance state & 1  & Total energy imbalance for all loads
 \caption{State used in formulation 1}
 \label{table:results:state_formulation1}
 \end{table}
-The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix ??. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance. This helps the system because the power is not transported out to the grid, but instead is consumed locally, close to production. Simply put, it is desired that the actions follow the curve of the solar irradiance. 
+The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix \ref{section:apendix_config1}. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance. This helps the system because the power is not transported out to the grid, but instead is consumed locally, close to production. Simply put, it is desired that the actions follow the curve of the solar irradiance. 
+
+
 
 \begin{figure}[ht]
     \center
