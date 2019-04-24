@@ -43,16 +43,19 @@ ratio of the demand decreases, less peaking plants need to be operated.
 
 
 
-Demand response can be categorised into two main programs: Price-Based Programs and Incentive-Based Programs (IBP) \cite{demand_response_definition}. This thesis will investigate the latter program (IBS) by directly controlling the loads around in the grid. There are several published papers that uses reinforcement learning to achieve demand response \cite{active_network_management}. Typically they try to control individual thermostatic loads, such as heat pumps and electric water heaters, in a categorical on-off setting. The scope of this thesis is not to control individual power consuming units, but to continually control the absolute load at different buses in a power grid, given some flexibility at that bus. It might seem strange to use continuous control since power consuming units generally can not be set to an arbitrary power level. The nature of power component are binary: they either consume power or they do not consume power. Consequently, a valid question is whether a continuous control setup even is realisable in a real power system. Although individual power consuming units are binary, a large collection of units connected to a bus can be approximated as continuous. Imagine a 1000 households connected to a bus and that each household has several power consuming components that can be controlled, such as electric vehicles, water heater and heat pumps. Assuming these units have some flexibility in terms of consumption, it is possible to control all these devices in such a way that they appear continuous at the bus. This thesis will assume that a system for turning on and off the individual power consumers already exist, so the centralised agent can consider the loads continuous in some interval of flexibility. This assumption can be said to be unrealistic, but the scope of this thesis is to test continuous demand control at buses experimentally, under some ideal assumptions. The advantage of this setup is that the action space of the algorithm is dramatically reduced, as there is only one action per bus in the grid. Controlling individual components in a power grid quickly gives a very large and impractical action space. The set of possible actions doubles for every additional control device, and exponential growth is hard to tackle, even for modern computers.
+Demand response can be categorised into two main programs: Price-Based Programs and Incentive-Based Programs (IBP) \cite{demand_response_definition}. This thesis will investigate the latter program (IBS) by directly controlling the loads around in the grid. There are several published papers that uses reinforcement learning to achieve demand response \cite{active_network_management}. Typically they try to control individual thermostatic loads, such as heat pumps and electric water heaters, in a categorical on-off setting. The scope of this thesis is not to control individual power consuming units, but to continually control the absolute load at different buses in a power grid, given some flexibility at that bus. It might seem strange to use continuous control since power consuming units generally can not be set to an arbitrary power level. The nature of a power component is binary: it either consumes power or it does not consume power. Consequently, a valid question is whether a continuous control setup even is realisable in a real power system. Although individual power consuming units are binary, a large collection of units connected to a bus can be approximated as continuous. Imagine 1000 households connected to a bus and that each household has several power consuming components that can be controlled, such as electric vehicles, water heater and heat pumps. Assuming these units have some flexibility in terms of consumption, it is possible to control all these devices in such a way that they appear continuous at the bus. This thesis will assume that a system for turning on and off the individual power consumers already exist, so the centralised agent can consider the loads continuous in some interval of flexibility. This assumption can be said to be unrealistic, but the scope of this thesis is to test continuous demand control at buses experimentally, under some ideal assumptions. The advantage of this setup is that the action space of the algorithm is dramatically reduced, as there is only one action per bus in the grid. Controlling individual components in a power grid quickly gives a very large and impractical action space. The set of possible actions doubles for every additional control device, and exponential growth is hard to tackle, even for modern computers.
 
-The specific setup in this thesis is based on several assumptions for a hypothetical future power grid. The electrical power grid used is constructed by the International Council on Large Electric Systems (CIGRE) as a benchmark network that can be used for analysis of DER integration \cite{cigre}. The network is predefined in pandapower and can be defined with different renewable energy sources connected at different buses. The grid used is visualised in figure \ref{fig:problem:cigre_network}. 
+The specific setup in this thesis is based on several assumptions for a hypothetical future power grid. The electrical power grid used is constructed by the International Council on Large Electric Systems (CIGRE) as a benchmark network that can be used for analysis of DER integration \cite{cigre}. The network is predefined in \texttt{pandapower}, the Python module used for power flow calculations, and can be defined with different renewable energy sources connected at different buses. The grid used is visualised in figure \ref{fig:problem:cigre_network}. 
 
 \begin{figure}[ht]
+    \center
     \includegraphics[height=14cm, width=13.5cm]{figures/cigre_network_mv_der.png}
-    \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm}
+    \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm \cite{cigre}}
     \label{fig:problem:cigre_network}
 \end{figure}
-The left-most feeder has several solar producing units connected and wind power connected to bus 7. The time resolution in this task is chosen to be hourly. In other words, the demand and solar production at every bus is updated every hour, and assumed constant in between hours. The demand profile is generated using \textit{enlopy}, a python toolkit for energy demand time series \cite{enlopy}. The demand signal is generated based on data of the energy consumption of private households.
+
+
+The left-most feeder has several solar producing units connected and wind power connected to bus 7. From a power flow perspective, there is no difference between a wind farm (without voltage regulation) and solar production. They are both modelled as static generators (PQ-node). For simplicity, the wind farm connected at bus 7 is assumed to be solar in this thesis, i.e its power production follows the sun profile through the day. The time resolution in this task is chosen to be hourly. In other words, the demand and solar production at every bus is updated every hour, and assumed constant in between hours. The demand profile is generated using \textit{enlopy}, a python toolkit for energy demand time series \cite{enlopy}. The demand signal is generated based on data of the energy consumption of private households.
 
 A data set with satellite-derived solar irradiance in central Norway is used as input to define the production of solar power \cite{solar_data}. Figure \ref{fig:problem:solar_data} plots a time series of the solar irradiance, and a couple of example days. The solar data is scaled so the maximum value is 1.
 
@@ -65,7 +68,7 @@ A data set with satellite-derived solar irradiance in central Norway is used as 
 
 
 
-The signal of solar production and power demand is assumed equal at all buses and scaled up based on nominal values of the loads at each bus. This reduces the state space, as there is no need for a unique demand forecast for all the loads.  For simplicity, the power factor is assumed constant at every bus, meaning the reactive power at each load is a percentage of the active power at all times. The power factor at each load is the same as the default values in the CIGRE network. The values of the solar production are intentionally amplified so that the safety margins for line current and voltage magnitudes in the grid frequently are violated if no actions are taken.  
+The signal of solar production and power demand is assumed equal at all buses and scaled up based on nominal values of the loads at each bus. This reduces the state space, as there is no need for a unique demand forecast for all the loads.  For simplicity, the power factor is assumed constant at every bus, meaning the reactive power at each load is a percentage of the active power at all times. The power factor at each load is the same as the default values in the CIGRE network. The values of the solar production are intentionally amplified so that the safety margins for line current and voltage magnitudes in the grid frequently are violated if no actions are taken. The solar producing units do not output any reactive power, only active power. 
 
 All loads have an hourly forecast of energy consumption that is used to update the active and reactive powers at every time step. It is assumed that the loads at all buses have some flexibility, say 10 \% of the actual demand, that can be centrally controlled at every hour.
 
@@ -179,14 +182,17 @@ where $a_{i} \in [-1,1]$ is the activation at flexible load $i$ in the power gri
     P_{i}& \leftarrow P_{i} + \Delta P_{i}
     \end{aligned} 
 \end{equation}
-where $f_{i}$ is the flexibility at load, $P_{i}$ is the active power demand and $P_{i,forecast}$ is the forecasted power demand. 
+where $f_{i}$ is the flexibility at load, $P_{i}$ is the active power demand and $P_{i,forecast}$ is the forecasted power demand. The resulting reactive power demand is found by multiplying the active power with a load constant, because the loads are assumed to have a constant power factor.
 
 It is possible to include more control variables that the agent can control. For instance, the reinforcement agent could control the tap position of the transformer and the switches in the system. There is also a CIGRE benchmark network in pandapower that has storage units in the power net. A possible extension is to let the agent control the charging and discharging of storage units.
 
 \section{Reward function}\label{section:reward}
-A central element in any reinforcement algorithm is the reward function. The reward function should give a signal that is used to reinforce "good" behaviour. The goal of the agent is to not violate safety margins for voltage and current in the power grid. Gemine et al formulate a reward function aimed to safely operate a power grid at a low cost, where they punish the agent proportionally to the violation of safety margins \cite{active_network_management}. There are multiple cost terms that can be included, and this section will present several of these. 
+A central element in any reinforcement algorithm is the reward function. The terms \textit{cost} and \textit{reward} are used interchangeably in this thesis. In all cases the reward is the negative of the cost. By this definition, maximising the reward is the same as minimising the cost. 
 
-There are safety margins in terms of voltage magnitudes in the power system. In the Norwegian power system this is between 0.95 and 1.05. In other word, Statnett tolerates a 5 \% deviation from nominal voltage in each direction. Let $C_{voltage,i}$ be the cost for violating voltage margins at bus $i$
+The reward function should give a signal that is used to reinforce "good" behaviour. The goal of the agent is avoid violations of safety margins for voltage and current in the power grid. Gemine et al. formulate a reward function aimed to safely operate a power grid at a low cost, where they punish the agent proportionally to the violation of safety margins \cite{active_network_management}. There are multiple cost terms that can be included, and this section will present several of these. 
+
+There are safety margins in terms of voltage magnitudes in an electric transmission system. 
+This thesis will assume a symmetric safety region around nominal voltage values, for instance 0.95 and 1.05. In other word, the system tolerates a 5 \% deviation from nominal voltage in each direction. Let $C_{voltage,i}$ be the cost for violating voltage margins at bus $i$
 
 
 \begin{equation}
@@ -195,7 +201,7 @@ There are safety margins in terms of voltage magnitudes in the power system. In 
     C_{voltage,i} = \max(0,|V_{i}| - V_{upper}) + \max(0,V_{lower}- |V_{i}|)
     \end{aligned} 
 \end{equation}
-where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. The voltage cost for a node in the grid is visualised in figure \ref{fig:problem:voltage_cost}.
+where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. The voltage cost for a node in the grid with a safety margin of +/- 5 \%  is visualised in figure \ref{fig:problem:voltage_cost}.
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/voltage_cost.png}
@@ -328,7 +334,7 @@ Set global solar irradiance $r$ based on forecasted solar irradiance $r_{forecas
 \end{equation}
 
 \For{Static generator 1:S}{
- update solar production $P_{sun}$ based on nominal value $S_{N}$
+ Update solar production $P_{sun}$ based on nominal value $S_{N}$
 \begin{equation}
    \begin{aligned}\label{eq:problem:set_solar}
   P_{sun} = r S_{N}
@@ -347,7 +353,7 @@ Set global solar irradiance $r$ based on forecasted solar irradiance $r_{forecas
 
 
 \For{Flexible load 1:F}{
-Update power demand $P$ based on the agent's action $a$ and flexibility f
+Update power demand $P$ based on the agent's action $a$ and flexibility $f$
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:update_demand_algorithm}

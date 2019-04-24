@@ -18,7 +18,7 @@
 %\usepackage[toc,page]{appendix}
 
 \begin{document}
-\section{Configuration 1}
+\section{Configuration 1}\label{section:apendix_config1}
 Table \ref{apendix:config1:params} shows the parameters used in the \texttt{ActiveEnv} class in the simulation of configuration 1
 
 \begin{table}[ht]
@@ -50,7 +50,7 @@ voltage\_weight    & 1                                         \\
 \label{apendix:config1:params}
 \end{table}
 
-The implementation of deep deterministic policy gradient used is \texttt{stable\_baselines.ddpg.ddpg.DDPG}. The agent was trained for 100 000 steps, which took around 1 hour with a 2 core Intel(R) Core(TM) i3-7100U CPU @ 2.40 GHz. The memory limit (size of the experience replay buffer) was also set to 100 000. 
+The used implementation of DDPG is \texttt{stable\_baselines.ddpg.ddpg.DDPG}. The agent was trained for 100 000 steps, which took around 1 hour with a 2 core Intel(R) Core(TM) i3-7100U CPU @ 2.40 GHz. The memory limit (size of the experience replay buffer) was also set to 100 000. The rest of the arguments are the same as the default values. 
 
 The model was trained using the policy \texttt{stable\_baselines.ddpg.policies.LnMlpPolicy}, which is 2 hidden layer architecture with 64 neurons and layer normalisation. The noise added to the deterministic policy is \texttt{stable\_baselines.ddpg.noise.OrnsteinUhlenbeckActionNoise} with mean=0, sigma=0.2, theta=0.15.  
 
