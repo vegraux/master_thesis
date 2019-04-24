@@ -397,7 +397,7 @@ Soft update the target weights
 TODO: Remove HER?
 \subsection{Challenging reward engineering}\label{theory:challenging_reward_shaping}
 
-Designing the reward for a reinforcement agent is often a challenging and time-consuming task. For algorithm attempting to play a game it is usually not a problem, since the reward could simply be the score in the game, or a positive reward every time the agent wins an episode. However, for other tasks there will often be a need for a lot of handcrafted rewards that require domain-specific knowledge. This section will present an example of this challenge in an electric power system.
+Designing the reward for a reinforcement agent is often a challenging and time-consuming task. For an algorithm attempting to play a game it is usually not a problem, since the reward could simply be the score in the game, or a positive reward every time the agent wins an episode. However, for other tasks there will often be a need for a lot of handcrafted rewards that require domain-specific knowledge. This section will present an example of this challenge in an electric power system.
 
 \begin{figure}[ht!]
     \center
@@ -410,25 +410,15 @@ Designing the reward for a reinforcement agent is often a challenging and time-c
 
 
 
-Consider the two-bus system shown in figure \ref{fig:theory:two_bus_reinforcement}. The bus at the left represent a power plant that produces electric power $S_{1} = P_{1} + jQ_{1}$. The power flows through the transmission line and with some losses and arrives at bus 2 with apparent power $S_{2} = P_{2} + jQ_{2}$. An agent using the deep deterministic policy gradient (DDPG) algorithm was given a simple load balancing task on the power network. The agent controls the active power production $P_{1}$ at bus 1, and has to tune it so that bus 2 receives the desired active load $P_{2}$. For simplicity, the demanded load at bus 2 is constant at 1300 kW. The voltages magnitudes at each bus is locked to 1 p.u, while the reactive power injections and voltage angle can vary. The reward $r_{t}$ is defined as the negative of the absolute deviation between the received and desired load at bus 2. The idea is that the agent should be encouraged to move closer to the desired load. For simplicity, the initial state, represented as the voltage magnitude, voltage angle the apparent power at each bus, was always the same. The task should therefore be very manageable for the agent because it only has to learn one simple behaviour. After training it converged and received rewards close to 0, indicating that bus 2 got the desired load. The problem was that the agent produced over 10 times as much active power as bus 2 wanted. Where did the rest go? It was lost in the line. In other words, the system had under 10 \% efficiency. Figure \ref{fig:theory:two_bus_failing} shows what was happening. A line can not transfer an arbitrary amount of active power due to the power flow equations. As a result, there will be two different point for $P_{1}$ that gives the load the desired amount of active power. However, one point is obviously not desired, as the system efficiency is below 10 \%. However, one cannot blame the agent for finding this point, and sticking with it. It has now incentive to change its behaviour when the reward is defined as it is. A natural solution would be to include a term in the reward that punishes loss in the line. This can be done, and the agent would probably find the right power production level. 
-
+Consider the two-bus system shown in figure \ref{fig:theory:two_bus_reinforcement}. The bus at the left represent a power plant that produces electric power $S_{1} = P_{1} + jQ_{1}$. The power flows through the transmission line and with some losses and arrives at bus 2 with apparent power $S_{2} = P_{2} + jQ_{2}$. An agent using the deep deterministic policy gradient (DDPG) algorithm was given a simple load balancing task on the power network. The agent controls the active power production $P_{1}$ at bus 1, and has to tune it so that bus 2 receives the desired active load $P_{2}$. For simplicity, the demanded load at bus 2 is constant at 1.3 MW. The voltages magnitudes at each bus is locked to 1 p.u, while the reactive power injections and voltage angle can vary. The reward $r_{t}$ is defined as the negative of the absolute deviation between the received and desired load at bus 2. The idea is that the agent should be encouraged to move closer to the desired load. For simplicity, the initial state, represented as the voltage magnitude, voltage angle the apparent power at each bus, was always the same. The task should therefore be very manageable for the agent because it only has to learn one simple behaviour. After training it converged and received rewards close to 0, indicating that bus 2 got the desired load. The problem was that the agent produced over 10 times as much active power as bus 2 wanted. Where did the rest go? It was lost in the line. In other words, the system had under 10 \% efficiency. Figure \ref{fig:theory:two_bus_failing} shows what was happening. A line can not transfer an arbitrary amount of active power due to the power flow equations. As a result, there will be two different production points for $P_{1}$ that gives the load the desired amount of active power. However, the production point around 12 MW is obviously not desired, as the system efficiency is below 10 \%. However, one cannot blame the agent for finding this point, and sticking with it. It has no incentive to change its behaviour when the reward is defined as it is. A natural solution would be to include a term in the reward that punishes loss in the line. This can be done, and the agent would probably find the right power production level. This illustrates the challenges with manual reward shaping. 
 
 \begin{figure}[ht!]
-    \label{fig:theory:two_bus_failing}
     \center
-    \begin{tikzpicture}
-    \begin{axis}
-    [axis lines=left, xtick=\empty, ytick=\empty, legend style={draw=none},  xlabel=$P_{1}$]
-    \addplot table  [x=prod, y=busload, col sep=comma, smooth,mark=none,color=blue] {data/two_bus_load_balancing.csv};
-    
-    \addplot table  [x=prod, y=cost1, col sep=comma, smooth,mark=none, color=black] {data/two_bus_load_balancing.csv};
-    \legend{Received load, Agent loss}
-    \end{axis}
-    \end{tikzpicture}
-        \caption[size = 9]
-        {Received active power $P_{2}$ at bus two in figure \ref{fig:theory:two_bus_reinforcement} and penalty given to the agent as a function of a. 
-        }
+    \includegraphics[height=7.5cm, width=10cm]{figures/twobus_load_balance.png}
+    \caption[size = 9]{Received load as a function of production of the two-bus system in figure \ref{fig:theory:two_bus_reinforcement}, and cost given to the agent}
+    \label{fig:theory:two_bus_failing}
 \end{figure}
+
 
 \subsection{Intuition for Hindsight Experience Replay}
 Section \ref{theory:challenging_reward_shaping}  illustrates the challenges with reward shaping and the need for domain-expertise. Hindsight Experience Replay (HER) is an approach that avoids the need for custom made rewards for any off-policy reinforcement learning algorithm, such as DDPG \cite{DBLP:journals/corr/Andrychowicz_HER}. HER modifies Universal Value Function Approximators (UVFA), a method that feeds the agent with a goal $g$ that represent the state at which we want to be. By doing so, the agent does not only generalise to arbitrary states, but also arbitrary goals \cite{schaul15_goal_states}. This is ideal for reinforcement learning in an electric power system. The
