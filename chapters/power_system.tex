@@ -96,7 +96,7 @@ A capacitor is a component that can store an electrical charge \textit{Q} when a
 C = \frac{Q}{U}
 \end{aligned} 
 \end{equation}
-where \textit{Q} is the charge stored by the capacitor and \textit{U} is the applied DC voltage. The units for capacitance is farad \textit{F}. Applying Kirchoff's voltage law to this circuit when the source is a sinusoidal signal $U\sin(\omega t)$ and using equation \eqref{eq:theory:capacitance} gives
+where \textit{Q} is the charge stored by the capacitor and \textit{U} is the applied DC voltage. The units for capacitance is farad (F). Applying Kirchoff's voltage law to this circuit when the source is a sinusoidal signal $U\sin(\omega t)$ and using equation \eqref{eq:theory:capacitance} gives
 
 
 
@@ -130,7 +130,6 @@ I(t) = \frac{U}{X_{c}} \sin(\omega t + \pi/2)
 \end{aligned} 
 \end{equation}
 
-The circuit shown in figure \ref{fig:theory:circuit_inductor} is another example of a reactive component that phase shifts the current. 
 
 \begin{figure}[ht!]
     \center
@@ -139,7 +138,7 @@ The circuit shown in figure \ref{fig:theory:circuit_inductor} is another example
     {Circuit with a electromagnetic coil as load}\label{fig:theory:circuit_inductor}
 \end{figure}
 
-The load is an electromagnetic coil, also called an inductor, and appears in a wide range of electric components. For instance an electric transmission line is mainly modelled as an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the coil and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
+The circuit shown in figure \ref{fig:theory:circuit_inductor} is another example of a reactive component that phase shifts the current. The load is an electromagnetic coil, also called an inductor, and appears in a wide range of electric components. For instance an electric transmission line is mainly modelled as an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the coil and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:inductance_diffeq}
@@ -165,7 +164,7 @@ X_{c} = \omega L
 where $\omega$ is the angular frequency of the voltage and $L$ is the inductance of the coil. 
 
 \section{Reactive power}
-For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive, as shown in figure \ref{fig:theory:reactive_powers}. This power is called active power, and is measured in watt W. This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the instantaneous power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power consumer. Consequently, overhead transmission lines are considered reactive consumers, because they are mainly inductive. 
+For a purely resistive load with no phase shift between current and voltage, the instantaneous power transferred to the load as given by \eqref{eq:theory:apparent_power} is always positive, as shown in figure \ref{fig:theory:reactive_powers}. This power is called active power, and is measured in watt (W). This is not the case for reactive loads. The phase shift between current and voltage results in a pulsating power between the source and the load, as shown in figure \ref{fig:theory:reactive_powers}. The pulsating power resulting from reactive loads is called reactive power \textit{Q} and has unit var, to distinguish it from unidirectional power flow. Figure \ref{fig:theory:reactive_powers} shows that the instantaneous power resulting from an inductive and capacitive load are opposite of each other. As a consequence, a circuit with equal inductive and capacitive reactance connected in parallel will draw zero instantaneous power from the source. By convention, a capacitive load is defined to supply reactive power while an inductive load is a reactive power consumer. Consequently, overhead transmission lines are considered reactive consumers, because they are mainly inductive. 
 
 \begin{figure}[ht!]
     \center
@@ -177,7 +176,7 @@ For a purely resistive load with no phase shift between current and voltage, the
 
 \section{Voltage, current and power as complex numbers}
 
-Current, voltage, impedance and and power are all expressed as complex numbers in an AC electric power system. Consider the circuit shown in figure \ref{fig:theory:complex_current_circuit}
+Current, voltage, impedance and power are all expressed as complex numbers in an AC electric power system. Consider the circuit shown in figure \ref{fig:theory:complex_current_circuit}.
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/complex_currents_circuit.tex}
@@ -202,10 +201,10 @@ where $e$ is the base of the natural logarithm, $j$ is the imaginary unit, $R$ i
 The resultant current \textit{I} drawn from the voltage source can now be expressed as 
 \begin{equation}
    \begin{aligned}\label{eq:theory:complex_current}
-I = |I|e^{-j \varphi} = I_{p} + jI_{q}
+I = |I|e^{-j \varphi} = I_{p} - jI_{q}
 \end{aligned} 
 \end{equation}
-where $|I|$ and $\varphi$ respectively are the magnitude and phase shift of the current. Comparing equation \eqref{eq:eulers_equation} and \eqref{eq:theory:complex_current} shows that the angular frequency $\omega$ is removed, and that the current is simply considered a complex constant. This has do with the fact that the sum of two synchronous sinusoidal signals inherits the same frequency. One can therefore simply consider the signal at t=0, and all calculations are correct. It is common to also express the complex current as $|I|\angle -\varphi$. The current magnitude $|I|$ is given by the Pythagorean theorem. 
+where $|I|$ and $\varphi$ respectively are the magnitude and phase shift of the current. The current $I_{q}$ is $90^{o}$ behind $I_{p}$ and is therefore multiplied by $-j$, which corresponds to a $90^{o}$ clockwise rotation in the complex plane. Comparing equation \eqref{eq:eulers_equation} and \eqref{eq:theory:complex_current} shows that the angular frequency $\omega$ is removed, and that the current is simply considered a complex constant. This has do with the fact that the sum of two synchronous sinusoidal signals (same $\omega$) inherits the same frequency. One can therefore simply consider the current at some arbitrary time, say t=0, and consider it a constant. The resultant complex current can also be expressed as $|I|\angle -\varphi$. The current magnitude $|I|$ is given by the Pythagorean theorem. 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:pythagoras_current}
@@ -222,7 +221,7 @@ The phase shift $\varphi$ is described by the trigonometric relation
 
 
 
-Inductive and capacitive reactances can also be expressed as complex numbers. A coil phase shifts the current 90 degrees behind the voltage. Considering the current $I_{q}$ as a complex number in Ohm's law gives that the inductive reactance can be expressed as $jX_{L}$, because multiplication by \textit{j} corresponds to a 90 degree rotation in the complex plane
+Inductive and capacitive reactances can also be expressed as complex numbers. A coil phase shifts the current 90 degrees behind the voltage. Considering the current $I_{q}$ as a complex number in Ohm's law gives that the inductive reactance can be expressed as $jX_{L}$, because multiplication by \textit{j} corresponds to a 90 degree anticlockwise rotation in the complex plane
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:complex_rectance_capacitive}
