@@ -22,7 +22,7 @@ The reinforcement agent is working within an electrical power system and it is t
 
 \section{Electric circuit theory}
 \subsection{Voltage, current and power}
-An electric circuit is a model that describes how electrical power is transferred from a electrical source unit to a load. An example of a source is a power socket on the wall and a load can be a light bulb or a vacuum cleaner. A model of a simple electric circuit is shown in figure \ref{fig:theory:simple_circuit}, where \textit{U} is placed next to the electrical source and \textit{R} next to the load. The electric transmission system is analogous to this configuration, except it with several electrical sources (power plants) and loads (cities) connected. 
+An electric circuit is a model that describes how electrical power is transferred from an electrical source unit to a load. An example of a source is a power socket on the wall and a load can be a light bulb or a vacuum cleaner. A model of a simple electric circuit is shown in figure \ref{fig:theory:simple_circuit}, where \textit{U} is placed next to the electrical source and \textit{R} next to the load. The electric transmission system is analogous to this configuration, except it with several electrical sources (power plants) and loads (cities) connected. 
 
 \begin{figure}[ht!]
     \centering
@@ -135,7 +135,7 @@ I(t) = \frac{U}{X_{c}} \sin(\omega t + \pi/2)
     \center
     \subimport{../}{circuits/circuit_inductor.tex}
     \caption[size = 9]
-    {Circuit with a electromagnetic coil as load}\label{fig:theory:circuit_inductor}
+    {Circuit with an electromagnetic coil as load}\label{fig:theory:circuit_inductor}
 \end{figure}
 
 The circuit shown in figure \ref{fig:theory:circuit_inductor} is another example of a reactive component that phase shifts the current. The load is an electromagnetic coil, also called an inductor, and appears in a wide range of electric components. For instance an electric transmission line is mainly modelled as an inductor. The voltage  across an electromagnetic coil is proportional to the derivative of the current flowing through it due to Faraday's law of induction. The proportional constant is called the inductance \textit{L} of the coil and it is given in henry \textit{H}. Similarly as with the capacitor, Kirchoff's voltage law  gives rise to a differential equation. Let the voltage source be $U\sin{(\omega t)}$
@@ -181,7 +181,7 @@ Current, voltage, impedance and power are all expressed as complex numbers in an
     \center
     \subimport{../}{circuits/complex_currents_circuit.tex}
     \caption[size = 9]
-    {Circuit with a resistor and a inductance connected i parallel}\label{fig:theory:complex_current_circuit}
+    {Circuit with a resistor and an inductance connected i parallel}\label{fig:theory:complex_current_circuit}
 \end{figure}
 The resistor will draw a current $I_{p}$ that is in phase with the source voltage. The inductor will draw a current $I_{q}$ that lags the voltage by 90 degrees. The resultant current drawn from the source will therefore be a linear combination of two phase shifted sinusoidal signals. The equations for summing phase-shifted sinusoidal signals are complicated, and not not easy to work with. Euler's formula states that a complex number $A$ can be expressed by
 
@@ -204,7 +204,7 @@ The resultant current \textit{I} drawn from the voltage source can now be expres
 I = |I|e^{-j \varphi} = I_{p} - jI_{q}
 \end{aligned} 
 \end{equation}
-where $|I|$ and $\varphi$ respectively are the magnitude and phase shift of the current. The current $I_{q}$ is $90^{o}$ behind $I_{p}$ and is therefore multiplied by $-j$, which corresponds to a $90^{o}$ clockwise rotation in the complex plane. Comparing equation \eqref{eq:eulers_equation} and \eqref{eq:theory:complex_current} shows that the angular frequency $\omega$ is removed, and that the current is simply considered a complex constant. This has do with the fact that the sum of two synchronous sinusoidal signals (same $\omega$) inherits the same frequency. One can therefore simply consider the current at some arbitrary time, say t=0, and consider it a constant. The resultant complex current can also be expressed as $|I|\angle -\varphi$. The current magnitude $|I|$ is given by the Pythagorean theorem. 
+where $|I|$ and $\varphi$ respectively are the magnitude and phase shift of the current. The current $I_{q}$ is $90^{o}$ behind $I_{p}$ and is therefore multiplied by $-j$, which corresponds to a $90^{o}$ clockwise rotation in the complex plane. Comparing equation \eqref{eq:eulers_equation} and \eqref{eq:theory:complex_current} shows that the angular frequency $\omega$ is removed, and that the current is simply considered a complex constant. This has do with the fact that the sum of two synchronous sinusoidal signals (same $\omega$) inherits the same frequency. One can therefore consider the current at some arbitrary time, say t=0, and consider it a constant because the phase shift $\varphi$ is independent of time. The resultant complex current can also be expressed as $|I|\angle -\varphi$. The current magnitude $|I|$ is given by the Pythagorean theorem. 
 
 \begin{equation}
    \begin{aligned}\label{eq:theory:pythagoras_current}
@@ -352,7 +352,7 @@ U_{pu} = \frac{U}{|U_{b}|}
 The per-unit notation thus result in the same relation between current, voltage and impedance as Ohm's law in a one-phase system. 
 
 \section{Components in the power system}
-An electrical power system consists of a set of nodes \textbf{N}, commonly referred to as buses, and a set of branches \textbf{L} that connects some or all of the buses. The branches between buses can be power lines, cables, transformers or other power electronics equipment. The buses and branches defines the topology of the electrical power system. Figure \ref{fig:theory:bus_system} is an illustration of a an electric power system consisting of 5 buses and 7 branches. Note that the branches are one-line representation of a three-phase system. Formally, this network is described as 
+An electrical power system consists of a set of nodes \textbf{N}, commonly referred to as buses, and a set of branches \textbf{L} that connects some or all of the buses. The branches between buses can be power lines, cables, transformers or other power electronics equipment. The buses and branches defines the topology of the electrical power system. Figure \ref{fig:theory:bus_system} is an illustration of an electric power system consisting of 5 buses and 7 branches. Note that the branches are one-line representation of a three-phase system. Formally, this network is described as 
 \begin{equation}
    \begin{aligned}\label{eq:theory:network_set}
 \textbf{N} &= \{1,2,3,4,5\}\\
@@ -442,7 +442,7 @@ where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, $|Z|$ i
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/plot_active_power_flow.tex}
-    \caption[size = 9]{Active power flow \textit{P} between two buses as a function of voltage angle with no losses ($\alpha=0$) a and typical loss angle $\alpha$ of 0.13. The bus with a leading voltage angle $\delta$ supplies active power, while the lagging bus voltage is receiving.} \label{fig:theory:active_power_flow}
+    \caption[size = 9]{Active power flow \textit{P} between two buses as a function of voltage angle with no losses ($\alpha=0$) and a typical loss angle $\alpha$ of 0.13. The bus with a leading voltage angle $\delta$ supplies active power, while the lagging bus voltage is receiving.} \label{fig:theory:active_power_flow}
 \end{figure}
 
 A similar argument will give that the reactive power flow $Q_{1}$ at bus 1 for a line without resistive losses is given by 
@@ -572,18 +572,6 @@ A common way to model a transmission line is by using a $\pi$-equivalent circuit
 \end{figure}
 
 The transmission line is modelled by a resistance and inductance in series. In addition, there are two shunt capacitors connected in parallel at each end of the line. The capacitors are there because the flow of charges will give an associated capacitance that is proportional with the line length. The $\pi$-model splits the admittance $Y$ of the capacitor into two and puts one part on each end of the line. It is this model pandapower uses to solve a given transmission system. 
-
-\section{Frequency stability}
-The generators in coal, gas, nuclear and hydro power plants in a steady state power system all spin at synchronous speed. In other words, if a synchronous generator is accelerated by 1\%, then all the other synchronous generators do the same. The angular velocities are directly proportional to each other, and the frequency of the voltage in the system is given by this speed. Figure \ref{fig:theory:entso-synchronous-area} shows the different synchronous area in Europa. Norway is synchronously linked to Sweden and Finland, and has high voltage direct current (HVDC) power cables connection to central-Europe. There are regulations for frequency stability in an electric power system.
-
-\begin{figure}[H]
-    \center
-    \includegraphics[height=13cm, width=14cm]{figures/ENTSO-E-member-states.png}
-    \caption[size = 9]{Synchronous areas in Europa \cite{synchronous_regions}.}
-    \label{fig:theory:entso-synchronous-area}
-\end{figure}
-
-The power producing units in a conventionally electric power system have typically consisted of spinning masses. The generators and turbines have a large masses and together give the power system an associated moment of inertia \textit{J}. The system inertia naturally gives frequency stability to the system. However, renewable energy sources do not have any natural inertia that helps the stability in frequency. Wind power have rotating masses, but they generally use asynchronous generators that do not follow the frequency of the grid SOURCE. Harnessing solar power by using photo voltaic (PV) modules does not involve physical inertia, and does therefore not contribute to frequency stability. A possible solution to this problem is to use virtual inertia on renewable power that mimics the reaction of a synchronous generator \cite{virtual_inertia}. From the transmission system operator's perspective, renewable energy sources can look as if they are synchronous generators.
 
 
 \section{Active network management}
