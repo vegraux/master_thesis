@@ -201,7 +201,15 @@ All rewards in the no agent scenario for critical hours are sorted and plotted i
 \end{figure}
 
 
-The electric grid is within safety margins 91 \% of the time in the 100 episode simulation. It is very important that the trained agent finds appropriate behaviour in both non-critical and critical hours. Investigating the voltage penalty given to the agent in non-critical hours reveals that the agent pushes the voltages out of the safety margins 0.4 \% of the time. The worst of these violations are -0.002 in magnitude, which is quite small compared the violations in critical hours. In other words, the agent behaves well in non-critical hours in terms of voltage. 
+Figure \ref{fig:results:config1_improvement_voltage} shows for each hour of a day a box plot of difference between the voltage reward given to the trained agent and no agent scenario in critical hours. This plot illustrates the improvements of the trained agent, measured in terms of the increase in voltage reward. It is clear that the trained agent only is better in the afternoon, in periods of peak demand. 
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/config1_improvement_voltage.png}
+    \caption[size = 9]{Hourly box plots of the difference in voltage rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
+    \label{fig:results:config1_improvement_voltage}
+\end{figure}
+
 
 Figure \ref{fig:results:config1_400hour_good_voltage} plots the voltage rewards in a 400 hour episode for the trained agent and for a no-agent. This is period where the agent behaves well and reduces the number of violations of voltage safety margins. 
 
@@ -238,6 +246,7 @@ Figure \ref{fig:results:config1_150hour_bad_voltage} plots the voltage rewards i
 \end{figure}
 Table \ref{table:results:config1_150hour_bad_voltage} shows the statistics for the hours the trained agent and no-agent scenario violate voltage safety margins (non-zero rewards). The trained agent increase the number of voltage violation from 30 to 31. All of the hours the trained agent is worse in figure \ref{fig:results:config1_150hour_bad_voltage} correspond to hours of peak solar production. The spikes where it improves the situation correspond to periods with peak demand. As already mentioned, the trained agent has learned that it must decrease consumption in periods peak demand hours. On the contrary, it has not learned that it has to increase consumption in hours with heavy solar power production. In fact, it decreases the power consumption, which in turn makes the excess solar production even greater and thus increases voltage magnitudes in the grid.  
 
+Until now, the the trained agent has been evaluated in critical hours, where there would be a safety violation in the no agent scenario. However, the electric grid is within safety margins 91 \% of the time in the 100 episode simulation. It is very important that the trained agent finds appropriate behaviour in both non-critical and critical hours. Investigating the voltage penalty given to the agent in non-critical hours reveals that the agent pushes the voltages out of the safety margins 0.4 \% of the time. The worst of these violations are -0.002 in magnitude, which is quite small compared the violations in critical hours. In other words, the agent behaves well in non-critical hours in terms of voltage. 
 \begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
@@ -251,17 +260,10 @@ No agent & 30    & -0.043 & 0.033 & -0.109 & -0.061 & -0.038 & -0.017 \\
 \label{table:results:config1_150hour_bad_voltage}
 \end{table}
 
-Figure \ref{fig:results:config1_improvement_voltage} shows for each hour of a day a box plot of difference between the voltage reward given to the trained agent and no agent scenario. This plot illustrates the improvements of the trained agent, measured in terms of the increase in voltage reward. 
-
-\begin{figure}[h]
-    \center
-\includegraphics[height=8cm, width=12cm]{figures/config1_improvement_voltage.png}
-    \caption[size = 9]{Hourly box plots of the difference in voltage rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
-    \label{fig:results:config1_improvement_voltage}
-\end{figure}
 
 
-\subsection{Current violations}
+
+\subsection{Current violations}\label{section:config1:current_violations}
 The trained agent is tested in a 100 episode simulation, each consisting of 200 hours, and evaluated in terms of violations of current safety margins in the power lines. Specifically, the current cost $C_{current}$ for a line carrying a current $I$ with capacity $I_{max}$ is $C_{current} = \max(0,I - I_{max})$ where $I_{max}$ is set to 90 \% of the line capacity. The total current cost is found by summing over all lines. Note that the terms \textit{cost} and \textit{reward} are used interchangeably, depending on what is most natural. In all cases the reward is the negative of the cost. The statistics for the current violation for the trained agent and no agent scenario are presented in table \ref{table:results:configuration1_reward_100_episodes_current}
 
 \begin{table}[h]
@@ -276,7 +278,7 @@ No agent & 329 & -0.160 & 0.126 & -0.496 & -0.261 & -0.129 & -0.052 \\
 \caption{Statistics of the current rewards given to the trained agent and no agent scenario over a 100 episodes simulation, each with a duration of 200 hours}
 \label{table:results:configuration1_reward_100_episodes_current}
 \end{table}
-The trained agent increases the number of current violations by 8 \% from 329 to 356. It pushes the current values out of the safety margins 54 times during the simulation and pulls it into safety margins 27 times. In addition to causing more current violations, it increases the mean current penalty by 15 \%. In other words, there are more and stronger current violation with the trained agent than in the no agent scenario. The agent has not learned an appropriate behaviour to reduce current overloads in the lines. Figure \ref{fig:results:config1_100ep_boxplot_current} shows the distribution of the current reward for the trained agent and no agent scenario. 
+The trained agent increases the number of current violations by 8 \% from 329 to 356. It pushes the current values out of the safety margins 54 times during the simulation and pulls it into safety margins 27 times. In addition to causing more current violations, it increases the mean current penalty by 15 \%. In other words, there are more and stronger current violation with the trained agent than in the no agent scenario. The agent has not learned an appropriate behaviour to reduce current overloads in the lines. The hours in the simulation that have a current violation if no action is taken are termed critical hours. Figure \ref{fig:results:config1_100ep_boxplot_current} shows the distribution of the current reward for the trained agent and no agent scenario in critical hours. 
 
 \begin{figure}[H]
     \center
@@ -284,7 +286,7 @@ The trained agent increases the number of current violations by 8 \% from 329 to
     \caption[size = 9]{Box plot of the current reward for the trained agent and no agent scenario}
     \label{fig:results:config1_100ep_boxplot_current}
 \end{figure}
-The hours in the simulation that have a current violation if no action is taken are termed critical hours. Figure \ref{fig:results:config1_sorted_current} plots the current reward for critical hours in the 100 episode sorted from best to worse. The hour with the lowest current reward is the most critical hour. It is clear that the trained agent for the most part aggravates the situation. In fact, it only improves the situation in 9\% of the critical hours, which for the most part are less critical in terms of the size of the current reward. 
+Figure \ref{fig:results:config1_sorted_current} plots the current reward for critical hours in the 100 episode sorted from best to worse. The hour with the lowest current reward is the most critical hour. It is clear that the trained agent for the most part aggravates the situation. In fact, it only improves the situation in 9\% of the critical hours, which for the most part are less critical in terms of the size of the current reward. 
 
 \begin{figure}[H]
     \center
@@ -293,7 +295,18 @@ The hours in the simulation that have a current violation if no action is taken 
     \label{fig:results:config1_sorted_current}
 \end{figure}
 
-The agent has clearly not learned how to behave in periods with current violation. Inspection of the hours with violations reveals that it is during peak solar irradiance that the overloads happen, as illustrated in figure \ref{fig:results:config1_bad_current}.
+
+
+Figure \ref{fig:results:config1_improvement_current} shows box plots for difference in current reward between the trained agent and the no agent scenario. This figure illustrates which hours of the day the agent performs best and worse. For current rewards, the trained agent is aggravating the situation in almost all hours. At hour 20 is the only time the agent improves the situation in terms of voltage magnitudes.
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/config1_improvement_current.png}
+    \caption[size = 9]{Hourly box plots of the difference in current rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
+    \label{fig:results:config1_improvement_current}
+\end{figure}
+
+Inspection of the hours with violations reveals that it is during noon (peak solar production) that the overloads happen, as illustrated in figure \ref{fig:results:config1_bad_current}.
 
 
 \begin{figure}[H]
@@ -302,6 +315,7 @@ The agent has clearly not learned how to behave in periods with current violatio
     \caption[size = 9]{Current reward and solar irradiance profile in a three day period. The agent is not able to prevent current overloads in hours of peak solar irradiance.}
     \label{fig:results:config1_bad_current}
 \end{figure}
+
 
 \subsection{Summary}
 The trained agent shows a desired behaviour in terms of voltage magnitudes in periods of peak power demand. The power consumption is decreased in those periods, which keeps the voltage magnitudes above the lower safety margins. However, the trained agent has not found a strategy that keeps voltage magnitudes below upper margins in periods with peak solar production.
