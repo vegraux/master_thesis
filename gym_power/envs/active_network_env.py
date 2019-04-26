@@ -218,7 +218,8 @@ class ActiveEnv(gym.Env):
 
         demand_days = (demand_data.index[-1] - demand_data.index[0])
         demand_days = demand_days.days
-        return self.np_random.choice(demand_days)
+        episode_days = (self.params['episode_length'] // 24) + 1 #margin
+        return self.np_random.choice(demand_days - episode_days)
 
 
 
