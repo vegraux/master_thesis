@@ -22,7 +22,7 @@ There are many ways of setting up the state space and reward function that can r
 
 \section{Feasibility}
 It is important to investigate the potential effect demand response have before a model is evaluated. It is not given that it is physically feasible avoid safety violation in critical periods for a given flexibility. Therefore, it is necessary to discuss the physical challenges in the electrical grid, and the kind of behaviour that would improve the situation. As mentioned in \ref{section:problem_description}, the main challenges for the network is that large amount of power must imported and exported out to the external grid in a normal day. Figure \ref{fig:results:demand_and_solar} plots the daily mean solar irradiance signal and power demand used for training the reinforcement agent. The first period that is critical for the grid is when the solar irradiance is at its maximum. The excess solar power produced must be transported out to the grid through many lines due to a large amount of local power production. This can cause overloads in the lines carrying the current and high voltage magnitudes at the bus bars. The second critical period is during peak demand because large amount of energy must be imported from the grid. The problem with importing large amounts of power is potential overloads in the lines, in addition to low voltage magnitudes. A solution to this problem is that profile for the solar production and power demand overlap more. It is not possible to control when the sun shines, but it is possible to manipulate when power is consumed.
-\begin{figure}[ht]
+\begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/demand_and_solar.png}
     \caption[size = 9]{Mean hourly power demand curve and solar irradiance}
@@ -32,7 +32,7 @@ It is important to investigate the potential effect demand response have before 
 The reinforcement agent is trained with a certain flexibility. It is necessary to inspect what effect the activation of flexibility has on voltage magnitude and line current before a trained agent can be evaluated. Figure \ref{fig:results:increase_demand_current} illustrates the effect activation of flexibility (increasing consumption) has on the current in a critical line. The consumption of active power is increased by 25 \% for all the loads in every hour. The first and second peak in plot correspond, respectively, to the solar peak and the power demand peak. It is clear from the first peak that increasing the consumption decreases the line current. This is because the loads in this period generate so much solar power that they act as producers and not consumers. Increasing the consumption means that less power needs to be transported out to the external grid, which decreases the line current. As a result, the desired behaviour in periods with high solar irradiation is to increase the consumption.
 
 
-\begin{figure}[ht]
+\begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/increase_demand_current.png}
     \caption[size = 9]{Current capacity in a critical line when increasing the power consumption with 25 \% in all hours and regular situation. The line connecting bus 1 and 2 in figure \ref{fig:problem:cigre_network} is showed}
@@ -41,7 +41,7 @@ The reinforcement agent is trained with a certain flexibility. It is necessary t
 
 The effect of increasing consumption in the second peak is the opposite of that in the first peak. This is because the loads now act as consumers since there is no solar production. The active power must therefore be imported from the external grid. Increasing the consumption in this period simply corresponds to drawing even more power from the external grid, which in turn increases the line current. The desired behaviour in this period is therefore to lower the power consumption, since this would decrease the current in the line. 
 
-\begin{figure}[ht]
+\begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/decrease_demand_voltage.png}
     \caption[size = 9]{Voltage magnitude at critical bus when the power consumption is reduced with 25 \% in all hours and regular situation. Bus bar 9 in \ref{fig:problem:cigre_network} is used}
@@ -56,10 +56,10 @@ The second critical period in a normal day can be seen around hour 20 in figure 
 The desired behaviour in terms of both current and voltage safety margins is to increase consumption in periods with high solar irradiance and decrease it when the production of solar energy has ended.
 
 
-\section{Formulation 1 - Free activation}
+\section{Formulation 1 - Free activation} \label{section:result:config1}
 A reinforcement agent is trained with reward function that does not include cost of activation. This is not a realistic case, since households that offer flexibility should be compensated for altering their energy profile. This formulation serves to show how an agent would activate flexibility if there was no direct cost associated with altering the power consumption. However, the agent is penalised for changing the total daily energy demand in the power net. Note that it is not penalised for changing the daily consumption at individual loads as long as the total consumption in the network is preserved. The specific reward terms with weights are shown in table \ref{table:results:reward_formulation1}
 
-\begin{table}[ht]
+\begin{table}[h]
 \centering
 \begin{tabular}{l|ll}
 
@@ -89,7 +89,7 @@ Units of energy imbalance is kWh
 \end{table}
 The state space is constructed to be as small as possible. The state is represented by a 4 hour forecast for both solar irradiance and active power demand. The power demand is assumed equal at each flexible load, so there is not an individual power demand for each load. The total power imbalance for the whole power network is also included. Table \ref{table:results:state_formulation1} summarises the state space
 
-\begin{table}[ht]
+\begin{table}[h]
 \centering
 \begin{tabular}{l|lll}
 
@@ -110,7 +110,7 @@ Imbalance state & 1  & Total energy imbalance for all loads
 \end{table}
 
 
-\begin{figure}[ht]
+\begin{figure}[h]
     \center
     \includegraphics[height=8cm, width=15cm]{figures/configuration1.png}
     \caption[size = 9]{Activation of flexibility at the different flexible loads of the trained DDPG throughout a day. The orange line is the solar irradiance during the day, which is the same for all loads. The actions in blue is the activation of flexibility. Action = 1 means that the flexible load increases its power consumption with 10 \%, while action = -1 means that it decreases its power consumption with 10 \%}
@@ -119,7 +119,7 @@ Imbalance state & 1  & Total energy imbalance for all loads
 
 The DDPG agent was trained for 100 000 time steps. A complete summary with all hyper-parameters used can be found in appendix \ref{section:apendix_config1}. Figure \ref{fig:results:configuration1} visualises the actions of the trained agent throughout a day (24 hours) together with the solar irradiance. Because the solar power production in the system is very large, the safety margins for current and voltage are frequently violated. The desired behaviour of the agent is therefore to increase consumption in periods with high solar irradiance, and decrease it during peak demand in the afternoon. This helps the system because the power is not transported out to the grid, but instead is consumed locally. Simply put, it is desired that the actions follow the curve of the solar irradiance around noon, and goes down in the afternoon. 
 
-\begin{figure}[ht]
+\begin{figure}[h]
     \center
 \includegraphics[height=7.1cm, width=11cm]{figures/configuration1_follows_sun.png}
     \caption[size = 9]{Action of the agent and solar profile during a day. The consumed power is increased in periods with high solar production}
@@ -129,7 +129,7 @@ The DDPG agent was trained for 100 000 time steps. A complete summary with all h
 By inspecting figure \ref{fig:results:configuration1} it is clear that the agent activates flexibility in times with much solar production for several of the loads. The plot \texttt{load = sun 10} in the bottom row is plotted alone in figure \ref{fig:results:configuration1_follows_sun}, and clearly follows this pattern. The agent increases its power consumption during periods with high solar production, and reduces it later during peak demand.
 
 
-\begin{figure}[ht]
+\begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/configuration1_negative_actions.png}
     \caption[size = 9]{Action of the agent and solar profile during a day}
@@ -148,7 +148,7 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
 \subsection{Voltage violations}
 The reward function has an energy imbalance term during training that is meant to incentives the agent to shift energy consumption. However, the main goal of the agent is to keep the values for current and voltage within safety margins. Therefore, it is interesting to see the rewards of the trained model when only the voltage and current terms are considered. In other words, it is only penalised for violating safety margins for current and voltage in the grid. The trained model was tested for 100 episodes each consisting of 200 steps and evaluated
 in terms of voltage penalty and current penalty independently. The statistics for the hours with a non-zero reward using only voltage reward are presented in table \ref{table:results:configuration1_reward_100_episodes}. Note that every non-zero reward corresponds to a violation of voltage margin because only the voltage term is used to calculate the reward. The trained agent reduces the number of voltage safety margin violations by 21 \% from 1824 to 1435. This reduction is impressive since there is no guarantee that it is physically feasible to satisfy voltage safety margins given a demand flexibility of 10 \%. It is clear that there is no significant difference between the trained agent and the no agent scenario in terms of mean voltage reward. Still, the reduction in number of voltage violations means that the trained agent overall is performing better in the 100 episodes. 
-\begin{table}[ht]
+\begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
@@ -174,7 +174,7 @@ The statistics presented in table \ref{table:results:configuration1_reward_100_e
 \ref{table:results:configuration1_reward_100_episodes} shows, the average voltage penalty of the trained agent is about the same as the no agent scenario. This means that there are situations where the trained agent pushes the voltage out of the safety margins.    
 
 
-\begin{table}[ht]
+\begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
@@ -193,7 +193,7 @@ All rewards in the no agent scenario for critical hours are sorted and plotted i
 
 
 
-\begin{figure}[ht]
+\begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_sorted_voltage.png}
     \caption[size = 9]{Voltage rewards given to the trained agent and no agent scenario in critical hours. The rewards are sorted for the no agent scenario from best to worst}
@@ -215,7 +215,7 @@ Figure \ref{fig:results:config1_400hour_good_voltage} plots the voltage rewards 
 
 The rewards are zero for the most part because the safety margins are generally satisfied. It is clear that in the episode the trained agent has learned a strategy that pulls voltage values close to nominal values. Table \ref{table:results:config1_400hour_good_voltage} shows statistics for when the trained agent and no-agent scenario violate voltage safety margins (non-zero reward). The trained agent reduces the number of violations from 37 to 23, a decrease of 38 \%.  In addition, the mean voltage penalty is 21 \% lower for the trained agent in the critical hours. Inspecting the rewards from the 400 episode shown in figure \ref{fig:results:config1_400hour_good_voltage} reveals that the agent in all cases prevents violation of voltage margins in peak demand periods. Consequently, the trained agent has learned a desired behaviour that decreases the peak power demand and thus keeps the voltage magnitude above the lower safety margin.
 
-\begin{table}[ht]
+\begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count  & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
@@ -238,7 +238,7 @@ Figure \ref{fig:results:config1_150hour_bad_voltage} plots the voltage rewards i
 \end{figure}
 Table \ref{table:results:config1_150hour_bad_voltage} shows the statistics for the hours the trained agent and no-agent scenario violate voltage safety margins (non-zero rewards). The trained agent increase the number of voltage violation from 30 to 31. All of the hours the trained agent is worse in figure \ref{fig:results:config1_150hour_bad_voltage} correspond to hours of peak solar production. The spikes where it improves the situation correspond to periods with peak demand. As already mentioned, the trained agent has learned that it must decrease consumption in periods peak demand hours. On the contrary, it has not learned that it has to increase consumption in hours with heavy solar power production. In fact, it decreases the power consumption, which in turn makes the excess solar production even greater and thus increases voltage magnitudes in the grid.  
 
-\begin{table}[ht]
+\begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count  & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
@@ -251,11 +251,20 @@ No agent & 30    & -0.043 & 0.033 & -0.109 & -0.061 & -0.038 & -0.017 \\
 \label{table:results:config1_150hour_bad_voltage}
 \end{table}
 
+Figure \ref{fig:results:config1_improvement_voltage} shows for each hour of a day a box plot of difference between the voltage reward given to the trained agent and no agent scenario. This plot illustrates the improvements of the trained agent, measured in terms of the increase in voltage reward. 
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/config1_improvement_voltage.png}
+    \caption[size = 9]{Hourly box plots of the difference in voltage rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
+    \label{fig:results:config1_improvement_voltage}
+\end{figure}
+
 
 \subsection{Current violations}
 The trained agent is tested in a 100 episode simulation, each consisting of 200 hours, and evaluated in terms of violations of current safety margins in the power lines. Specifically, the current cost $C_{current}$ for a line carrying a current $I$ with capacity $I_{max}$ is $C_{current} = \max(0,I - I_{max})$ where $I_{max}$ is set to 90 \% of the line capacity. The total current cost is found by summing over all lines. Note that the terms \textit{cost} and \textit{reward} are used interchangeably, depending on what is most natural. In all cases the reward is the negative of the cost. The statistics for the current violation for the trained agent and no agent scenario are presented in table \ref{table:results:configuration1_reward_100_episodes_current}
 
-\begin{table}[ht]
+\begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
@@ -299,7 +308,7 @@ The trained agent shows a desired behaviour in terms of voltage magnitudes in pe
 
 The agent performs poorly in terms of avoiding current overloads in the lines. This is only a problem in periods of peak solar production and not in hours of peak demand. There were no current overloads in the lines in hours of peek demand and the trained agent can consequently not be rated in that situation. The behaviour of the agent in the hours of peak demand and peak solar production is summarised in table \ref{table:results:config1_behaviour}.
 
-\begin{table}[ht]
+\begin{table}[h]
 \center
 \begin{tabular}{l|ll}
                       & Current behaviour     & Voltage behaviour \\
@@ -314,7 +323,7 @@ Peak solar production & Poor                  & Poor \\
  A summary of the performance in terms of voltage and current is presented in table \ref{table:results:config1_summary}. Overall, the trained agent reduces the number of voltage and current violations by 17\%, from 1791 to 2153. However, it increases the mean cost by 18 \% due to its poor behaviour in terms of avoiding current violations. Still, the trained agent is better in terms of the total cost received in the 100 episode simulation because voltage violations are more frequent. The total cost in terms of both current and voltage is reduced by 2.2 \% from 118.3 to 115.7.
 
 
-\begin{table}[ht]
+\begin{table}[h]
 \center
 \begin{tabular}{l|lrrr}
 Type      &               & Agent          & No agent       & Change        \\
