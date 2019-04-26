@@ -264,19 +264,47 @@ class TestReset:
 
 class TestSeeding:
 
-    def test_solar_seed(self):
+    def test_forecast_seed(self):
         """
-        Checks that same solar data is used for same seed
+        Checks that same forecasts is used for same seed
         """
         env1 = ActiveEnv(seed=3)
         env2 = ActiveEnv(seed=3)
         env3 = ActiveEnv(seed=4)
 
-        demand1 = env1.get_episode_solar_forecast()
-        demand2 = env2.get_episode_solar_forecast()
-        demand3 = env3.get_episode_solar_forecast()
-        assert all(demand1 == demand2)
-        assert any(demand1 != demand3)
+        solar1 = env1.get_episode_solar_forecast()
+        solar2 = env2.get_episode_solar_forecast()
+        solar3 = env3.get_episode_solar_forecast()
+        assert all(solar1 == solar2)
+        assert any(solar1 != solar3)
+
+        demand1 = env1.get_episode_demand_forecast()
+        demand2 = env2.get_episode_demand_forecast()
+        demand3 = env3.get_episode_demand_forecast()
+        assert all(demand1[0] == demand2[0])
+        assert any(demand1[0] != demand3[0])
+
+    def test_set_params(self):
+        """
+        Checks that the forecasts are equal when set_parameters is used
+        to change solar and demand scale
+        """
+        env1 = ActiveEnv(seed=3)
+        solar_scale1 = env1.params['solar_scale']
+        demand_scale1 = env1.params['demand_scale']
+
+
+        env2 = ActiveEnv(seed=3)
+        env2.set_parameters({'solar_scale':solar_scale1*2,
+                             'demand_scale':demand_scale1*3})
+
+        solar1, solar2 = env1.get_solar_forecast(), env2.get_solar_forecast()
+        demand1, demand2 = env1.get_demand_forecast(), env2.get_demand_forecast()
+
+        assert norm(solar1 * 2 - solar2) < 10e-7
+        assert norm(demand1[0] * 3 - demand2[0]) < 10e-7
+
+
 
 
 

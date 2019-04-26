@@ -88,7 +88,7 @@ class ActiveEnv(gym.Env):
         #if ('demand_std' in new_parameters) or ('solar_std' in new_parameters):
         #    self.set_demand_and_solar()
 
-        _ = self.reset()
+        _ = self.reset(reset_time=False)
 
     def __init__(self,do_action=True, force_commitments=False, seed=None):
         self.np_random = None
@@ -96,6 +96,8 @@ class ActiveEnv(gym.Env):
         #time attributes
         self._current_step = 0
         self._episode_start_hour = self.select_start_hour()
+        self._episode_start_day = self.select_start_day()
+
         self.do_action = do_action
 
         #power grid
@@ -109,6 +111,7 @@ class ActiveEnv(gym.Env):
 
         #state variables, forecast + commitment
         self.solar_data = self.load_solar_data()
+        self.demand_data = self.load_demand_data()
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forecasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
@@ -140,8 +143,9 @@ class ActiveEnv(gym.Env):
 
     def calc_pq_ratio(self):
         """
-        Power factor for loads are constant. This method finds the PQ-ratio
-        for all loads (same as for default cigre network)
+        Power factor for loads are assumed constant.
+        This method finds the PQ-ratio for all loads
+        (same as for default cigre network)
         """
         net = create_cigre_network_mv(with_der="pv_wind")
         pq_ratio = net.load['q_kvar'] / net.load['p_kw']
@@ -193,26 +197,6 @@ class ActiveEnv(gym.Env):
 
 
 
-    def get_episode_demand_forecast(self):
-        """
-        gets the forecasts for all loads in the episode
-        :return:
-        """
-        episode_length = self.params['episode_length']
-        demand_scale = self.params['demand_scale']
-        nr_days = (episode_length // 24) + 3 #margin
-        episode_forecasts = []
-        for k in range(1):#range(len(self.powergrid.load)):
-            demand_forcast = []
-            for day in range(nr_days):
-                day = list(el.generate.gen_daily_stoch_el())
-                demand_forcast += day
-
-            demand_forcast = demand_scale*np.array(demand_forcast)
-            episode_forecasts.append(demand_forcast[self._episode_start_hour:])
-
-        return episode_forecasts
-
 
 
     def select_start_hour(self):
@@ -222,16 +206,34 @@ class ActiveEnv(gym.Env):
         """
         return self.np_random.choice(24)
 
+    def select_start_day(self):
+        """
+        Selects start day (date) for the data in the episode
+        :return:
+        """
+        try:
+            demand_data = self.demand_data
+        except AttributeError:
+            demand_data = self.load_demand_data()
+
+        demand_days = (demand_data.index[-1] - demand_data.index[0])
+        demand_days = demand_days.days
+        return self.np_random.choice(demand_days)
+
+
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def reset(self):
+    def reset(self,reset_time=True):
         self._current_step = 0
 
         self.powergrid = copy.deepcopy(self.base_powergrid)
-        self._episode_start_hour = self.select_start_hour()
+        if reset_time:
+            self._episode_start_hour = self.select_start_hour()
+            self._episode_start_day = self.select_start_day()
+
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forecasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
@@ -259,17 +261,30 @@ class ActiveEnv(gym.Env):
 
     def get_episode_solar_forecast(self):
         """
-        Method that returns the solar_forcast for the entire episode
+        Method that returns the solar_forecast for the entire episode
         """
         episode_length = self.params['episode_length']
         horizon = self.params['forecast_horizon']
-        solar_days = (self.solar_data.index[-1] - self.solar_data.index[0])
-        solar_days = solar_days.days
-        start_day = self.np_random.choice(solar_days-episode_length//24 - 2)
-        start = self._episode_start_hour + start_day * 24
+        start = self._episode_start_hour + self._episode_start_day*24
         nr_hours = episode_length + horizon + 1 #margin of 1
         episode_solar_forecast = self.solar_data[start:start+nr_hours].values
         return episode_solar_forecast.ravel() *self.params['solar_scale']
+
+
+    def get_episode_demand_forecast(self):
+        """
+        gets the forecasts for all loads in the episode
+        :return:
+        """
+        episode_length = self.params['episode_length']
+        horizon = self.params['forecast_horizon']
+        demand_scale = self.params['demand_scale']
+
+        start = self._episode_start_hour + self._episode_start_day*24
+        nr_hours = episode_length + horizon + 1 #margin of 1
+        episode_demand_forecast = self.demand_data[start:start+nr_hours].values
+        return [episode_demand_forecast.ravel() *demand_scale]
+
 
     def get_commitment_state(self):
         """
@@ -289,6 +304,16 @@ class ActiveEnv(gym.Env):
         solar = solar.iloc[:, [1]]
 
         return solar
+
+    def load_demand_data(self):
+        demand_path = os.path.join(DATA_PATH,'hourly_demand_data.csv')
+        demand = pd.read_csv(demand_path)
+        demand.index = pd.to_datetime(demand.iloc[:, 0])
+        demand.index.name = 'time'
+        demand = demand.iloc[:, [1]]
+
+        return demand
+
 
     def _check_commitment(self, action):
         """
@@ -515,10 +540,16 @@ def load_env(model_name='flexible_load_first',seed=9):
 
 
 if __name__ == '__main__':
-    env = ActiveEnv(seed=9)
-    env.set_parameters({'solar_std': 0.1})
-    sol = env.solar_forecasts
-    demand = env.demand_forecasts[0]
-    df = pd.DataFrame(sol[:200],columns=['sun'])
-    df['demand'] = demand[:200]
-    df.plot(), plt.show()
+    env1 = ActiveEnv(seed=3)
+    solar_scale1 = env1.params['solar_scale']
+    demand_scale1 = env1.params['demand_scale']
+
+    env2 = ActiveEnv(seed=3)
+    env2.set_parameters({'solar_scale': solar_scale1 * 2,
+                         'demand_scale': demand_scale1 * 3})
+
+    solar1, solar2 = env1.get_solar_forecast(), env2.get_solar_forecast()
+    demand1, demand2 = env1.get_demand_forecast(), env2.get_demand_forecast()
+
+    assert all(np.linalg.norm(solar1 * 2 == solar2) < 10e-7)
+    assert all(np.linalg.norm(demand1[0] * 3 == demand2[0]) < 10e-7)
