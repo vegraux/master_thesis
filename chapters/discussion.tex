@@ -18,5 +18,6 @@
 \pgfplotsset{compat=1.15}
 
 \begin{document}
-
+\section{Performance of the trained agent}
+The result from section \ref{section:result:config1} show that the trained agent is able to reduce the number of safety violation by 17\%. However, the trained agent is only able to reduce violations of voltage safety margins, not current violations. In fact, it increases the number of current violations by 8 \%. Still, there are large differences in terms of the quantity and magnitude of the current and voltage safety violations. There are over 5 times more voltage violations than current violations. This is of course dependent on the voltage bounds that are used for defining the voltage cost. In this case the voltage bounds are chosen, for no particular reason, to be 0.95 and 1.05 pu. Although there are many more voltage violations in a normal day, the average current violation is more severe. Specifically, the mean current cost is almost 3 times greater than the mean voltage cost. The nature of the setup is therefore: many voltage violation
 \end{document}
