@@ -146,19 +146,19 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
 \end{figure}
 
 \subsection{Voltage violations}
-The reward function has an energy imbalance term during training that is meant to incentives the agent to shift energy consumption. However, the main goal of the agent is to keep the values for current and voltage within safety margins. Therefore, it is interesting to see the rewards of the trained model when only the voltage and current terms are considered. In other words, it is only penalised for violating safety margins for current and voltage in the grid. The trained model was tested for 100 episodes each consisting of 200 steps and evaluated
-in terms of voltage penalty and current penalty independently. The statistics for the hours with a non-zero reward using only voltage reward are presented in table \ref{table:results:configuration1_reward_100_episodes}. Note that every non-zero reward corresponds to a violation of voltage margin because only the voltage term is used to calculate the reward. The trained agent reduces the number of voltage safety margin violations by 21 \% from 1824 to 1435. This reduction is impressive since there is no guarantee that it is physically feasible to satisfy voltage safety margins given a demand flexibility of 10 \%. It is clear that there is no significant difference between the trained agent and the no agent scenario in terms of mean voltage reward. Still, the reduction in number of voltage violations means that the trained agent overall is performing better in the 100 episodes. 
+The reward function has an energy imbalance term during training that is meant to incentives the agent to shift energy consumption. However, the main goal of the agent is to keep the values for current and voltage within safety margins. Therefore, it is interesting to see the rewards of the trained model when only the voltage and current terms are considered. In other words, it is only penalised for violating safety margins for current and voltage in the grid. The trained model was tested for 500 episodes each consisting of 200 steps and evaluated
+in terms of voltage penalty and current penalty independently. The statistics for the hours with a non-zero reward using only voltage reward are presented in table \ref{table:results:configuration1_reward_500_episodes}. Note that every non-zero reward corresponds to a violation of voltage margin because only the voltage term is used to calculate the reward. The trained agent reduces the number of voltage safety margin violations by 13 \% from 8593 to 7484. This reduction is impressive since there is no guarantee that it is physically feasible to satisfy voltage safety margins given a demand flexibility of 10 \%. It is clear that there is no significant difference between the trained agent and the no agent scenario in terms of mean voltage reward. Still, the reduction in number of voltage violations means that the trained agent overall is performing better in the 500 episodes. 
 \begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
 \hline
-Agent    & 1435  & -0.035 & 0.037 & -0.186 & -0.054 & -0.021 & -0.006 \\
-No agent & 1824  & -0.036 & 0.037 & -0.207 & -0.056 & -0.024 & -0.007 \\
+Agent    & 7484  & -0.033 & 0.035 & -0.189 & -0.049 & -0.021 & -0.007 \\
+No agent & 8593  & -0.035 & 0.037 & -0.186 & -0.054 & -0.022 & -0.006 \\
 \hline
 \end{tabular}
-\caption{Statistics of the voltage rewards given to the trained agent and no agent scenario over 100 episodes with 200 hours each}
-\label{table:results:configuration1_reward_100_episodes}
+\caption{Statistics of the voltage rewards given to the trained agent and no agent scenario over 500 episodes with 200 hours each}
+\label{table:results:configuration1_reward_500_episodes}
 \end{table}
 
 Figure \ref{fig:results:config1_voltage_boxplot} shows the voltage reward distribution for the trained agent and no agent scenario for hours with violations of voltage safety margins. These hours are termed critical since there would be voltage violations if no actions were taken. The trained agent is better in critical situations, as more of the rewards are centred closer to zero.
@@ -170,8 +170,8 @@ Figure \ref{fig:results:config1_voltage_boxplot} shows the voltage reward distri
     \label{fig:results:config1_voltage_boxplot}
 \end{figure}
 
-The statistics presented in table \ref{table:results:configuration1_reward_100_ep_preventive} show that the mean voltage penalty for the trained agent is reduced by 25 \% in critical hours. However, as table
-\ref{table:results:configuration1_reward_100_episodes} shows, the average voltage penalty of the trained agent is about the same as the no agent scenario. This means that there are situations where the trained agent pushes the voltage out of the safety margins.    
+The statistics presented in table \ref{table:results:configuration1_reward_500_ep_preventive} show that the mean voltage penalty for the trained agent is reduced by 17 \% in critical hours. However, as table
+\ref{table:results:configuration1_reward_500_episodes} shows, the average voltage penalty of the trained agent is about the same as the no agent scenario. This means that there are situations where the trained agent pushes the voltage out of the safety margins.    
 
 
 \begin{table}[h]
@@ -179,17 +179,17 @@ The statistics presented in table \ref{table:results:configuration1_reward_100_e
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
 \hline
-Agent    & 1824 & -0.027 & 0.035 & -0.186 & -0.041 & -0.011 & 0.000  \\
-No agent & 1824 & -0.036 & 0.037 & -0.207 & -0.056 & -0.024 & -0.007 \\
+Agent    & 8593 & -0.029 & 0.034 & -0.190 & -0.044 & -0.015 & -0.003 \\
+No agent & 8593 & -0.035 & 0.037 & -0.186 & -0.054 & -0.022 & -0.006 \\
 \hline
 \end{tabular}
-\caption{Statistics of the voltage rewards given in critical hours to the trained agent and no agent scenario over 100 episodes simulation with 200 hours each}
-\label{table:results:configuration1_reward_100_ep_preventive}
+\caption{Statistics of the voltage rewards given in critical hours to the trained agent and no agent scenario over a 500 episodes simulation with 200 hours each}
+\label{table:results:configuration1_reward_500_ep_preventive}
 \end{table}
 
 
 
-All rewards in the no agent scenario for critical hours are sorted and plotted in figure \ref{fig:results:config1_sorted_voltage}. The corresponding rewards given to the trained agent are also plotted. This is done to see if the trained agent is better in very critical periods with high voltage penalty or if it performs well overall. The plot shows that the trained agent for the most part receives lower voltage penalties regardless of the size of the violation. Still, there are occasions where the trained agent is below the no agent scenario in figure \ref{fig:results:config1_sorted_voltage} which corresponds to periods where the trained agent aggravates the voltage magnitudes. The trained agent makes matters worse in 39\% of the critical hours, and increases the mean penalty with 19 \% in those hours. However, the trained agent improves the voltage margins in 61 \% of the critical hours, where it decreases the mean voltage penalty by 59 \%.
+All rewards in the no agent scenario for critical hours are sorted and plotted in figure \ref{fig:results:config1_sorted_voltage}. The corresponding rewards given to the trained agent are also plotted. This is done to see if the trained agent is better in very critical periods with high voltage penalty or if it performs well overall. The plot shows that the trained agent for the most part receives lower voltage penalties regardless of the size of the violation. Still, there are occasions where the trained agent is below the no agent scenario in figure \ref{fig:results:config1_sorted_voltage} which corresponds to periods where the trained agent aggravates the voltage magnitudes. The trained agent makes matters worse in 41\% of the critical hours, and increases the mean penalty with 13 \% in those hours. However, the trained agent improves the voltage margins in 59 \% of the critical hours, where it decreases the mean voltage penalty by 38 \%.
 
 
 
@@ -246,7 +246,7 @@ Figure \ref{fig:results:config1_150hour_bad_voltage} plots the voltage rewards i
 \end{figure}
 Table \ref{table:results:config1_150hour_bad_voltage} shows the statistics for the hours the trained agent and no-agent scenario violate voltage safety margins (non-zero rewards). The trained agent increase the number of voltage violation from 30 to 31. All of the hours the trained agent is worse in figure \ref{fig:results:config1_150hour_bad_voltage} correspond to hours of peak solar production. The spikes where it improves the situation correspond to periods with peak demand. As already mentioned, the trained agent has learned that it must decrease consumption in periods peak demand hours. On the contrary, it has not learned that it has to increase consumption in hours with heavy solar power production. In fact, it decreases the power consumption, which in turn makes the excess solar production even greater and thus increases voltage magnitudes in the grid.  
 
-Until now, the the trained agent has been evaluated in critical hours, where there would be a safety violation in the no agent scenario. However, the electric grid is within safety margins 91 \% of the time in the 100 episode simulation. It is very important that the trained agent finds appropriate behaviour in both non-critical and critical hours. Investigating the voltage penalty given to the agent in non-critical hours reveals that the agent pushes the voltages out of the safety margins 0.4 \% of the time. The worst of these violations are -0.002 in magnitude, which is quite small compared the violations in critical hours. In other words, the agent behaves well in non-critical hours in terms of voltage. 
+Until now, the the trained agent has been evaluated in critical hours, where there would be a safety violation in the no agent scenario. However, the electric grid is within safety margins 91 \% of the time in the 500 episode simulation. It is very important that the trained agent finds appropriate behaviour in both non-critical and critical hours. Investigating the voltage penalty given to the agent in non-critical hours reveals that the agent pushes the voltages out of the safety margins 0.3 \% of the time. The worst of these violations is -0.0007 in magnitude, which is negligible  compared the violations in critical hours. In other words, the agent behaves well in non-critical hours in terms of voltage. 
 \begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
@@ -264,29 +264,29 @@ No agent & 30    & -0.043 & 0.033 & -0.109 & -0.061 & -0.038 & -0.017 \\
 
 
 \subsection{Current violations}\label{section:config1:current_violations}
-The trained agent is tested in a 100 episode simulation, each consisting of 200 hours, and evaluated in terms of violations of current safety margins in the power lines. Specifically, the current cost $C_{current}$ for a line carrying a current $I$ with capacity $I_{max}$ is $C_{current} = \max(0,I - I_{max})$ where $I_{max}$ is set to 90 \% of the line capacity. The total current cost is found by summing over all lines. Note that the terms \textit{cost} and \textit{reward} are used interchangeably, depending on what is most natural. In all cases the reward is the negative of the cost. The statistics for the current violation for the trained agent and no agent scenario are presented in table \ref{table:results:configuration1_reward_100_episodes_current}
+The trained agent is tested in a 500 episode simulation, each consisting of 200 hours, and evaluated in terms of violations of current safety margins in the power lines. Specifically, the current cost $C_{current}$ for a line carrying a current $I$ with capacity $I_{max}$ is $C_{current} = \max(0,I - I_{max})$ where $I_{max}$ is set to 90 \% of the line capacity. The total current cost is found by summing over all lines. Note that the terms \textit{cost} and \textit{reward} are used interchangeably, depending on what is most natural. In all cases the reward is the negative of the cost. The statistics for the current violation for the trained agent and no agent scenario are presented in table \ref{table:results:configuration1_reward_500_episodes_current}
 
 \begin{table}[h]
 \center
 \begin{tabular}{l|rrrrrrr}
          & count & mean   & std   & min    & 25\%   & 50\%   & 75\%   \\
 \hline
-Agent    & 356 & -0.184 & 0.135 & -0.532 & -0.286 & -0.156 & -0.067 \\
-No agent & 329 & -0.160 & 0.126 & -0.496 & -0.261 & -0.129 & -0.052 \\
+Agent    & 1538  & -0.167 & 0.141 & -0.585 & -0.258 & -0.129 & -0.054 \\
+No agent & 1300  & -0.168 & 0.135 & -0.564 & -0.257 & -0.156 & -0.045 \\
 \hline
 \end{tabular}
-\caption{Statistics of the current rewards given to the trained agent and no agent scenario over a 100 episodes simulation, each with a duration of 200 hours}
-\label{table:results:configuration1_reward_100_episodes_current}
+\caption{Statistics of the current rewards given to the trained agent and no agent scenario over a 500 episodes simulation, each with a duration of 200 hours}
+\label{table:results:configuration1_reward_500_episodes_current}
 \end{table}
-The trained agent increases the number of current violations by 8 \% from 329 to 356. It pushes the current values out of the safety margins 54 times during the simulation and pulls it into safety margins 27 times. In addition to causing more current violations, it increases the mean current penalty by 15 \%. In other words, there are more and stronger current violation with the trained agent than in the no agent scenario. The agent has not learned an appropriate behaviour to reduce current overloads in the lines. The hours in the simulation that have a current violation if no action is taken are termed critical hours. Figure \ref{fig:results:config1_100ep_boxplot_current} shows the distribution of the current reward for the trained agent and no agent scenario in critical hours. 
+The trained agent increases the number of current violations by 18 \% from 1300 to 1538. The mean magnitude of current violation is around the same in both scenarios. The agent has not learned an appropriate behaviour to reduce current overloads in the lines. The hours in the simulation that have a current violation if no action is taken are termed critical hours. Figure \ref{fig:results:config1_current_boxplot} shows the distribution of the current reward for the trained agent and no agent scenario in critical hours. 
 
 \begin{figure}[H]
     \center
-\includegraphics[height=8cm, width=12cm]{figures/config1_100ep_boxplot_current.png}
+\includegraphics[height=8cm, width=12cm]{figures/config1_current_boxplot.png}
     \caption[size = 9]{Box plot of the current reward for the trained agent and no agent scenario}
-    \label{fig:results:config1_100ep_boxplot_current}
+    \label{fig:results:config1_current_boxplot}
 \end{figure}
-Figure \ref{fig:results:config1_sorted_current} plots the current reward for critical hours in the 100 episode sorted from best to worse. The hour with the lowest current reward is the most critical hour. It is clear that the trained agent for the most part aggravates the situation. In fact, it only improves the situation in 9\% of the critical hours, which for the most part are less critical in terms of the size of the current reward. 
+Figure \ref{fig:results:config1_sorted_current} plots the current reward for critical hours in the 500 episode sorted from best to worse. The hour with the lowest current reward is the most critical hour. It is clear that the trained agent for the most part aggravates the situation. In fact, it only improves the situation in 4\% of the critical hours, which for the most part are less critical in terms of the size of the current reward. 
 
 \begin{figure}[H]
     \center
@@ -295,9 +295,7 @@ Figure \ref{fig:results:config1_sorted_current} plots the current reward for cri
     \label{fig:results:config1_sorted_current}
 \end{figure}
 
-
-
-Figure \ref{fig:results:config1_improvement_current} shows box plots for difference in current reward between the trained agent and the no agent scenario. This figure illustrates which hours of the day the agent performs best and worse. For current rewards, the trained agent is aggravating the situation in almost all hours. At hour 20 is the only time the agent improves the situation in terms of voltage magnitudes.
+Figure \ref{fig:results:config1_improvement_current} shows hourly box plots for difference in current reward between the trained agent and the no agent scenario. This figure illustrates which hours of the day the agent performs best and worse. For current rewards, the trained agent is aggravating the situation in almost all hours. Hour 20 is the only time the agent improves the situation in terms of current magnitudes. Inspection of the hours with violations indicates that it is during noon (peak solar production) that the overloads happen, as illustrated in figure \ref{fig:results:config1_bad_current}.
 
 \begin{figure}[h]
     \center
@@ -306,7 +304,6 @@ Figure \ref{fig:results:config1_improvement_current} shows box plots for differe
     \label{fig:results:config1_improvement_current}
 \end{figure}
 
-Inspection of the hours with violations reveals that it is during noon (peak solar production) that the overloads happen, as illustrated in figure \ref{fig:results:config1_bad_current}.
 
 
 \begin{figure}[H]
@@ -334,7 +331,7 @@ Peak solar production & Poor                  & Poor \\
 \caption{Behaviour of the agent in critical periods in terms of current and voltage safety margins}
 \label{table:results:config1_behaviour}
 \end{table}
- A summary of the performance in terms of voltage and current is presented in table \ref{table:results:config1_summary}. Overall, the trained agent reduces the number of voltage and current violations by 17\%, from 1791 to 2153. However, it increases the mean cost by 18 \% due to its poor behaviour in terms of avoiding current violations. Still, the trained agent is better in terms of the total cost received in the 100 episode simulation because voltage violations are more frequent. The total cost in terms of both current and voltage is reduced by 2.2 \% from 118.3 to 115.7.
+ A summary of the performance in terms of voltage and current is presented in table \ref{table:results:config1_summary}. Overall, the trained agent reduces the number of voltage and current violations by 10\%. However, it increases the mean cost by 5 \% due to its poor behaviour in terms of avoiding current violations. Still, the trained agent is better in terms of the total cost received in the 500 episode simulation because voltage violations are more frequent. The total cost in terms of both current and voltage is reduced by 3 \%.
 
 
 \begin{table}[h]
@@ -342,24 +339,21 @@ Peak solar production & Poor                  & Poor \\
 \begin{tabular}{l|lrrr}
 Type      &               & Agent          & No agent       & Change        \\
 \hline
-Current   & Violations    & 356            & 329            & 8\%            \\
-          & Mean cost     & 0,18           & 0,16           & 15 \%         \\
-          & Cost          & 65,5           & 52,6           & 24 \%         \\
+Current   & Violations    & 1538            & 1300            & 18\%            \\
+          & Mean cost     & 0,17           & 0,17           & 0 \%         \\
+          & Cost          & 256            & 218            & 17 \%         \\
           &               &                &                &               \\
-Voltage   & Violations    & 1435           & 1824           & -21\%          \\
-          & Mean  cost    & 0,035          & 0,036          & -3\%          \\
-          & Cost          & 50,2           & 65,7           & -24 \%        \\
+Voltage   & Violations    & 7484           & 8593           & -13\%          \\
+          & Mean  cost    & 0,033          & 0,035          & -6\%          \\
+          & Cost          & 249,9          & 304,5         & -18 \%        \\
           &               &                &                &               \\
-Total     & Violations    & 1791           & 2153           & -17\%          \\
-          & Mean cost     & 0.065          & 0.055          & 18 \%         \\
-\textbf{} & \textbf{Cost} & \textbf{115,7} & \textbf{118,3} & \textbf{-2\%} \\
+Total     & Violations    & 9022           & 9893           & -10\%          \\
+          & Mean cost     & 0.056          & 0.053          & 5 \%         \\
+\textbf{} & \textbf{Cost} & \textbf{505.9} & \textbf{522.5} & \textbf{-3\%} \\
 \hline
 \end{tabular}
 \caption{Summary of number of violations and mean costs in terms of current and voltage for the trained agent and the no agent scenario}
 \label{table:results:config1_summary}
 \end{table}
-
-
-
 
 \end{document}
