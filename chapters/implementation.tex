@@ -126,24 +126,24 @@ Parameter name     & Value                                                & Desc
 activation\_weight & 0.0001                                               & Weigh factor for activation cost                             \\
 current\_weight    & 0.01                                                 & Weight factor for current cost                               \\
 demand\_scale      & 10                                                   & Scale factor for power demand                                \\
-demand\_std        & 0                                                    & \makecell[l]{Standard deviation as a ratio of \\ forecasted demand}           \\
+demand\_std        & 0.03                                                 & \makecell[l]{Standard deviation as a ratio of \\ forecasted demand}           \\
 episode\_length    & 200                                                  & \makecell[l]{Number of steps (hours) before the \\ environment resets}        \\
 flexibility        & 0.1                                                  & \makecell[l]{Quantity describing  max demand change \\ at a load}              \\
 forecast\_horizon  & 4                                                    & Number of hours in the forecasts                             \\
-i\_upper           & 90                                                   & \makecell[l]{Upper current limit as percetange of \\line capcity}            \\
+i\_upper           & 90                                                   & \makecell[l]{Upper current limit as percentage of \\line capacity}            \\
 imbalance\_weight  & 0.0001                                               & Weight factor for imbalance cost                             \\
 reactive\_power    & True                                                 & \makecell[l]{Determines if reactive power is \\ modified by the action}       \\
 reward\_terms      & \makecell[l]{{[}’voltage’, ’current’,\\ ’imbalance’,’activation’{]}} & Terms to include in the reward function                      \\
 solar\_scale       & 0.8                                                  & Scale factor for solar irradiance                            \\
-solar\_std         & 0                                                    & \makecell[l]{Standard deviation as a ratio \\ of forecasted solar irradiance} \\
-state\_space       & {[}’sun’, ’demand’, ’imbalance’{]}                   & State spaces to be included in the model                     \\
+solar\_std         & 0.03                                                 & \makecell[l]{Standard deviation as a ratio \\ of forecasted solar irradiance} \\
+state\_space       & \makecell[l]{{[}’sun’, ’demand’, \\ ’imbalance’, 'bus'{]}}            & State spaces to be included in the model                     \\
 total\_imbalance   & False                                                & \makecell[l]{Calculates total demand imbalance \\ in the system if True}      \\
 v\_lower           & 0.95                                                 & Lower voltage margin                                         \\
 v\_upper           & 1.05                                                 & Upper voltage margin                                         \\
 voltage\_weight    & 1                                                    & Weight factor for voltage cost                              \\
 \hline
 \end{tabular}
-\caption{Description of parameters that determine the setup of the \texttt{ActiveEnv} environment}
+\caption{Description of the parameters that determine the setup of the \texttt{ActiveEnv} environment}
 \label{table:implementation:param_description}
 \end{table}
 }
