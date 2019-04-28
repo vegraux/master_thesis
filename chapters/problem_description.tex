@@ -95,7 +95,7 @@ Table \ref{table:cigre_components} shows that there are 18 loads and 15 buses in
 
 
 
-\section{State space}
+\section{State space}\label{section:problem:state_space}
 It is not obvious how to design the state space for the agent. This section presents several spaces that could be useful for the reinforcement algorithm. Let $\mathcal{S}_{sun} \subseteq  \mathbb{R}^{H}$ be space of the forecasted total solar production in the grid \textit{H} hours into the future . This gives the agent information about the coming solar production in the power marked that can be used for finding strategies. For instance, consider a situation with a high production of solar power that is overreaching the capacity in the power lines. If the agent sees that there is a dip in solar production in the next hour due to clouds, it can increase the local demand at solar producing, to relieve the overloaded power lines. It can then safely decrease the demand the next hour, since the sun is blocked by the clouds. This is an example of a desired behaviour that the agent ideally should find. The buses are assumed to be geographically close, so the solar irradiance is the same. If a cloud blocks the sun at bus 1, then it also blocks the sun at all the other buses in the system. This significantly reduces the state space compared to a unique forecast for every bus. 
 
 
