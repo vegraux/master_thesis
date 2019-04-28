@@ -303,6 +303,88 @@ def update_param_dict(for_reals=False):
                     pickle.dump(olds_params,f)
 
 
+def agent_rewards(period=20000, model_name='flexible_load_first'):
+    """
+    Tests the agent in terms of current and voltage reward
+    """
+    model, env_voltage = load_env(model_name,
+                          seed=9)  # seed 5: heavy sun, 9: weak sun
+
+    rewards, t_steps, hues, hours = [], [], [], []
+    obs = env_voltage.reset()
+    env_voltage.set_parameters({'reward_terms': ['voltage']})
+    env_current = copy.deepcopy(env_voltage)
+    env_current.set_parameters({'reward_terms': ['current']})
+    env_no_agent = copy.deepcopy(env_voltage)
+    env_no_agent.do_action = False
+
+    sol = env_voltage.solar_forecasts
+    demand = env_voltage.demand_forecasts[0]
+
+    show_sun, show_demand = True, True
+    for t_step in range(1, period):
+        action, _ = model.predict(obs)
+        _, voltage_reward, _, _ = env_voltage.step(action)
+        _, current_reward, _, _= env_current.step(action)
+        _, no_agent_reward, _, _ = env_no_agent.step(action)
+
+        if env_voltage._current_step == 0:
+            sol = env_voltage.solar_forecasts
+            demand = env_voltage.demand_forecasts[0]
+
+        current_step = env_voltage._current_step
+        hour = calc_hour(env_voltage._episode_start_hour,current_step)
+
+        rewards.append(voltage_reward)
+        hues.append('Voltage')
+        t_steps.append(t_step)
+        hours.append(hour)
+
+        rewards.append(current_reward)
+        hues.append('Current')
+        t_steps.append(t_step)
+
+        rewards.append(no_agent_reward)
+        hues.append('No agent')
+        t_steps.append(t_step)
+
+        if show_sun:
+            rewards.append(sol[current_step - 1])
+            hues.append('Sun')
+            t_steps.append(t_step)
+
+        if show_demand:
+            rewards.append(demand[current_step - 1])
+            hues.append('Demand')
+            t_steps.append(t_step)
+
+    df = pd.DataFrame()
+    df['Reward'] = rewards
+    df['Hours'] = t_steps
+    df[''] = hues
+    return df
+
+def calc_hour(start_hour,time_step):
+    return (start_hour + time_step) % 24
+
+def append_rewards(rewards, reward,hues,hue,t_steps,t_step,hours,hour):
+    rewards.append(reward)
+    hues.append(hue)
+    t_steps.append(t_step)
+    hours.append(hour)
+    return rewards, hues, t_steps, hours
+
+
+
+
+
 
 if __name__ == '__main__':
-    pass
+    df = agent_rewards(period=230)
+
+    fig, ax = plt.subplots()
+    sns.lineplot(x='Hours', y='Reward', data=df, hue='', ax=ax)
+    plt.show()
+
+    #data_dir = os.path.join(os.getenv('DATA_PATH','config1_all_rewards.csv'))
+    #df.to_csv(data_dir)
