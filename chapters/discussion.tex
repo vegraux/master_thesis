@@ -26,7 +26,7 @@ Why is the trained agent better at avoiding voltage violation than current viola
 The agent was worsening the situation in periods of peak solar production. The desired behaviour in such a situation is to increase the demand, so that less excess solar power needs to be exported to the grid. Consequently, the trained agent decreases the demand in periods of peak solar production, since the number of line overload increases. It is possible that the learned behaviour simply is to decrease the demand at all times. However, the agent is not always decreasing the demand, as shown in figure \ref{fig:results:configuration1}.
 
 \section{Nominal values for consumption and production}
-The action of the reinforcement agent determines the percentage change in demand at each load. Naturally, the load is varying a lot throughout a day, but the nominal demand also vary a lot from bus to bus. Figure \ref{fig:discussion:nominal_load} shows the values for nominal apparent power at each flexible load in the power system, as predefined in \texttt{pandapower}.
+The action of the reinforcement agent determines the percentage change in demand at each load in the interval $[-f,f]$, where $f$ is the flexibility of demand. Naturally, the load is varying a lot throughout a day, but the nominal demand also vary a lot from bus to bus. Figure \ref{fig:discussion:nominal_load} shows the values for nominal apparent power at each bus bar in the power system, as predefined in \texttt{pandapower}.
 
 \begin{figure}[h]
     \center
@@ -35,24 +35,40 @@ The action of the reinforcement agent determines the percentage change in demand
     \label{fig:discussion:nominal_load}
 \end{figure}
 
-Bus 1 and 12 clearly stand out, and account for nearly 90 \% of the total system demand. For simplicity, they will be referred to as the dominant buses. Note that there is no solar power connected to them. Because each action variable is scaled up by the nominal load, it is clear that action +1 for the dominant buses has a much larger impact in terms of absolute power change than it has on the rest of the buses. As shown in figure \ref{fig:discussion:cigre_network}, The dominant buses are placed in the top of each feeder 1 and feeder 2, connected to each their 220/22 kV transformer. 
+Bus 1 and 12 clearly stand out, and account for nearly 90 \% of the total system demand. For simplicity, they will be referred to as the dominant buses due their large demand. Note that there is no solar power connected to them. Because each action variable is scaled up by the nominal load, it is clear that action +1 for the dominant buses has a much larger impact in terms of absolute power change than it has on the rest of the buses. As shown in figure \ref{fig:discussion:cigre_network_dominant}, The dominant buses are placed in the top of each feeder 1 and feeder 2, connected to each their 220/22 kV transformer. 
 
 \begin{figure}[ht]
     \center
-    \includegraphics[height=14cm, width=13.5cm]{figures/cigre_network_mv_der.png}
+    \includegraphics[height=14cm, width=13.5cm]{figures/cigre_network_dominant.png}
     \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm \cite{cigre}}
-    \label{fig:discussion:cigre_network}
+    \label{fig:discussion:cigre_network_dominant}
 \end{figure}
-It might seem troubling that these buses have a much larger nominal values. However, because they are placed next to the grid, they do not affect the line current in the rest of the system much. For instance, if the load at bus 1 is doubled, the current through the transformer approximately doubles to supply the demand. Naturally, this could be very critical for the transformer, but it has a small effect on the line currents in the power system, because the rest of the loads still draw the same amount of power from the grid. The current effect of changing the demand at bus 1 and 12 are not that decisive as one first might think, due to their position close to the external grid. On the other hand, they can greatly affect the voltage magnitudes in the grid. Figure \ref{fig:discussion:double_large_load} illustrates the effect increasing the demand at the dominant buses has on the rest of the buses. The predefined demand values are used in situation A, while they are doubled for the dominant buses (1 and 12) in situation B.
+It might seem troubling that these buses have a much larger nominal values. However, because they are placed next to the grid, they do not affect the line current in the rest of the system much. For instance, if the load at bus 1 is doubled, the current through the transformer approximately doubles to supply the demand. Naturally, this could be very critical for the transformer, but it has a small effect on the line currents in the power system, because the rest of the loads still draw the same amount of power from the grid,. The current effect of changing the demand at bus 1 and 12 are not that decisive as one first might think, due to their position close to the external grid. On the other hand, they can greatly affect the voltage magnitudes in the grid. Figure \ref{fig:discussion:double_large_load} illustrates the effect increasing the demand at the dominant buses has on the rest of the buses. The predefined demand values are used for solving the power flow equations in situation A, while they are doubled for the dominant buses (1 and 12) in situation B.
 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/double_large_load.png}
-    \caption[size = 9]{Bar plot for each of the buses showing their voltage magnitude in nominal operation (A) and after the demand at bus 1 and 12 in \ref{fig:discussion:cigre_network} is doubled (B). Note that the second axis is truncated}
+    \caption[size = 9]{Bar plot for each of the buses showing their voltage magnitude in nominal operation (A) and after the demand at bus 1 and 12 in \ref{fig:discussion:cigre_network_dominant} is doubled (B). Note that the second axis is truncated}
     \label{fig:discussion:double_large_load}
 \end{figure}
-The dominant buses serve as the starting point for the voltage magnitudes because they are at the beginning of the two feeders. This is true because there are only PQ-buses in the system and no voltage regulating units. The voltage is static at the external grid, and gradually falls as we move down the feeders. When bus 1 doubles its demand, it reduces its voltage magnitude which in turn propagates down the feeder and affects all buses in the feeder. The difference in voltage magnitude at each bus before and after the demand increase is almost linear. The reinforcement agent is not able to double the demand, but figure \ref{fig:discussion:double_large_load} illustrates the power of the dominant buses in terms of voltage magnitudes. 
+The dominant buses serve as the starting point for the voltage magnitudes because they are at the beginning of the two feeders. This is true because there are only PQ-buses in the system and no voltage regulating units. The voltage is static at the external grid, and gradually falls as we move down the feeders. When bus 1 doubles its demand, it reduces its voltage magnitude which in turn propagates down the feeder and affects all buses in the feeder. The difference in voltage magnitude at each bus before and after the demand increase is almost linear. The reinforcement agent is not able to double the demand, but figure \ref{fig:discussion:double_large_load} illustrates the decisive effect of the dominant buses in terms of voltage magnitudes. Let the voltage and current impact of a bus respectively be defined as the sum of the changes in voltage and current in the net when scaling the demand at that bus by (1+flexibility). Note that the rest of the buses are left unchanged when calculating the impact. The predefined demand values in the CIGRE network correspond to an hour of peak demand, with low voltage magnitudes in the grid. Increasing the demand at a bus with a high voltage impact has a large potential of pulling the voltage magnitudes into the safety bounds. The same is true for a bus with a high current impact. Figure \ref{fig:discussion:voltage_impact} plots the voltage impact for each bus where the flexibility of demand range from -20 to +20 \%. The lower part of the box plots correspond to increasing the demand by 20 \%, since increasing the demand in peak demand lowers the voltage magnitudes in the grid. As already discussed, bus 1 have a very large voltage impact, because it is at the top of feeder 1. 
 
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/voltage_impact.png}
+    \caption[size = 9]{Box plot for each bus bar showing the voltage importance for a flexibility of demand ranging from -20 to + 20 \%}
+    \label{fig:discussion:voltage_impact}
+\end{figure}
+
+Figure \ref{fig:discussion:current_impact} plots the current impact for the buses in the system. The buses with highest current impact (5,6,9,10) are all located far down in feeder 1. A change in demand at them has consequences for several lines, because the current they draw must travel through the lines in the top of the feeder. Has the trained agent learned the current and voltage impact of the buses?    
+
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/current_impact.png}
+    \caption[size = 9]{Box plot for each bus bar showing the current importance for a demand change ranging from -20 to + 20 \%}
+    \label{fig:discussion:current_impact}
+\end{figure}
 
 \section{Solar power production}
 The nominal solar production level predefined in the network is scaled up by a factor of 40. This is done to challenge the grid by increasing the number of current and voltage violations in hours of peak solar production. The nominal values for solar production and consumption at the solar producing buses are presented in figure \ref{fig:discussion:nominal_sgen}
@@ -69,6 +85,9 @@ The nominal solar production level predefined in the network is scaled up by a f
 
 
 \section{State representation}
+- Why several hour forecast?
+- Include flexibility, price of flexibility, bus-wise features. 
+
 
 \section{Reward function}
 Include trafo overloads in the reward function, in the same manner as line overload. 
