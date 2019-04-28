@@ -23,7 +23,15 @@ The results from section \ref{section:result:config1} show that the trained agen
 
 Why is the trained agent better at avoiding voltage violation than current violations? A possible reason is that the agent is penalised more for voltage violations on average. The total voltage costs is 40 \% greater than the total current cost, because they are more frequent. It is logical that the agent learns a behaviour that reduces the most punishing term, namely the voltage cost. As stated in section \ref{section:config1:current_violations}, the trained agent only learned the appropriate behaviour in periods of peak demand, i.e reducing the demand so that less power need to be imported from the grid.
 
-The agent was worsening the situation in periods of peak solar production. The desired behaviour in such a situation is to increase the demand, so that less excess solar power needs to be exported to the grid. Consequently, the trained agent decreases the demand in periods of peak solar production, since the number of line overload increases. It is possible that the learned behaviour simply is to decrease the demand at all times. It is possible, especially considering that the energy imbalance in the system is negative, as shown in figure \ref{fig:results:configuration1_energy_imbalance}.
+The agent was worsening the situation in periods of peak solar production. The desired behaviour in such a situation is to increase the demand, so that less excess solar power needs to be exported to the grid. Consequently, the trained agent decreases the demand in periods of peak solar production, since the number of line overload increases. It is possible that the learned behaviour simply is to decrease the demand at all times. It is possible, especially considering that the energy imbalance in the system is negative, as shown in figure \ref{fig:results:configuration1_energy_imbalance}. Figure \ref{fig:discussion:config1_action_hour} shows the mean action taken by the agent throughout a the day in the 500 episode simulation. The pattern of the actions are good, because the it goes down up during peak solar producing (hour 12) and down during peak demand in the afternoon. However, the change in demand during peak demand is still negative. The action signal seem to have a negative bias. It is also worth noting that the mean action is quite low in absolute magnitude. In other words, the agent is not using the entire available flexibility in the system, at least not on a global scale.
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/config1_action_hour.png}
+    \caption[size = 9]{Hourly mean values for the change in demand at the buses in the net, as determined by the trained reinforcement agent}
+    \label{fig:discussion:config1_action_hour}
+\end{figure}
+
 
 \section{Nominal values for consumption and production}
 The action of the reinforcement agent determines the percentage change in demand at each load in the interval $[-f,f]$, where $f$ is the flexibility of demand. Naturally, the load is varying a lot throughout a day, but the nominal demand also vary a lot from bus to bus. Figure \ref{fig:discussion:nominal_load} shows the values for nominal apparent power at each bus bar in the power system, as predefined in \texttt{pandapower}.
