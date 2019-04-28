@@ -375,16 +375,74 @@ def append_rewards(rewards, reward,hues,hue,t_steps,t_step,hours,hour):
     return rewards, hues, t_steps, hours
 
 
+def simulate_day3(env, model, show_imbalance=False, show_solar=True,
+                  show_action=True,
+                  show_demand=False, period=25):
+    """
+    simulate grid and save info about action of each bus, hour of day etc.
+    :param env:
+    :param model:
+    :param show_imbalance:
+    :param show_solar:
+    :param show_action:
+    :param show_demand:
+    :param period:
+    :return:
+    """
+    net = env.powergrid
+    actions, t_steps, flex_loads, sols, hours = [], [], [], [], []
+
+    obs = env.reset()
+    sol = env.solar_forecasts
+    demand = env.demand_forecasts[0]
+    hues = []
+    for t_step in range(1, period):
+
+        action, _ = model.predict(obs)
+        obs, rewards, dones, info = env.step(action)
+
+        if show_action:
+            actions += list(action)
+            hues += ['action' for _ in range(len(action))]
+            t_steps += list(t_step * np.ones_like(action))
+            flex_loads += list(net.load.index)
+
+        if show_solar:
+            actions += list(sol[t_step - 1] * np.ones_like(action))
+            hues += ['sun' for _ in range(len(action))]
+            t_steps += list(t_step * np.ones_like(action))
+            flex_loads += list(net.load.index)
+        if show_imbalance:
+            try:
+                imbalance = env.calc_balance() / 30000
+            except AttributeError:
+                imbalance = env.calc_imbalance() / 30000
+            actions += list(imbalance * np.ones_like(action))
+            hues += ['imbalance' for _ in range(len(action))]
+            t_steps += list(t_step * np.ones_like(action))
+            flex_loads += list(net.load.index)
+
+        if show_demand:
+            actions += list(demand[t_step - 1] * np.ones_like(action))
+            hues += ['demand' for _ in range(len(action))]
+            t_steps += list(t_step * np.ones_like(action))
+            flex_loads += list(net.load.index)
+
+        hour = calc_hour(env._episode_start_hour, env._current_step)
+        hours += [hour for _ in range(len(action)*3)]
+
+    df = pd.DataFrame()
+    df['actions'] = actions
+    df['steps'] = t_steps
+    df['load'] = flex_loads
+    df['hour'] = hours
+    df[''] = hues
+    return df
+
 
 
 
 
 if __name__ == '__main__':
-    df = agent_rewards(period=230)
-
-    fig, ax = plt.subplots()
-    sns.lineplot(x='Hours', y='Reward', data=df, hue='', ax=ax)
-    plt.show()
-
-    #data_dir = os.path.join(os.getenv('DATA_PATH','config1_all_rewards.csv'))
-    #df.to_csv(data_dir)
+    model, env = load_env()
+    df = simulate_day3(env, model, show_demand=True, period=199)
