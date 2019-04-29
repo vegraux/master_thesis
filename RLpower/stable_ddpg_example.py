@@ -23,35 +23,28 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-
-#powerenv = PowerEnvSparse()
-#powerenv = PowerEnv()
 powerenv = ActiveEnv()
-with open('models/flexible_load_first_params.p','rb') as f:
-    params = pickle.load(f)
+powerenv.set_parameters({'state_space': ['sun','demand'],
+                         'reward_terms':['voltage','current']})
 
-params['reactive_power'] = True
-powerenv.set_parameters(params)
-
-#powerenv = PowerEnvOld()
 powerenv = DummyVecEnv([lambda: powerenv])
-#powerenv = VecNormalize(powerenv, norm_reward=False)
-
-#action_noise = OrnsteinUhlenbeckActionNoise(mean=np.array([0]), sigma=np.array([0.3]))
 action_mean = np.zeros(powerenv.action_space.shape)
 action_sigma = 0.3 * np.ones(powerenv.action_space.shape)
-action_noise = OrnsteinUhlenbeckActionNoise(mean=action_mean, sigma=action_sigma)
+action_noise = OrnsteinUhlenbeckActionNoise(mean=action_mean,
+                                            sigma=action_sigma)
 
-param_noise = AdaptiveParamNoiseSpec(initial_stddev=0.2, desired_action_stddev=0.01)
+param_noise = AdaptiveParamNoiseSpec(initial_stddev=0.2,
+                                     desired_action_stddev=0.01)
 
-t_steps = 100000
+t_steps = 800000
+logdir = 'C:\\Users\\vegar\\Dropbox\\Master\\logs'
 powermodel = DDPG(LnMlpPolicy, powerenv,
                   verbose=2,
                   action_noise=action_noise,
                   gamma=0.99,
                   #param_noise=param_noise,
-                  tensorboard_log='C:\\Users\\vegar\\Dropbox\\Master\\logs',
-                  memory_limit=int(t_steps),
+                  tensorboard_log=logdir,
+                  memory_limit=int(80000),
                   nb_train_steps=50,
                   nb_rollout_steps=100,
                   critic_lr=0.001, #default: 0.001
@@ -67,7 +60,7 @@ data = []
 obs = powerenv.reset()
 
 
-model_name = 'reactive_first'
+model_name = 'overnight_reactive'
 path = 'models/' + model_name +'.pkl'
 while os.path.isfile(path):
     model_name += '1'
