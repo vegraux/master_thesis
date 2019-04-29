@@ -12,6 +12,8 @@
 \usepackage{hyperref}
 \usepackage[toc,page]{appendix}
 \usepackage{makecell}
+\usepackage{listings}
+\usepackage{color}
 
 
 
@@ -23,43 +25,43 @@
  
 \begin{document}
     \frontmatter
-    \chapter{Preface}
+    %\chapter{Preface}
     \import{chapters/}{preface}
     
     \tableofcontents
     
     \mainmatter
-    \chapter{Introduction}
+    %\chapter{Introduction}
     \import{chapters/}{introduction}
     
-    \chapter{Power system}
+    %\chapter{Power system}
     \import{chapters/}{power_system}
  
-    \chapter{Reinforcement learning}
+    %\chapter{Reinforcement learning}
     \import{chapters/}{reinforcement_learning}
     
-    \chapter{Problem Description}\label{chap:prob_description}
+    %\chapter{Problem Description}\label{chap:prob_description}
     \import{chapters/}{problem_description}
     
-    \chapter{State of the art}
+    %\chapter{State of the art}
     \import{chapters/}{state_of_the_art}
     
-    \chapter{Implementation}
+    %\chapter{Implementation}
     \import{chapters/}{implementation}
     
     
-    \chapter{Results}
+    %\chapter{Results}
     \import{chapters/}{results}
     
-    \chapter{Discussion}
+    %\chapter{Discussion}
     \import{chapters/}{discussion}
     \printbibliography
 
     \appendix
-    \chapter{Model details}
+    %\chapter{Model details}
     \import{chapters/}{appendix}
     
-    \chapter{Python code}
+    %\chapter{Python code}
     \import{chapters/}{code}
     
 \end{document}

@@ -18,25 +18,11 @@
 \pgfplotsset{compat=1.15}
 
 \begin{document}
-\section{Performance of the trained agent}
-The results from section \ref{section:result:config1} show that the trained agent is able to reduce the number of safety violation by 10\%. However, the trained agent is only able to reduce violations of voltage safety margins, not current violations. In fact, it increases the number of current violations by 18 \%. Still, there are large differences in terms of the quantity and magnitude of the current and voltage safety violations. There are almost 7 times more voltage violations than current violations. This is of course dependent on the voltage bounds that are used for defining the voltage cost. In this case the voltage bounds are chosen to be 0.95 and 1.05 pu. Although there are many more voltage violations in a normal day, the average current violation is more severe. Specifically, the mean current cost is almost 5 times greater than the mean voltage cost. The nature of the transmission in terms of violations is therefore: the current violation are sparse and severe, while the voltage violations are numerous and faint. 
-
-Why is the trained agent better at avoiding voltage violation than current violations? A possible reason is that the agent is penalised more for voltage violations on average. The total voltage costs is 40 \% greater than the total current cost, because they are more frequent. It is logical that the agent learns a behaviour that reduces the most punishing term, namely the voltage cost. As stated in section \ref{section:config1:current_violations}, the trained agent only learned the appropriate behaviour in periods of peak demand, i.e reducing the demand so that less power need to be imported from the grid.
-
-The agent was worsening the situation in periods of peak solar production. The desired behaviour in such a situation is to increase the demand, so that less excess solar power needs to be exported to the grid. Consequently, the trained agent decreases the demand in periods of peak solar production, since the number of line overload increases. It is possible that the learned behaviour simply is to decrease the demand at all times. It is possible, especially considering that the energy imbalance in the system is negative, as shown in figure \ref{fig:results:configuration1_energy_imbalance}. Figure \ref{fig:discussion:config1_action_hour} shows the mean action taken by the agent throughout a the day in the 500 episode simulation. The pattern of the actions are good, because the it goes down up during peak solar producing (hour 12) and down during peak demand in the afternoon. However, the change in demand during peak demand is still negative. The action signal seem to have a negative bias. It is also worth noting that the mean action is quite low in absolute magnitude. In other words, the agent is not using the entire available flexibility in the system, at least not on a global scale.
-
-\begin{figure}[h]
-    \center
-\includegraphics[height=8cm, width=12cm]{figures/config1_action_hour.png}
-    \caption[size = 9]{Hourly mean values for the change in demand at the buses in the net, as determined by the trained reinforcement agent}
-    \label{fig:discussion:config1_action_hour}
-\end{figure}
-
-
+\chapter{Discussion}
 \section{Nominal values for consumption and production}
 The action of the reinforcement agent determines the percentage change in demand at each load in the interval $[-f,f]$, where $f$ is the flexibility of demand. Naturally, the load is varying a lot throughout a day, but the nominal demand also vary a lot from bus to bus. Figure \ref{fig:discussion:nominal_load} shows the values for nominal apparent power at each bus bar in the power system, as predefined in \texttt{pandapower}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/nominal_load.png}
     \caption[size = 9]{Bar plot of the nominal apparent power at each bus in the CIGRE network}
@@ -48,10 +34,10 @@ Bus 1 and 12 clearly stand out, and account for nearly 90 \% of the total system
 \begin{figure}[ht]
     \center
     \includegraphics[height=14cm, width=13.5cm]{figures/cigre_network_dominant.png}
-    \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm \cite{cigre}}
+    \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm \cite{cigre}. The dominant buses account for approximately 90 \% of the power consumption in the grid}
     \label{fig:discussion:cigre_network_dominant}
 \end{figure}
-It might seem troubling that these buses have a much larger nominal values. However, because they are placed next to the grid, they do not affect the line current in the rest of the system much. For instance, if the load at bus 1 is doubled, the current through the transformer approximately doubles to supply the demand. Naturally, this could be very critical for the transformer, but it has a small effect on the line currents in the power system, because the rest of the loads still draw the same amount of power from the grid,. The current effect of changing the demand at bus 1 and 12 are not that decisive as one first might think, due to their position close to the external grid. On the other hand, they can greatly affect the voltage magnitudes in the grid. Figure \ref{fig:discussion:double_large_load} illustrates the effect increasing the demand at the dominant buses has on the rest of the buses. The predefined demand values are used for solving the power flow equations in situation A, while they are doubled for the dominant buses (1 and 12) in situation B.
+It might seem troubling that these buses have a much larger nominal values. However, because they are placed next to the grid, they do not affect the line current in the rest of the system much. For instance, if the load at bus 1 is doubled, the current through the transformer approximately doubles to supply the demand. Naturally, this could be very critical for the transformer, but it has a small effect on the line currents in the power system, because the rest of the loads still draw the same amount of power from the grid. The line current effect of changing the demand at bus 1 and 12 are not that decisive as one first might think, due to their position close to the external grid. On the other hand, they can greatly affect the voltage magnitudes in the grid. Figure \ref{fig:discussion:double_large_load} illustrates the effect increasing the demand at the dominant buses has on the rest of the buses. The predefined demand values are used for solving the power flow equations in situation A, while they are doubled for the dominant buses (1 and 12) in situation B.
 
 \begin{figure}[h]
     \center
@@ -59,24 +45,64 @@ It might seem troubling that these buses have a much larger nominal values. Howe
     \caption[size = 9]{Bar plot for each of the buses showing their voltage magnitude in nominal operation (A) and after the demand at bus 1 and 12 in \ref{fig:discussion:cigre_network_dominant} is doubled (B). Note that the second axis is truncated}
     \label{fig:discussion:double_large_load}
 \end{figure}
-The dominant buses serve as the starting point for the voltage magnitudes because they are at the beginning of the two feeders. This is true because there are only PQ-buses in the system and no voltage regulating units. The voltage is static at the external grid, and gradually falls as we move down the feeders. When bus 1 doubles its demand, it reduces its voltage magnitude which in turn propagates down the feeder and affects all buses in the feeder. The difference in voltage magnitude at each bus before and after the demand increase is almost linear. The reinforcement agent is not able to double the demand, but figure \ref{fig:discussion:double_large_load} illustrates the decisive effect of the dominant buses in terms of voltage magnitudes. Let the voltage and current impact of a bus respectively be defined as the sum of the changes in voltage and current load in the net when modifying the demand at that bus by a certain percent. Note that the rest of the buses are left unchanged when calculating the impact. The predefined demand values in the CIGRE network correspond to an hour of peak demand, with low voltage magnitudes in the grid. Increasing the demand at a bus with a high voltage impact has a large potential of pulling the voltage magnitudes into the safety bounds. The same is true for a bus with a high current impact. Figure \ref{fig:discussion:voltage_impact} plots the voltage impact for each bus where the flexibility of demand ranges from -20 to +20 \%. The lower part of the box plots correspond to increasing the demand by 20 \%, since increasing the demand in peak demand lowers the voltage magnitudes in the grid. As already discussed, bus 1 have a very large voltage impact, because it is at the top of feeder 1. 
+The dominant buses serve as the starting point for the voltage magnitudes because they are at the beginning of the two feeders. This is true because there are only PQ-buses in the system and no voltage regulating units. The voltage is static at the external grid, and gradually falls as we move down the feeders in periods of peak demand. When bus 1 doubles its demand, it reduces its voltage magnitude which in turn propagates down the feeder and affects all buses in the feeder. The difference in voltage magnitude at each bus before and after the demand increase is almost linear. The reinforcement agent is not allowed to double the demand in the reinforcement algorithm, but figure \ref{fig:discussion:double_large_load} illustrates the decisive effect of the dominant buses in terms of voltage magnitudes.
 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/voltage_impact.png}
-    \caption[size = 9]{Box plot for each bus bar showing the voltage importance for a flexibility of demand ranging from -20 to + 20 \%}
+    \caption[size = 9]{Box plot for each bus bar showing the voltage impact for a flexibility of demand ranging from -20 to + 20 \% in an hour of peak demand}
     \label{fig:discussion:voltage_impact}
 \end{figure}
 
-Figure \ref{fig:discussion:current_impact} plots the current impact for the buses in the system. The buses with highest current impact (5,6,9,10) are all located far down in feeder 1. A change in demand at them has consequences for several lines, because the current they draw must travel through the lines in the top of the feeder. Has the trained agent learned the current and voltage impact of the buses?    
+
+Let the voltage and current impact of a bus respectively be defined as the sum of the changes in voltage and current load in the net when modifying the demand at that bus by a certain percent. Note that the rest of the buses are left unchanged when calculating the impact. The predefined demand values in the CIGRE network correspond to an hour of peak demand, with low voltage magnitudes in the grid. Decreasing the power demand at a bus with a high voltage impact has a large potential of pulling the voltage magnitudes into the safety bounds. The same is true for a bus with a high current impact.
+
+
+Figure \ref{fig:discussion:voltage_impact} plots the voltage impact for each bus in hours of peak demand, where the flexibility of demand ranges from -20 to +20 \%. The lower part of the box plots correspond to increasing the demand by 20 \%, since increasing the consumption in peak demand lowers the voltage magnitudes in the grid. As already discussed, bus 1 have a very large voltage impact, because it is at the top of feeder 1. 
+
+
+Figure \ref{fig:discussion:current_impact} plots the current loading impact in peak demand hours for the buses in the net. The buses with highest current impact (5,6,9,10) are all located far down in feeder 1. A change in demand at them has consequences for several lines, because the current they draw must travel through the lines in the top of the feeder.
 
 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/current_impact.png}
-    \caption[size = 9]{Box plot for each bus bar showing the current importance for a demand change ranging from -20 to + 20 \%}
+    \caption[size = 9]{Box plot for each bus bar showing the current importance for a demand change ranging from -20 to + 20 \% in an hour of peak demand}
     \label{fig:discussion:current_impact}
 \end{figure}
+
+So far the impacts of the buses have been investigated in hours of peak demand. A similar simulation in for an hour of peak solar production can be done to show the impact of the buses in the second critical period. The impact relation between the buses in peak solar hours is similar to the peak demand period, but the magnitude differs a lot. Figure \ref{fig:discussion:current_impact_demand_solar} plots the current impact factor for each bus when the demand is increased by 10\% in hours of peak demand and peak solar production. The current impacts in peak solar production are lower in all cases. The reason is that the power consumption is generally lower during peak solar production. The mean demand in the hour of maximum solar production (12 am) is 40 \% lower than the mean peak demand value at 8 pm. 
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/current_impact_demand_solar.png}
+    \caption[size = 9]{Current impact of all the buses in an hour of peak demand and peak solar production}
+    \label{fig:discussion:current_impact_demand_solar}
+\end{figure}
+
+\section{Performance of the trained agent}
+The results from section \ref{section:result:config1} show that the trained agent is able to reduce the number of safety violation by 10\%. However, the trained agent is only able to reduce violations of voltage safety margins, not current violations. In fact, it increases the number of current violations by 18 \%. Still, there are large differences in terms of the quantity and magnitude of the current and voltage safety violations. There are almost 7 times more voltage violations than current violations. This is of course dependent on the voltage bounds that are used for defining the voltage cost. In this case the voltage bounds are chosen to be 0.95 and 1.05 pu. Although there are many more voltage violations in a normal day, the average current violation is more severe. Specifically, the mean current cost is almost 5 times greater than the mean voltage cost. The nature of the transmission in terms of violations is therefore: the current violation are sparse and severe, while the voltage violations are numerous and faint. 
+
+Why is the trained agent better at avoiding voltage violation than current violations? A possible reason is that the agent is penalised more for voltage violations on average. The total voltage costs is 40 \% greater than the total current cost, because they are more frequent. It is logical that the agent learns a behaviour that reduces the most punishing term, namely the voltage cost. As stated in section \ref{section:config1:current_violations}, the trained agent only learned the appropriate behaviour in periods of peak demand, i.e reducing the demand so that less power need to be imported from the grid.
+
+The agent was worsening the situation in periods of peak solar production. The desired behaviour in such a situation is to increase the demand, so that less excess solar power needs to be exported to the grid. Consequently, the trained agent decreases the demand in periods of peak solar production, since the number of line overload increases. It is possible that the learned behaviour simply is to decrease the demand at all times, especially when considering that the energy imbalance in the system is negative, as shown in figure \ref{fig:results:configuration1_energy_imbalance}. Figure \ref{fig:discussion:config1_action_hour} shows the mean action taken by the agent throughout a the day in the 500 episode simulation. The error band is a 95 \% confidence interval. The pattern of the actions is as desired, because the it goes up during peak solar producing and down during peak demand in the afternoon. However, the change in demand during peak demand is still negative. The action signal seem to have a negative bias. It is also worth noting that the mean action is quite low in absolute magnitude. In other words, the agent is not synchronising the buses such that the entire available flexibility in the system used.
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/config1_action_hour.png}
+    \caption[size = 9]{Hourly mean values for the change in demand at the buses in the net, as determined by the trained reinforcement agent. The error bars are a confidence interval of 95\%}
+    \label{fig:discussion:config1_action_hour}
+\end{figure}
+
+Figure \ref{fig:discussion:config1_action_bus} shows mean values for demand change throughout a day for each bus.  The buses 1,6,8 and 9 are on average negative in every hour, i.e the agent always reduces the consumption. As discussed, the different buses have different voltage and load current impact, and it is interesting to see whether there is a relationship between actions and load current/voltage impact of the buses. First it can be noted that bus 1 (top left corner) which have the largest voltage impact in hours of peak demand mainly is negative in an average day. This can suggest that the trained agent have learned that lowering the consumption is beneficial in peak demand hours, and therefore has a strong negative bias that pulls the demand change to negative values throughout the day. 
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=13cm, width=12cm]{figures/config1_action_bus.png}
+    \caption[size = 9]{Hourly mean values for the change in demand in the net for each bus, as determined by the trained reinforcement agent. The error bars are a confidence interval of 95\%}
+    \label{fig:discussion:config1_action_bus}
+\end{figure}
+
 
 \section{Solar power production}
 The nominal solar production level predefined in the network is scaled up by a factor of 40. This is done to challenge the grid by increasing the number of current and voltage violations in hours of peak solar production. The nominal values for solar production and consumption at the solar producing buses are presented in figure \ref{fig:discussion:nominal_sgen}
@@ -99,6 +125,6 @@ There are many different ways of constructing the state space in the reinforceme
 
 
 \section{Reward function}
-The reward function is designed to penalise violations of safety margins in the grid. Specifically, current overloads and violations of voltage safety margin are the factors that are used to calculate the reward signal. There are however two transformers in the grid, that also should be included in the reward functions. Transformer are not fireproof. \texttt{pandapower} has a result table for the transformer, that easily could be integrated in the reward function.
+The reward function is designed to penalise violations of safety margins in the grid. Specifically, current overloads and violations of voltage safety margin are the factors that are used to calculate the reward signal. There are however two transformers in the grid, that also should be included in the reward functions. Transformers are not fireproof. \texttt{pandapower} has a result table for the transformer, that easily could be integrated in the reward function. This would make the current impact of the dominant buses greater as well. 
 
 \end{document}
