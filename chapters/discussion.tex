@@ -45,7 +45,7 @@ It might seem troubling that these buses have a much larger nominal values. Howe
     \caption[size = 9]{Bar plot for each of the buses showing their voltage magnitude in nominal operation (A) and after the demand at bus 1 and 12 in \ref{fig:discussion:cigre_network_dominant} is doubled (B). Note that the second axis is truncated}
     \label{fig:discussion:double_large_load}
 \end{figure}
-The dominant buses serve as the starting point for the voltage magnitudes because they are at the beginning of the two feeders. This is true because there are only PQ-buses in the system and no voltage regulating units. The voltage is static at the external grid, and gradually falls as we move down the feeders in periods of peak demand. When bus 1 doubles its demand, it reduces its voltage magnitude which in turn propagates down the feeder and affects all buses in the feeder. The difference in voltage magnitude at each bus before and after the demand increase is almost linear. The reinforcement agent is not allowed to double the demand in the reinforcement algorithm, but figure \ref{fig:discussion:double_large_load} illustrates the decisive effect of the dominant buses in terms of voltage magnitudes.
+The dominant buses serve as the starting point for the voltage magnitudes because they are at the beginning of the two feeders. This is true because there are only PQ-buses in the system and no voltage regulating units. The voltage is static at the external grid, and gradually falls as we move down the feeders in periods of peak demand. The voltage magnitude at bus 1 is reduced when it doubles its demand, which in turn propagates down the feeder and affects all buses in the feeder. The difference in voltage magnitude at each bus before and after the demand increase is almost linear. The reinforcement agent is not allowed to double the demand in the reinforcement algorithm, but figure \ref{fig:discussion:double_large_load} illustrates the decisive effect of the dominant buses in terms of voltage magnitudes.
 
 \begin{figure}[h]
     \center
@@ -54,30 +54,36 @@ The dominant buses serve as the starting point for the voltage magnitudes becaus
     \label{fig:discussion:voltage_impact}
 \end{figure}
 
-
-Let the voltage and current impact of a bus respectively be defined as the sum of the changes in voltage and current load in the net when modifying the demand at that bus by a certain percent. Note that the rest of the buses are left unchanged when calculating the impact. The predefined demand values in the CIGRE network correspond to an hour of peak demand, with low voltage magnitudes in the grid. Decreasing the power demand at a bus with a high voltage impact has a large potential of pulling the voltage magnitudes into the safety bounds. The same is true for a bus with a high current impact.
-
-
-Figure \ref{fig:discussion:voltage_impact} plots the voltage impact for each bus in hours of peak demand, where the flexibility of demand ranges from -20 to +20 \%. The lower part of the box plots correspond to increasing the demand by 20 \%, since increasing the consumption in peak demand lowers the voltage magnitudes in the grid. As already discussed, bus 1 have a very large voltage impact, because it is at the top of feeder 1. 
+A measure of impact is needed to systematically investigate the effects of changing the demand at a bus. Let the voltage and current impact of a bus respectively be defined as the sum of the changes in voltage and current loading in the net when modifying the demand at that bus by a certain percent. For instance, the voltage impact of bus 1 shown in figure \ref{fig:discussion:double_large_load} is the voltage difference of scenario A and B, summed over all buses. The same can be done for the current impact, which is the difference in current loading (between 0\% and 100 \%) summed over all lines. Note that the rest of the buses are left unchanged when calculating the impact. The impact of a bus will be discussed the two critical periods of the day, namely peak solar production and peak demand. For peak solar production, the average demand and maximum solar production at 12 am are used to define the values for consumption and production. For peak demand, the average solar production and maximum demand at 7 pm is used. 
 
 
-Figure \ref{fig:discussion:current_impact} plots the current loading impact in peak demand hours for the buses in the net. The buses with highest current impact (5,6,9,10) are all located far down in feeder 1. A change in demand at them has consequences for several lines, because the current they draw must travel through the lines in the top of the feeder.
+Figure \ref{fig:discussion:voltage_impact} plots the voltage impact during peak demand for each bus where the demand change ranges from -20 to +20 \%. The lower part of the box plots correspond to increasing the demand by 20 \%, since increasing the consumption in peak demand lowers the voltage magnitudes in the grid. As already discussed, bus 1 have a large voltage impact, because it is at the top of feeder 1. 
+
+
+Figure \ref{fig:discussion:current_impact} plots the current loading impact in peak demand hours for the buses in the net. The lower part of the box plots corresponds to decreasing the consumption, since less current is needed to supply the demand. The buses with highest current impact (5,6,9,10) are all located far down in feeder 1. A change in demand at them has consequences for several lines, because the current they draw must travel through the lines in the top of the feeder. As discussed, the current loading impact is low for the dominant buses (1 and 12), despite the fact that they account for nearly 90 \% of the consumption in the system. 
 
 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/current_impact.png}
-    \caption[size = 9]{Box plot for each bus bar showing the current importance for a demand change ranging from -20 to + 20 \% in an hour of peak demand}
+    \caption[size = 9]{Box plot for each bus bar showing the current importance during peak demand for a demand change ranging from -20 to + 20 \%}
     \label{fig:discussion:current_impact}
 \end{figure}
 
-So far the impacts of the buses have been investigated in hours of peak demand. A similar simulation in for an hour of peak solar production can be done to show the impact of the buses in the second critical period. The impact relation between the buses in peak solar hours is similar to the peak demand period, but the magnitude differs a lot. Figure \ref{fig:discussion:current_impact_demand_solar} plots the current impact factor for each bus when the demand is increased by 10\% in hours of peak demand and peak solar production. The current impacts in peak solar production are lower in all cases. The reason is that the power consumption is generally lower during peak solar production. The mean demand in the hour of maximum solar production (12 am) is 40 \% lower than the mean peak demand value at 8 pm. 
+So far the impacts of the buses have been investigated in hours of peak demand. A similar simulation in an hour of peak solar production can be done to show the impact of the buses in the second critical period. The impact relation between the buses in peak solar hours is similar to the peak demand period. In other words, if a bus has a large impact in peak demand, it also has large impact during peak solar production compared to the other buses. However, the magnitude differs a lot for the two critical periods. Figure \ref{fig:discussion:current_impact_demand_solar} plots the current loading impact factor for each bus when the demand is increased by 10\% in hours of peak demand and peak solar production. The current impacts in peak solar production are lower in all cases, except for bus 1. Similarly, figure     \ref{fig:discussion:voltage_impact_demand_solar} show the difference in voltage impact during peak demand and peak solar production. The impacts differ because the power consumption generally is lower during peak solar production. The mean demand in the hour of maximum solar production (12 am) less than half of the max demand value at 7 pm. Consequently, changing the demand by 10 \% at 12 am results in a absolute power change that is about half the change during peak demand. The agent simply has less muscles during peak solar production, because it is physically impossible to affect the grid as much as in the afternoon during peak demand. This can explain why the trained agent performs well i periods of peak demand and poorly in periods of peak solar production.
 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/current_impact_demand_solar.png}
-    \caption[size = 9]{Current impact of all the buses in an hour of peak demand and peak solar production}
+    \caption[size = 9]{Current impact of all the buses in an hour of peak demand and peak solar production. The demand is changed by 10 \%}
     \label{fig:discussion:current_impact_demand_solar}
+\end{figure}
+
+\begin{figure}[h]
+    \center
+\includegraphics[height=8cm, width=12cm]{figures/voltage_impact_demand_solar.png}
+    \caption[size = 9]{Voltage impact of all the buses in an hour of peak demand and peak solar production. The demand is changed by 10 \%}
+    \label{fig:discussion:voltage_impact_demand_solar}
 \end{figure}
 
 \section{Performance of the trained agent}
