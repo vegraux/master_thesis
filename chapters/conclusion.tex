@@ -1,0 +1,33 @@
+\documentclass[class=book, crop=false]{standalone}
+\usepackage[subpreambles=true]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{import}
+\usepackage[ruled,vlined]{algorithm2e}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[sorting = none,
+            doi = true  %lesedato for url-adresse
+            ]{biblatex} %none gir bibliografi i sitert rekkefølge
+\addbibresource{reference.bib}
+\usepackage{csquotes}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+
+\pgfplotsset{compat=1.15}
+
+\begin{document}
+\chapter{Conclusion and future work}
+The main goal in this thesis is to see if reinforcement learning and demand response can be used to safely operate a power grid with distributed solar energy production. The motivation is that costly upgrades of the electric transmission infrastructure can be avoided if the algorithm succeeds. The following research question was formulated in chapter \ref{chapter:introduction}: 
+
+\begin{displayquote}
+\textbf{RQ}: Is the deep deterministic policy gradient algorithm able to reduce the number of safety violations in a grid with high peak solar power production and high peak demand by the means of demand response? 
+\end{displayquote}
+The short answer to the research question is yes. The agent was able reduce the number of safety violations by 10 \% by manipulating the power consumption in the net. However, investigating the results revealed that the reinforcement algorithm only avoids safety violations in hours of peak demand and actually produced more violations during hours of peak solar production. In total, there are more violations during peak demand than during peak solar production, so the net effect is a decrease in the number of violations. As discussed in chapter \ref{chapter:discussion}, the behaviour of the algorithm is found to quite primitive, and there is room for improvement. This thesis have not tried to tune the model in anyway, and have analysed the results based several arbitrary decisions. Therefore, it is natural to assume that improvements can be found, for instance by increasing the training time. 
+
+The implementation of both the reinforcement algorithm and the power system environment are based on several simplifications, such as a constant power factor, equal demand signals and constant flexibility in the net. This is done so it is possible to analyse the behaviour of the algorithm. The implementations can be extended to be more in accordance with a real power system and tested for different combinations of hyperparameters.          
+
+
+
+\end{document}
