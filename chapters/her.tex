@@ -1,0 +1,45 @@
+\documentclass[class=book, crop=false]{standalone}
+\usepackage[subpreambles=true]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{import}
+\usepackage[ruled,vlined]{algorithm2e}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[sorting = none,
+            doi = true  %lesedato for url-adresse
+            ]{biblatex} %none gir bibliografi i sitert rekkefølge
+\addbibresource{reference.bib}
+\usepackage{csquotes}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+
+\pgfplotsset{compat=1.15}
+\begin{document}
+\section{Hindsigth Experience Replay}
+\subsection{Intuition for Hindsight Experience Replay}
+Section \ref{theory:challenging_reward_shaping}  illustrates the challenges with reward shaping and the need for domain-expertise. Hindsight Experience Replay (HER) is an approach that avoids the need for custom made rewards for any off-policy reinforcement learning algorithm, such as DDPG \cite{DBLP:journals/corr/Andrychowicz_HER}. HER modifies Universal Value Function Approximators (UVFA), a method that feeds the agent with a goal $g$ that represent the state at which we want to be. By doing so, the agent does not only generalise to arbitrary states, but also arbitrary goals \cite{schaul15_goal_states}. This is ideal for reinforcement learning in an electric power system. The
+supply and demand for electric power are varying every hour in the Norwegian power system, and it is therefore essential that the agent can learn to generalise its behaviour to new and unseen demand situation. 
+
+The sparse reward can simply be -1 at every time step when the goal $g$ is not reached, and 0 if the actual state is within some threshold from the goal. However, this approach is not well suited for a large state space, since the agent never will encounter a non-negative reward \cite{DBLP:journals/corr/Andrychowicz_HER}. The reward is simply too sparse and non-informative. The novelty in HER is to change the goal state for certain transitions in the replay buffer to a state that actually was visited by the agent. As a result, the agent will experience some positive rewards during learning. Although a visited state was far from the desired goal, it still can learn from it because the transitions leading to an unwanted actual state tells the agent something about how to reach that very state. 
+
+DDPG stores the transitions experienced during learning $(s_{t},a_{t},r_{t},s_{t+1})$ in a replay buffer $\mathcal{R}$. This transition tuple is now extended to include the goal state $g$. In other words, a transition in the replay buffer takes the form $(s_{t},a_{t},r_{t},g,s_{t+1})$ where $g$ is the goal shared between all time steps in an episode. The details of HER will be described in the following sections.
+
+\subsection{Algorithm}
+
+The policy and action-value functions are given a goal $g$ in addition to the state $s$ and action $a$. Let $\mathcal{G}, \mathcal{S}, \mathcal{A}$ be the space of all goals, states and actions respectively. 
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:theory:her_function_with_goal}
+    &Q: \mathcal{S} \times \mathcal{A} \times \mathcal{G} \to \mathbb{R}
+    \\
+    &\pi: \mathcal{S} \times \mathcal{G} \to \mathcal{A}
+    \\
+    &r: \mathcal{S} \times \mathcal{A} \times \mathcal{G} \to \mathbb{R}
+    \end{aligned} 
+\end{equation}
+where $Q$ is the action-value function, $\pi$ is the policy function and $r$ is the reward function. The change in all these function is the inclusion of the goal. For each episode there will be a goal state that the policy and action-value takes in as input for all time steps. For each goal state $g$ there will be an associated predicate function $f_{g}: \mathcal{S} \to \{0,1\}$ and the task for the agent is to find a preform an action such that the next states maps to 1. If we for instance let $\mathcal{G} = \mathcal{S}$, the predicate could be $f_{g}(s) = [s=g]$. In other words, a given state maps to 1 if it is the desired goal. The sparse reward to the agent can then be formulated as $r_{g}(s,a) = -[f_{g}(s)=0]$. For continuous states and goals it would be more convenient to have a threshold $\epsilon$ such as $f_{g}(s) = [|s-g| < \epsilon]$ The goal vector could in an electric power system be the desired loads
+
+\end{document}

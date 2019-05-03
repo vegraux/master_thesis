@@ -500,7 +500,7 @@ Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}.
 \begin{equation}\label{eq:theory:powerflow_busmatrix}
 I_{bus} = Y_{bus}U_{bus}
 \end{equation}
-where $I_{bus} \in{\boldsymbol{\mathbb{C}}^{n}}$ is a vector whose k-th component is the injected current at bus \textit{k}. $Y_{bus}\in{\boldsymbol{\mathbb{C}}^{nxn}}$ is called the admittance matrix of the network and its elements are given by equation \eqref{eq:theory:admittance_components}. It is more convenient to work with power injection instead of current injection at a bus. The complex conjugate injected apparent power at bus \textit{k} $S_{k}$ can be found by using \eqref{eq:theory:injected_current_sum}
+where $I_{bus} \in{\boldsymbol{\mathbb{C}}^{n}}$ is a vector whose k-th component is the injected current at bus \textit{k}. $Y_{bus}\in{\boldsymbol{\mathbb{C}}^{nxn}}$ is called the admittance matrix of the network and its elements are given by equation \eqref{eq:theory:admittance_components}. It is more convenient to work with power injection instead of current injection at a bus. The complex conjugate injected apparent power $S^{*}_{k}$ at bus \textit{k} can be found by using \eqref{eq:theory:injected_current_sum}
 
 \begin{equation}
     \begin{aligned}\label{eq:theory:injected_power_sum}
@@ -562,7 +562,7 @@ Reference bus & $|U|$, $\delta$ & \textit{P}, \textit{Q}  & $1$ \\ \hline
 
 
 \section{Electric model of a power line}\label{section:pi_model}
-A common way to model a transmission line is by using a $\pi$-equivalent circuit, as shown in figure \ref{fig:theory:PI_model}
+A transmission line can be electrically modelled by using a $\pi$-equivalent circuit, as shown in figure \ref{fig:theory:PI_model}
 
 \begin{figure}[ht!]
     \center
