@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import stable_baselines
 import pickle
+import pandapower.networks as pn
 from stable_baselines import DDPG
 import sys
 import copy
@@ -23,6 +24,7 @@ __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'
 
 MODEL_PATH = os.getenv('MODEL_PATH')
+DATA_PATH = os.getenv('DATA_PATH')
 
 def find_load_names(sol_bus):
     nr_sol = 1
@@ -440,9 +442,127 @@ def simulate_day3(env, model, show_imbalance=False, show_solar=True,
     return df
 
 
+def peak_network(peak='demand', scale_nominal_value=40):
+    """
+    Creates 15 bus cigre network with 8 solar units and 1 wind park.
+    The network is scaled so that there is a lot of solar power production
+    :param with_der:
+    :return:
+    """
+
+    net = pn.create_cigre_network_mv(with_der="pv_wind")
+    pq_ratio = net.load['q_kvar'] / net.load['p_kw']
+
+    net.sgen['sn_kva'] *= scale_nominal_value
+    net.sgen.loc[
+        8, 'sn_kva'] /= scale_nominal_value  # undo scaling for wind park
+    if peak == 'solar':
+        net.sgen['p_kw'] = net.sgen[
+                               'sn_kva'].values * 0.794747  # max solar at 12 am
+        net.load['p_kw'] = net.load['sn_kva'] * 0.444  # mean demand at 12 am
+        net.load['q_kvar'] = net.load['p_kw'] * pq_ratio
+    elif peak == 'demand':
+        net.sgen['p_kw'] = net.sgen['sn_kva'] * 0.039228  # mean solar at 7 pm
+        net.load['p_kw'] = net.load['sn_kva'] * 0.926647  # max demand at 7 pm
+        net.load['q_kvar'] = net.load['p_kw'] * pq_ratio
+    pp.runpp(net)
+    return net
+
+def current_effect(net=None, buses=[1,12], scale_factor=2):
+    """
+    Effect of scaling consumption at buses
+    """
+    if net is None:
+        net = pn.create_cigre_network_mv(with_der="pv_wind")
+        net.load[['p_kw','q_kvar']] = net.load[['p_kw','q_kvar']]*0.748772 #mean demand in hour 8
+        pp.runpp(net)
+    loading1 = net.res_line['loading_percent']
+    idx = net.load['bus'].isin(buses)
+    net.load.loc[idx,['p_kw','q_kvar']] *= scale_factor
+    pp.runpp(net)
+    loading2 = net.res_line['loading_percent']
+    df = pd.DataFrame(data={'A':loading1,'B':loading2})
+
+    return df, net
+
+def voltage_effect(net=None, buses=[1,12], scale_factor=2):
+    if net is None:
+        net = pn.create_cigre_network_mv(with_der="pv_wind")
+        net.load[['p_kw','q_kvar']] = net.load[['p_kw','q_kvar']]*0.748772 #mean demand at 20 pm
+        pp.runpp(net)
+    v1 = net.res_bus['vm_pu']
+    idx = net.load['bus'].isin(buses)
+    net.load.loc[idx,['p_kw','q_kvar']] *= scale_factor
+    pp.runpp(net)
+    v2 = net.res_bus['vm_pu']
+    df = pd.DataFrame(data={'A':v1,'B':v2})
+    return df, net
+
+
+def decisive_bus(buses, base_net=None, kind='voltage', scale_factor=2):
+    buses = range(1, 15)
+    mean_diff = []
+    if base_net is None:
+        base_net = pn.create_cigre_network_mv(with_der="pv_wind")
+        pp.runpp(base_net)
+
+    for bus in buses:
+        net = copy.deepcopy(base_net)
+        if kind == 'voltage':
+            df, net = voltage_effect(net=net, buses=[bus],
+                                     scale_factor=scale_factor)
+        elif kind == 'current':
+            df, net = current_effect(net=net, buses=[bus],
+                                     scale_factor=scale_factor)
+        diff = df['A'] - df['B']
+        mean_diff.append(diff.sum())
+    diffs = pd.DataFrame(data=mean_diff, index=buses, columns=[kind])
+    flex = '{:d} %'.format(int((scale_factor - 1) * 100))
+    diffs['Flexibility'] = flex
+    return diffs
+
+
+def calc_impacts(kind='voltage', peak='demand', flex=0.2,
+                 max_flex=False):
+    """
+    Calc voltage/current impact in either peak demand or peak solar for all buses
+    """
+    base_net = peak_network(peak)
+    values = None
+    if max_flex:
+        v = decisive_bus(range(1, 15), base_net=base_net, kind=kind,
+                         scale_factor=1 + flex)
+        v['bus'] = v.index
+        return v
+
+    for f in np.linspace(-flex, flex, 5):
+        v = decisive_bus(range(1, 15), base_net=base_net, kind=kind,
+                         scale_factor=1 + f)
+        v['bus'] = v.index
+        if values is None:
+            values = v
+        else:
+            values = pd.concat([values, v])
+    return values
+
+def nmbu_palette():
+    """
+    Createes list with rbg of nmbu colors. Can be fed to seaborn.set_palette()
+    :return:
+    """
+    color_path = os.path.join(DATA_PATH,'nmbu_colors.xlsx')
+    colorframe = pd.read_excel(color_path)
+    colorframe = colorframe[['r', 'g', 'b']].values
+    palette = [colorframe[k, :] for k in range(colorframe.shape[0])]
+    return palette
+
 
 
 
 if __name__ == '__main__':
-    model, env = load_env()
-    df = simulate_day3(env, model, show_demand=True, period=199)
+    currents = calc_impacts(peak='demand', kind='current', max_flex=False)
+    currents1 = calc_impacts(peak='solar', kind='current', max_flex=False)
+    currents['Peak'] = 'Demand'
+    currents1['Peak'] = 'Solar'
+
+    cs = pd.concat([currents, currents1.reset_index(drop=True)])

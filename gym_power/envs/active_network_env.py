@@ -433,15 +433,16 @@ class ActiveEnv(gym.Env):
         Updates the demand and solar production according to the forecasts, with
         some n
         """
+        net = self.powergrid
         solar_pu = self.get_solar_forecast()[0]
         solar_pu += solar_pu*self.params['solar_std']*self.np_random.randn()
 
         demand_pu = self.get_demand_forecast()[0][0]
         demand_pu += demand_pu*self.params['demand_std']*self.np_random.randn()
 
-        self.powergrid.sgen['p_kw'] = - solar_pu * self.powergrid.sgen['sn_kva']
-        self.powergrid.load['p_kw'] = demand_pu * self.powergrid.load['sn_kva']
-        self.powergrid.load['q_kvar'] = self.powergrid.load['p_kw'] * self.pq_ratio
+        net.sgen['p_kw'] = - solar_pu * net.sgen['sn_kva']
+        net.load['p_kw'] = demand_pu * net.load['sn_kva']
+        net.load['q_kvar'] = net.load['p_kw'] * self.pq_ratio
 
 
 
@@ -542,6 +543,7 @@ def load_env(model_name='flexible_load_first',seed=9):
 
 if __name__ == '__main__':
     env1 = ActiveEnv(seed=3)
+    env1.set_parameters({'episode_length':3000})
     solar_scale1 = env1.params['solar_scale']
     demand_scale1 = env1.params['demand_scale']
 
