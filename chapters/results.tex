@@ -114,8 +114,8 @@ Imbalance state & 1  & Total energy imbalance for all loads
 
 \begin{figure}[h]
     \center
-    \includegraphics[height=8cm, width=15cm]{figures/configuration1.png}
-    \caption[size = 9]{Activation of flexibility at the different flexible loads of the trained DDPG throughout a day. The orange line is the solar irradiance during the day, which is the same for all loads. The actions in blue is the activation of flexibility. Action = 1 means that the flexible load increases its power consumption with 10 \%, while action = -1 means that it decreases its power consumption with 10 \%}
+    \includegraphics[scale=0.7]{figures/configuration1.png}
+    \caption[size = 9]{Activation of flexibility at the different flexible loads of the trained agent throughout a day. The line line is the solar irradiance during the day, which is the same for all loads. The actions in green is the activation of flexibility. Action = 1 means that the flexible load increases its power consumption with 10 \%, while action = -1 means that it decreases its power consumption with 10 \%}
     \label{fig:results:configuration1}
 \end{figure}
 
@@ -123,12 +123,12 @@ The DDPG agent was trained for 100 000 time steps. A complete summary with all h
 
 \begin{figure}[h]
     \center
-\includegraphics[height=7.1cm, width=11cm]{figures/configuration1_follows_sun.png}
+\includegraphics[scale=0.7]{figures/configuration1_follows_sun.png}
     \caption[size = 9]{Action of the agent and solar profile during a day. The consumed power is increased in periods with high solar production}
     \label{fig:results:configuration1_follows_sun}
 \end{figure}
 
-By inspecting figure \ref{fig:results:configuration1} it is clear that the agent activates flexibility in times with much solar production for several of the loads. The plot \texttt{load = sun 10} in the bottom row is plotted alone in figure \ref{fig:results:configuration1_follows_sun}, and clearly follows this pattern. The agent increases its power consumption during periods with high solar production, and reduces it later during peak demand.
+By inspecting figure \ref{fig:results:configuration1} it is clear that the agent activates flexibility in times with much solar production for several of the loads. The plot \texttt{load = 12} in is shown alone in figure \ref{fig:results:configuration1_follows_sun}, and clearly follows this pattern. The agent increases its power consumption during periods with high solar production, and reduces it later during peak demand.
 
 
 \begin{figure}[h]
@@ -138,7 +138,7 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
     \label{fig:results:configuration1_negative_actions}
 \end{figure}
 
- The first plot in the top row \texttt{load = load 1} is plotted larger in figure \ref{fig:results:configuration1_negative_actions}, and show some peculiar behaviour. Clearly, the actions do not follow the solar profile that day, but are negative most of the day. This behaviour could be a result of how the reward function is defined in this configuration. The agent is penalised according to the total energy imbalance in the system, not at individual loads. As a result, if the energy imbalance is +1 MWh at one load and -1 MWh at another load, they perfectly cancel each other, and the agent is not penalised. From the agent's perspective, the system is in energy balance, although individual loads may have a large absolute energy imbalance. This illustrates the problem with constructing state variable that accounts for the system as a whole, and not individual loads. The agent uses the same strategy consistently at this load. It appears as if this load functions as an energy balance, whose main job is to ensure that the total power imbalance in the grid is kept as small as possible. However, the behaviour of the agent gives a negative energy imbalance in the long term, as seen in figure \ref{fig:results:configuration1_energy_imbalance}. The agent controls a 200 hour long episode, and it is evident that the energy imbalance quickly decreases and reaches an equilibrium around -13 MWh. The agent prefers to decrease the total consumption in the system. It may indicate that the reward function is not appropriately constructed. More specifically, the energy imbalance cost is designed to reward the agent every time the energy imbalance decreases in absolute magnitude. A problem with this approach could be that the agent is not penalised for having a large absolute power imbalance. The reward function considers an energy imbalance transition from -11 MWh to -10 MWh equally good as a transition from -1 MWh to 0 MWh.
+The plot \texttt{load 8} is shown alone in figure \ref{fig:results:configuration1_negative_actions}, and show some peculiar behaviour. Clearly, the actions do not follow the solar profile that day, but are negative most of the day. This behaviour could be a result of how the reward function is defined in this configuration. The agent is penalised according to the total energy imbalance in the system, not at individual loads. As a result, if the energy imbalance is +1 MWh at one load and -1 MWh at another load, they perfectly cancel each other, and the agent is not penalised. From the agent's perspective, the system is in energy balance, although individual loads may have a large absolute energy imbalance. This illustrates the problem with constructing state variable that accounts for the system as a whole, and not individual loads. The agent uses the same strategy consistently at this load. It appears as if this load functions as an energy balance, whose main job is to ensure that the total power imbalance in the grid is kept as small as possible. However, the behaviour of the agent gives a negative energy imbalance in the long term, as seen in figure \ref{fig:results:configuration1_energy_imbalance}. The agent controls a 200 hour long episode, and it is evident that the energy imbalance quickly decreases and reaches an equilibrium around -13 MWh. The agent prefers to decrease the total consumption in the system. It may indicate that the reward function is not appropriately constructed. More specifically, the energy imbalance cost is designed to reward the agent every time the energy imbalance decreases in absolute magnitude. A problem with this approach could be that the agent is not penalised for having a large absolute power imbalance. The reward function considers an energy imbalance transition from -11 MWh to -10 MWh equally good as a transition from -1 MWh to 0 MWh.
  
 \begin{figure}[H]
     \center
@@ -148,7 +148,7 @@ By inspecting figure \ref{fig:results:configuration1} it is clear that the agent
 \end{figure}
 
 \subsection{Voltage violations}
-The reward function has an energy imbalance term during training that is meant to incentives the agent to shift energy consumption. However, the main goal of the agent is to keep the values for current and voltage within safety margins. Therefore, it is interesting to see the rewards of the trained model when only the voltage and current terms are considered. In other words, it is only penalised for violating safety margins for current and voltage in the grid. The trained model was tested for 500 episodes each consisting of 200 steps and evaluated
+The reward function has an energy imbalance term during training that is meant to incentives the agent to shift energy consumption. However, the main goal of the agent is to keep the values for current and voltage within safety margins. Therefore, it is interesting to see the rewards of the trained model when only the voltage and current terms are considered. In other words, the agent is only penalised for violating safety margins for current and voltage in the grid. The trained model was tested for 500 episodes each consisting of 200 steps and evaluated
 in terms of voltage penalty and current penalty independently. The statistics for the hours with a non-zero reward using only voltage reward are presented in table \ref{table:results:configuration1_reward_500_episodes}. Note that every non-zero reward corresponds to a violation of voltage margin because only the voltage term is used to calculate the reward. The trained agent reduces the number of voltage safety margin violations by 13 \% from 8593 to 7484. This reduction is impressive since there is no guarantee that it is physically feasible to satisfy voltage safety margins given a demand flexibility of 10 \%. It is clear that there is no significant difference between the trained agent and the no agent scenario in terms of mean voltage reward. Still, the reduction in number of voltage violations means that the trained agent overall is performing better in the 500 episodes. 
 \begin{table}[h]
 \center
