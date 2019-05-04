@@ -1,5 +1,7 @@
 \documentclass[crop=false]{standalone}
 \usepackage{pgfplots}
+\definecolor{nmbu_green}{RGB}{0,154,129}
+\definecolor{nmbu_red}{RGB}{231,82,68}
 \pgfplotsset{compat=1.15}
 % Grouping the common style settings here to make the code below easier to read
 
@@ -29,7 +31,7 @@
     ylabel = P,
     xlabel = $\omega t$
 ]
-\addplot [mark=none, blue] {(sin(deg(x)))^2};
+\addplot [mark=none, nmbu_green] {(sin(deg(x)))^2};
 \legend{Resisitive load}
 \end{axis}
 \end{tikzpicture}
@@ -58,7 +60,7 @@
         ylabel = P,
     xlabel = $\omega t$
 ]
-\addplot [mark=none, blue] {sin(deg(x))*sin(deg(x + pi/2))};
+\addplot [mark=none, nmbu_green] {sin(deg(x))*sin(deg(x + pi/2))};
 \legend{Capacitive load}
 \end{axis}
 \end{tikzpicture}
@@ -87,7 +89,7 @@
     ylabel = P,
     xlabel = $\omega t$
 ]
-\addplot [mark=none, blue] {sin(deg(x))*sin(deg(x - pi/2))};
+\addplot [mark=none, nmbu_green] {sin(deg(x))*sin(deg(x - pi/2))};
 \legend{Inductive load}
 \end{axis}
 \end{tikzpicture}

@@ -1,5 +1,8 @@
 \documentclass{standalone}
 \usepackage{pgfplots}
+\definecolor{nmbu_green}{RGB}{0,154,129}
+\definecolor{nmbu_red}{RGB}{231,82,68}
+
 \pgfplotsset{compat=1.15}
 % Grouping the common style settings here to make the code below easier to read
 \pgfkeys{/pgfplots/Axis Style/.style={
@@ -29,10 +32,10 @@
     ylabel={$P$},
     legend pos=north west
  ]
-\addplot [mark=none, thin, black] {sin(deg(x))}
+\addplot [mark=none, thin, nmbu_green] {sin(deg(x))}
         %node[pos=.83, below] {Real power flow}
         ;
-\addplot [mark=none, thin, blue] {sin(deg(x-0.13)) + sin(deg(0.13)}
+\addplot [mark=none, thin, nmbu_red] {sin(deg(x-0.13)) + sin(deg(0.13)}
          %node[pos=.63, above] {Real power flow}
          ;
 \legend{Without loss, With loss}
