@@ -17,6 +17,10 @@
 
 \pgfplotsset{compat=1.15}
 \begin{document}
+\chapter{Removed sections}
+Sections that did not make the cut. 
+
+
 \section{Hindsigth Experience Replay}
 \subsection{Intuition for Hindsight Experience Replay}
 Section \ref{theory:challenging_reward_shaping}  illustrates the challenges with reward shaping and the need for domain-expertise. Hindsight Experience Replay (HER) is an approach that avoids the need for custom made rewards for any off-policy reinforcement learning algorithm, such as DDPG \cite{DBLP:journals/corr/Andrychowicz_HER}. HER modifies Universal Value Function Approximators (UVFA), a method that feeds the agent with a goal $g$ that represent the state at which we want to be. By doing so, the agent does not only generalise to arbitrary states, but also arbitrary goals \cite{schaul15_goal_states}. This is ideal for reinforcement learning in an electric power system. The
@@ -41,5 +45,12 @@ The policy and action-value functions are given a goal $g$ in addition to the st
     \end{aligned} 
 \end{equation}
 where $Q$ is the action-value function, $\pi$ is the policy function and $r$ is the reward function. The change in all these function is the inclusion of the goal. For each episode there will be a goal state that the policy and action-value takes in as input for all time steps. For each goal state $g$ there will be an associated predicate function $f_{g}: \mathcal{S} \to \{0,1\}$ and the task for the agent is to find a preform an action such that the next states maps to 1. If we for instance let $\mathcal{G} = \mathcal{S}$, the predicate could be $f_{g}(s) = [s=g]$. In other words, a given state maps to 1 if it is the desired goal. The sparse reward to the agent can then be formulated as $r_{g}(s,a) = -[f_{g}(s)=0]$. For continuous states and goals it would be more convenient to have a threshold $\epsilon$ such as $f_{g}(s) = [|s-g| < \epsilon]$ The goal vector could in an electric power system be the desired loads
+
+
+\section{Suitable tasks for a reinforcement learning algorithm in an electric transmission system}
+TODO : REMOVE THIS?
+There are several possible task that artificial intelligence and reinforcement learning can solve in an electric transmission system. The increasing amount of renewable energy penetrating modern power systems reduces the natural inertia associated with synchronous generators. There are virtual inertia systems that behave as synchronous machines from the perspective of the transmission system operator \cite{virtual_inertia}. Simply put, the main methods consist of a feedback loop that monitors the deviations from desired frequency and feeds a signal to the power inverter so it acts in the same manner as a synchronous generator. It could be a suitable task for a reinforcement learning agent to control the signal sent to the power inverters in a power system, with the goal of assuring frequency stability.
+
+
 
 \end{document}
