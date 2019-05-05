@@ -25,7 +25,7 @@ instantaneous demand, or total electricity consumption.
 \end{displayquote}
 
 
-The idea is to modify the demand of electric power to follow the production profile of distributed energy resources (DER), such as solar power\footnote{The terms \textit{demand} and \textit{consumption} are used interchangeably in this thesis, and refer to the electric power (megawatts) that is consumed}. The consequence of this is that the solar power is consumed locally instead of having to be transported out to the grid, through lines that originally were not constructed for DER. Vázquez-Canteli and Nagy list the following advantages of demand response \cite{active_network_management}:
+The idea is to modify the demand of electric power to follow the production profile of distributed energy resources (DER), such as solar power\footnote{The terms \textit{demand} and \textit{consumption} are used interchangeably in this thesis, and refer to the electric power (megawatts) that is consumed}. The consequence of this is that the solar power is consumed locally instead of having to be transported out to the grid, through lines that originally were not constructed for DER. Vázquez-Canteli and Nagy list the following advantages of demand response \cite{vazquez2019reinforcement}:
 
 \begin{itemize}
 \item Improved grid stability due to increased demand flexibility. 
@@ -39,14 +39,11 @@ ratio of the demand decreases, less peaking plants need to be operated.
 \end{itemize}
 
 
-Demand response can be categorised into two main programs: Price-Based Programs and Incentive-Based Programs (IBP) \cite{demand_response_definition}. This thesis will investigate the latter program (IBS) by directly controlling the loads around in the grid. There are several published papers that use reinforcement learning to achieve demand response \cite{active_network_management}. Typically they try to control individual thermostatic loads, such as heat pumps and electric water heaters in a residence, in a categorical on-off setting.
+Demand response can be categorised into two main programs: Price-Based Programs and Incentive-Based Programs (IBP) \cite{demand_response_definition}. This thesis will investigate the latter program (IBS) by directly controlling the power consumption in the grid. There are several published papers that use reinforcement learning to achieve demand response \cite{active_network_management}. Typically they try to control individual thermostatic loads, such as heat pumps and electric water heaters in a residence, in a categorical on-off setting.
 
-The scope of this thesis is not to control individual power consuming units, but to continually control the absolute load at different buses in a power grid, given some flexibility at that bus. It might seem strange to use continuous control since power consuming units generally can not be set to an arbitrary power level. The nature of a power component is binary: it either consumes power or it does not consume power. Consequently, a valid question is whether a continuous control setup even is realisable in a real power system. Although individual power consuming units are binary, a large collection of units connected to a bus can be approximated as continuous. Imagine 1000 households connected to a bus and that each household has several power consuming components that can be controlled, such as electric vehicles, water heater and heat pumps. Assuming these units have some flexibility in terms of operation time, it is possible to coordinate all these devices in such a way that they appear continuous at the bus. This thesis will assume that a system for turning on and off the individual power consumers already exist, so the centralised agent can modify the power consumption continuously in some interval of flexibility. For instance, when the agent wants to decrease the consumption by 2 MW at a bus, there exists a system that turns off electric equipment in households connected to that bus such that the total power change is 2 MW. This assumption can be said to be unrealistic, but the scope of this thesis is to test continuous demand control at buses experimentally, under some ideal assumptions. The advantage of this setup is that the action space of the algorithm is dramatically reduced, as there is only one action per bus in the grid. Controlling individual components in a power grid quickly gives a very large and impractical action space since the number of possible actions doubles for every additional control device.
+The scope of this thesis is not to control individual power consuming units, but to continually control the absolute demand at different buses in a power grid, given some flexibility at that bus. It might seem strange to use continuous control since power consuming units generally can not be set to an arbitrary power level. The nature of a power component is binary: it either consumes power or it does not consume power. Consequently, a valid question is whether a continuous control setup even is realisable in a real power system. Although individual power consuming units are binary, a large collection of units connected to a bus can be approximated as continuous. Imagine 1000 households connected to a bus and that each household has several power consuming components that can be controlled, such as electric vehicles, water heater and heat pumps. Assuming these units have some flexibility in terms of operation time, it is possible to coordinate all these devices in such a way that they appear continuous at the bus. This thesis will assume that a system for turning on and off the individual power consumers already exist, so the centralised agent can modify the power consumption continuously in some interval of flexibility. For instance, when the agent wants to decrease the consumption by 2 MW at a bus, there exists a system that turns off electric equipment in households connected to that bus such that the total power change is 2 MW. This assumption can be said to be unrealistic, but the scope of this thesis is to test continuous demand control at buses experimentally, under some ideal assumptions. The advantage of continuous control is that the action space of the algorithm is dramatically reduced, as there is only one action per bus in the grid. Controlling individual components in a power grid quickly gives a very large and impractical action space since the number of possible actions doubles for every additional control device. In addition, Vázquez-Canteli and Nagy recommended in their literature review of demand response and reinforcement learning that there should be more case studies using modern algorithms such as deep deterministic policy gradient (DDPG), which have a continuous action space \cite{vazquez2019reinforcement}. 
 
 The specific setup in this thesis is based on several assumptions for a hypothetical future power grid. The electrical power grid used is constructed by the International Council on Large Electric Systems (CIGRE) as a benchmark network that can be used for analysis of DER integration \cite{cigre}. The network is predefined in \texttt{pandapower}, the Python module used for power flow calculations, and can be defined with different renewable energy sources connected at different buses. The grid used is visualised in figure \ref{fig:problem:cigre_network}. 
-
-
-
 
 The left-most feeder has several solar producing units connected and wind power connected to bus 7. From a power flow perspective, there is no difference between a wind farm (without voltage regulation) and solar production since they are both modelled as static generators (PQ-node). For simplicity, the wind farm connected at bus 7 is assumed to be solar in this thesis, i.e its power production follows the sun profile through the day. The time resolution in this task is chosen to be hourly. In other words, the demand and solar production at every bus is updated every hour, and assumed constant in between hours. The daily demand profile is generated using \texttt{enlopy}, a Python toolkit for energy demand time series \cite{enlopy}. The demand signal is generated based on data of the energy consumption of private households.
 \begin{figure}[ht]
@@ -66,14 +63,11 @@ A data set with satellite-derived solar irradiance in central Norway is used as 
 \end{figure}
 
 
+The signal of solar production and power demand is assumed equal at all buses and scaled up based on the nominal values for consumption at each bus. Note that the nominal values vary a lot from bus to bus. For instance, if the demand signal is 0.5, the consumption at each bus is determined by multiplying 0.5 with their respective nominal power that is predefined in \texttt{pandapower}. The same is true for the generation of solar power. This reduces the state space, as there is no need for a unique demand forecast for all the loads.  For simplicity, the ratio between active and reactive effect (power factor) is assumed constant at every bus. Therefore, if the consumption of active power increases by 1 \%, then the reactive power consumption also increases by 1\%. The power factor at each load is the same as the default values in the CIGRE network. The nominal values of the solar production are intentionally amplified so that the safety margins for line current and voltage magnitudes in the grid frequently are violated if no actions are taken. The solar producing units do not output any reactive power, only active power. 
 
+It is assumed that the loads at all buses have some flexibility in terms of power consumption, say 10 \% of the actual demand, that can be centrally controlled at every hour. The reinforcement agent can modify the power consumption independently between the different buses. For instance, it can increase the consumption by 5 \% at one bus, and decrease it by 2\% at another bus in the same hour. The absolute change in consumption at each load in the net is found by multiplying the demand change by the forecasted power consumption in that hour.
 
-The signal of solar production and power demand is assumed equal at all buses and scaled up based on nominal values of the loads at each bus. Note that the nominal values vary a lot from bus to bus. For instance, if the demand signal is 0.5, the consumption at each bus is determined by multiplying 0.5 with their respective nominal power that is predefined in \texttt{pandapower}. The same is true for the generation of solar power. This reduces the state space, as there is no need for a unique demand forecast for all the loads.  For simplicity, the power factor is assumed constant at every bus, meaning the reactive power at each load is a percentage of the active power at all times. The power factor at each load is the same as the default values in the CIGRE network. The nominal values of the solar production are intentionally amplified so that the safety margins for line current and voltage magnitudes in the grid frequently are violated if no actions are taken. The solar producing units do not output any reactive power, only active power. 
-
-All loads have an hourly forecast of energy consumption that is used to update the active and reactive powers at every time step. It is assumed that the loads at all buses have some flexibility, say 10 \% of the actual demand, that can be centrally controlled at every hour. The reinforcement agent can modify the power consumption independently between the different buses. For instance, it can increase the consumption by 5 \% at one bus, and decrease it by 2\% at another bus in the same hour. 
-
-\section{Network variables}
-The CIGRE network shown in figure \ref{fig:problem:cigre_network} is the power net the reinforcement algorithm is control. The number of components are summarised in table \ref{table:cigre_components}
+The CIGRE network consists of several power components, such as transformers, lines, switches and loads. Table \ref{table:cigre_components} summarises the different components in the network. 
 
 \begin{table}[ht]
 \centering
@@ -95,17 +89,16 @@ Transformer &- & 2
 \hline
 \end{tabular}
 \end{table}
-Table \ref{table:cigre_components} shows that there are 18 loads and 15 buses in the system. The reason is that there are several load elements connected to some buses which makes the number of loads greater than the number of buses.  
+Table \ref{table:cigre_components} shows that there are 18 loads and 15 buses in the system. The reason is that there are several load elements connected to some buses which makes the number of loads greater than the number of buses. The net power consumption at a bus is found by summing over the consumption of all the loads connected to that bus. 
 
 
 
 \section{State space}\label{section:problem:state_space}
 It is not obvious how to design the state space for the agent. This section presents several spaces that could be useful for the reinforcement algorithm. Not all of the presented spaces are used in the trained reinforcement learning agent which is analysed in chapter \ref{chapter:results}.
 
-Let $\mathcal{S}_{sun} \subseteq  \mathbb{R}^{H}$ be space of the forecasted total solar production in the grid \textit{H} hours into the future . This gives the agent information about the coming solar production and can be used for finding control strategies. For instance, consider an hour with high production of solar power, where the transmission lines are overloaded. If the agent sees that the forecast predicts a dip in solar production in the next hour due to clouds, it can increase the local demand at solar producing, to relieve the overloaded power lines. It can then safely decrease the demand the next hour, since the sun is blocked by the clouds. This is an example of a desired behaviour that the agent ideally should find. The buses are assumed to be geographically close, so the solar irradiance is the same everywhere. If a cloud blocks the sun at bus 1, then it also blocks the sun at all the other buses in the system. This significantly reduces the state space compared to a unique forecast for every bus. 
+Let $\mathcal{S}_{sun} \subseteq  \mathbb{R}^{H}$ be space of the forecasted solar irradiance in the grid \textit{H} hours into the future. This gives the agent information about the coming solar production and can be used for finding control strategies. For instance, consider an hour with high production of solar power, where the transmission lines are overloaded. If the agent sees that the forecast predicts a dip in solar production in the next hour due to clouds, it can increase the local power consumption at solar producing buses, to relieve the overloaded power lines. It can then safely decrease the consumption the next hour, since the sun is blocked by the clouds and thereby restore the total energy consumption over the two hours. This is an example of a desired behaviour that the agent ideally should find. The buses are assumed to be geographically close, so the solar irradiance is the same everywhere. If a cloud blocks the sun at bus 1, then it also blocks the sun at all the other buses in the system. This significantly reduces the state space compared to a unique forecast for every bus. 
 
-Let $\mathcal{S}_{demand} \subseteq \mathbb{R}^{F\cdot H}$ be the space of the forecasted power demand $H$ hours into the future in a grid with $F$ flexible loads. It is also possible to let the total demand in the market represent the demand state. A problem with this approach is that it only partially describes the demand situations in the marked since the agent does not receive information about demand at individual loads. An advantage, however, is that the size of the a state vector from  $\mathcal{S}_{demand}$ is much smaller than a corresponding vector for all loads. Specifically, the CIGRE network that is used has 18 loads that would make the state vector 18 times greater.
-
+Let $\mathcal{S}_{demand} \subseteq \mathbb{R}^{F\cdot H}$ be the space of the forecasted power demand $H$ hours into the future in a grid with $F$ flexible loads. It is also possible to let the total demand in the market represent the demand state. A problem with this approach is that it only partially describes the demand situations in the marked since the agent does not receive information about demand at individual loads. An advantage, however, is that the size of the a state vector from  $\mathcal{S}_{demand}$ is much smaller than a corresponding vector for all loads. Specifically, the CIGRE network that is used has 18 loads, which would make the state vector 18 times greater.
 
 
 Let $\mathcal{S}_{bus} \subseteq \mathbb{R}^{4N}$ be the space representing the state of all the buses in the net. Specifically
@@ -121,9 +114,7 @@ where $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magni
 
 
 
-The agent should also get information that ensures that the consumption at a load merely is shifted and not altered in absolute magnitude. In other words, a state that contains information about the energy imbalance in the grid. A positive energy imbalance means that the agent has forced the loads to use more energy than the real demand. If the agent changes a load by -1 MW for an hour, the agent should ideally increase the load by 1 MW some time not far into the future. Gemine et al. did this by making a commitment when the demand is changed at a bus. When a load is changed, it follows a predefined modulation curve for $T_{d}$ time steps (for instance 4 steps) \cite{active_network_management}. The modulation signal is constructed so that it sums to zero over the time period $T_{d}$, which guarantees that the total energy consumption of the bus is constant. This could be a possible approach for a reinforcement learning algorithm as well. The state vector could indicate in what modulation step a load is at. For instance, if the modulation started at $t_{0}$ for a load and the current time step is $t_{0} + 3$, then the load component of this vector is 3. The agent is then always fed with a signal that tells it the commitment stage of that load. The desired action of the agent at a time step in the commitment period will simply be ignored so that the load follows the modulation signal. This has the drawback that the agent's action frequently are overridden. Given a modulation period of \textit{k} steps, the agent desired action is only performed $1/k$ times. Hopefully the agent will pick up on this through the commitment state vector. Formally, the commitment space $\mathcal{S}_{commitment} \subseteq \mathbb{R}^{F}$ can be defined as
-
-
+The agent should also get information that ensures that the consumption at a load merely is shifted and not altered in absolute magnitude. In other words, a state that contains information about the energy imbalance in the grid. A positive energy imbalance means that the agent has forced the loads to use more energy than the real demand. If the agent changes a load by -1 MW for an hour, the agent should ideally increase the load by 1 MW some time not far into the future. Gemine et al. did this by making a commitment when the demand is changed at a load. When a load is changed, it follows a predefined modulation curve for $T_{d}$ time steps (for instance 4 steps) \cite{active_network_management}. The modulation signal is constructed so that it sums to zero over the time period $T_{d}$, which guarantees that the total energy consumption of the bus is constant. Note that Gemine et al. did not implement a reinforcement learning algorithm. The state vector could indicate in what modulation step a load is at. For instance, if the modulation started at $t_{0}$ for a load and the current time step is $t_{0} + 3$, then the load component of this vector is 3. The agent is then always fed with a signal that tells it the commitment stage of that load. The desired action of the agent at a time step in the commitment period will simply be ignored so that the load follows the modulation signal. This has the drawback that the agent's actions frequently are overridden. Given a modulation period of \textit{k} steps, the agent desired action is only performed $1/k$ times. Hopefully the agent will pick up on this through the commitment state vector. Formally, the commitment space $\mathcal{S}_{commitment} \subseteq \mathbb{R}^{F}$ can be defined as
 
 \begin{equation}
    \begin{aligned}
@@ -133,16 +124,22 @@ The agent should also get information that ensures that the consumption at a loa
 \end{equation}
 where $c_{i} \in \{0,1,..,k\}$ is the commitment stage of flexible load $i$ in a $k$-period commitment period in a grid with $F$ flexible loads.
 
-The agent does not have to follow a predefined commitment signal to ensure that the power consumption is shifted, but instead be penalised for changing the total consumption during a day, as explained in section \ref{section:reward}. The agent must then be fed some information about the power imbalance at the flexible loads, i.e if the loads have consumed more or less power than the original demand. Let  $\mathcal{S}_{imbalance} \subseteq \mathbb{R}^{F}$  be the state space representing the power imbalance, defined by \begin{equation}
+The agent does not have to follow a predefined commitment signal to ensure that the power consumption is shifted, but can instead be penalised for changing the total consumption during a day. The agent must then be fed some information about the energy imbalance at the flexible loads, i.e if the loads have consumed more or less energy than the original demand over a period. This could be done by introducing the energy imbalance $B_{i,t}$ of flexible load $i$ at time $t$.
+
+\begin{equation}
+   \begin{aligned}
+   \label{eq:problem:balance}
+    B_{i,t} = \sum_{k=1}^{24}\Delta P_{i,t-k}
+    \end{aligned} 
+\end{equation}
+$\Delta P_{i,t-k}$ is the change in power consumption $k$ time steps before $t$ at flexible load \textit{i}. Simply put, the imbalance $B_{i,t}$ expresses if a flexible load is in balance in terms of energy consumption over the last 24 hours. A positive imbalance means the flexible loads have consumed more power than they originally planned. The goal is to have the imbalance close to zero, which means that power consumption has been shifted and not altered in absolute magnitude. Let $\mathcal{S}_{imbalance} \subseteq \mathbb{R}^{F}$  be the state space representing the power imbalance, defined by 
+\begin{equation}
    \begin{aligned}
    \label{eq:problem:imbalance_state}
 \mathcal{S}_{imbalance} = \{ B_{i} |\; i = 1,...,F\}
     \end{aligned} 
 \end{equation}
-where $B_{i}$ is the energy imbalance at flexible load $i$ defined by \eqref{eq:problem:balance}.
-
-
-Table \ref{table:state_spaces} summarises the different state spaces. The reinforcement algorithm will be tested with a subset of the spaces presented. In every case, the final state variable is constructed by concatenating the state vectors from different state spaces used. 
+where $B_{i}$ is the energy imbalance at flexible load $i$ defined by \eqref{eq:problem:balance}. Table \ref{table:state_spaces} summarises the different state spaces that are presented in this section. The reinforcement learning algorithm will be tested with a subset of the spaces, and the final state variable is constructed by concatenating the individual state vectors.  
 
 \begin{table}[ht]
 \centering
@@ -167,11 +164,11 @@ Imbalance state &$\mathcal{S}_{imbalance}$& $F$  &$\{ B_{i} |\; i = 1,...,F\}$ \
 \end{tabular}
 \end{table}
 \section{Action space}
-The reinforcement agent can manipulate the power demand at flexible loads in the power grid. The amount of flexibility at a load is defined to be certain percent of the real power demand. It is assumed that the flexibility is symmetric so the demand can both be tuned up and down. The action space in a power grid with $L$ flexible load  $\mathcal{A}  \subseteq \mathbb{R}^{L}$ is defined as
+The reinforcement agent can manipulate the power demand at flexible loads in the power grid. The amount of flexibility at a load is defined to be certain percent of the forecasted power demand. It is assumed that the flexibility is symmetric so the demand can both be tuned up and down. The action space in a power grid with $F$ flexible load  $\mathcal{A}  \subseteq \mathbb{R}^{F}$ is defined as
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:action_space}
-\mathcal{A}= \{a_{i} | \;i = 1,...,L\}
+\mathcal{A}= \{a_{i} | \;i = 1,...,F\}
     \end{aligned} 
 \end{equation}
 where $a_{i} \in [-1,1]$ is the activation at flexible load $i$ in the power grid. $a_{i} = 1$ means that load $i$ increases its active power consumption as much as possible. The change in demand $\Delta P_{i}$ is then scaled up according to the action signal $a_{i}$ by
@@ -183,17 +180,17 @@ where $a_{i} \in [-1,1]$ is the activation at flexible load $i$ in the power gri
     P_{i}& \leftarrow P_{i} + \Delta P_{i}
     \end{aligned} 
 \end{equation}
-where $f_{i}$ is the flexibility at load, $P_{i}$ is the active power demand and $P_{i,forecast}$ is the forecasted power demand. Note that every flexible load have a unique demand change that is independent of the demand change elsewhere. The resulting reactive power demand is found by multiplying the active power with a load constant, because the loads are assumed to have a constant power factor.
+where $f_{i}$ is the flexibility, $P_{i}$ is the active power demand and $P_{i,forecast}$ is the forecasted power demand at load $i$. Note that every flexible load has a unique demand change that is independent of the demand change at the other loads. The resulting reactive power demand is found by multiplying the active power with a load constant, because the loads are assumed to have a constant power factor.
 
 It is possible to include more control variables that the agent can control. For instance, the reinforcement agent could control the tap position of the transformer and the switches in the system. There is also a CIGRE benchmark network in pandapower that has storage units in the power net. A possible extension is to let the agent control the charging and discharging of storage units.
 
 \section{Reward function}\label{section:reward}
-A central element in any reinforcement algorithm is the reward function. The terms \textit{cost} and \textit{reward} are used interchangeably in this thesis. In all cases the reward is the negative of the cost. By this definition, maximising the reward is the same as minimising the cost. 
+The reward function is a central element in any reinforcement algorithm. The terms \textit{cost} and \textit{reward} are used interchangeably in this thesis. In all cases the reward is the negative of the cost. By this definition, maximising the reward is the same as minimising the cost. 
 
 The reward function should give a signal that is used to reinforce "good" behaviour. The goal of the agent is avoid violations of safety margins for voltage and current in the power grid. Gemine et al. formulate a reward function aimed to safely operate a power grid at a low cost, where they punish the agent proportionally to the violation of safety margins \cite{active_network_management}. There are multiple cost terms that can be included, and this section will present several of these. 
 
 There are safety margins in terms of voltage magnitudes in an electric transmission system. 
-This thesis will assume a symmetric safety region around nominal voltage values, for instance 0.95 and 1.05. In other word, the system tolerates a 5 \% deviation from nominal voltage in each direction. Let $C_{voltage,i}$ be the cost for violating voltage margins at bus $i$
+This thesis will assume a symmetric safety region around nominal voltage values, for instance 0.96 and 1.04. In other words, the system tolerates a 4 \% deviation from nominal voltage in each direction. Let $C_{voltage,i}$ be the cost for violating voltage margins at bus $i$
 
 
 \begin{equation}
@@ -202,11 +199,11 @@ This thesis will assume a symmetric safety region around nominal voltage values,
     C_{voltage,i} = \max(0,|V_{i}| - V_{upper}) + \max(0,V_{lower}- |V_{i}|)
     \end{aligned} 
 \end{equation}
-where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. The voltage cost for a node in the grid with a safety margin of +/- 5 \%  is visualised in figure \ref{fig:problem:voltage_cost}.
+where $V_{upper}$ and $V_{lower}$ are the upper and lower per-unit voltage limit respectively. The voltage cost for a node in the grid with a safety margin of +/- 4 \%  is visualised in figure \ref{fig:problem:voltage_cost}.
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/voltage_cost.png}
-    \caption[size = 9]{Voltage cost at a bus in the power system}
+    \caption[size = 9]{Voltage cost at a bus in the power system where the lower and upper voltage limits respectively are 0.96 pu and 1.04 pu }
     \label{fig:problem:voltage_cost}
 \end{figure}
 
@@ -218,16 +215,15 @@ Let $C_{current,i}$ be the cost of violating current margins in line $i$
     C_{current,i} = \max(0,|I_{i}| - I_{upper})
     \end{aligned} 
 \end{equation}
-where $I_{upper}$ is the per unit upper current limit in lines. The current cost is plotted in figure  \ref{fig:problem:current_cost}.
+where $I_{upper}$ is the per unit upper current loading limit in lines. The current loading is the percentage of used capacity in the transmission line. The current cost is plotted in figure  \ref{fig:problem:current_cost} for an upper current loading limit of 90 \%.
 
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/current_cost.png}
-    \caption[size = 9]{Current cost for a line in the power system}
+    \caption[size = 9]{Current cost for a line in the power system where the upper current loading is 90 \%}
     \label{fig:problem:current_cost}
 \end{figure}
-
-It is necessary to incentives costumers to offer flexibility in a realistic modelling of demand response. In other words, costumers should be economically compensated when their flexibility is activated. In classical incentive based programs (IBP) for demand control, costumers are given some sort of participation payment, such as a discount rate \cite{demand_response_definition}. On the other hand, marked based IBP compensates the costumers based on how much they participate. The most natural cost to consider in this thesis is the marked based IBP because the agent can continuously change the consumption of power at flexible loads. The activation cost $C_{activation,i}$ is defined as
+Costumers must be given an incentive to change their consumption pattern in a in a realistic modelling of demand response. In other words, costumers should be economically compensated when their flexibility is activated. In classical incentive based programs (IBP) for demand control, costumers are given some sort of participation payment, such as a discount rate \cite{demand_response_definition}. On the other hand, marked based IBP compensates the costumers based on how much they participate. The most natural cost to consider in this thesis is the marked based IBP because the agent can continuously change the consumption of power at flexible loads. The activation cost $C_{activation,i}$ is defined as
 
 \begin{equation}
    \begin{aligned}
@@ -235,17 +231,9 @@ It is necessary to incentives costumers to offer flexibility in a realistic mode
     C_{activation,i} = \lambda |\Delta P_{i}|
     \end{aligned} 
 \end{equation}
-where $|\Delta P_{i}|$  is the absolute change in power consumption at flexible load \textit{i} and $\lambda$ is the flexibility price at the time of activation.
+where $|\Delta P_{i}|$  is the absolute change in power consumption at flexible load \textit{i} and $\lambda$ is the flexibility price at the time of activation \footnote{The currency is arbitrary, and does not affect the cost as it can be scaled by the weight of activation}. In other words, the cost is the same if the consumption is increased or decreased.
 
-It is desired that the flexible loads consume more power during periods with heavy solar production. In addition, flexible loads should use less energy during periods with low solar energy, so the total energy consumption in a day is not altered. However, the agent is not penalised during periods of low solar power production since there are no violations of current and voltage margins in the grid. As a result, there must be a signal that incentives the agent to reduce the power consumption in periods with low solar production. This could be done by be introducing the power imbalance $B_{i,t}$ of flexible load $i$ at time $t$.
-
-\begin{equation}
-   \begin{aligned}
-   \label{eq:problem:balance}
-    B_{i,t} = \sum_{k=1}^{24}\Delta P_{i,t-k}
-    \end{aligned} 
-\end{equation}
-$\Delta P_{i,t-k}$ is the change in power consumption $k$ time steps before $t$ at flexible load \textit{i}. Simply put, the imbalance $B_{i,t}$ expresses if a flexible load is in balance in terms of energy consumption over the last 24 hours. A positive imbalance means the flexible loads have consumed more power than they originally planed. The goal is to have the imbalance close to zero, which means that power consumption has been shifted and not altered in absolute magnitude. The agent should be punished for having a large imbalance. Consequently, it should be penalised for taking an action that increases the absolute balance quantity. Let $C_{imbalance,i}$ be the energy imbalance cost at time $t$ for flexible load \textit{i}.
+It is desired that the flexible loads consume more power during periods with heavy solar production. In addition, flexible loads should use less energy during peak demand, both to reduce violations in the grid and to ensure that the total energy consumption in a day is not altered. The agent should be punished for having a large imbalance. Consequently, it should be penalised for taking an action that increases the absolute balance quantity. Let $C_{imbalance,i}$ be the energy imbalance cost at time $t$ for flexible load \textit{i}.
 
 \begin{equation}
    \begin{aligned}
@@ -253,7 +241,7 @@ $\Delta P_{i,t-k}$ is the change in power consumption $k$ time steps before $t$ 
     C_{imbalance,i} = |B_{i,t}| - |B_{i,t-1}|
     \end{aligned} 
 \end{equation}
-where the balance $B_{i,t}$ is given by equation \eqref{eq:problem:balance}. The agent is penalised if the result of an action increases the energy imbalance in absolute magnitude.  
+where the energy imbalance $B_{i,t}$ is given by equation \eqref{eq:problem:balance}. The agent is penalised if the result of an action increases the energy imbalance in absolute magnitude.  
 
 The total cost of an agent at each step is defined as a linear combination over the voltage, current, activation and imbalance cost 
 
@@ -307,11 +295,9 @@ Changing daily energy consumption
 \end{table}
 
 \section{Playing an episode}
-This section will describe how the the state of the electric grid is updated in an episode. The reinforcement agent is each hour given a state that represents the system, which includes a forecast for power demand and solar irradiance. Naturally, no forecasts are perfect, so the actual power demand and solar irradiance should deviate from the estimated values. This is done by adding a noise term to the forecasted values. The noise terms for the demand and solar irradiance are assumed to follow a Gaussian distribution with mean 0 and a standard deviation that is proportional to the forecast in that hour. The hyper parameters $\sigma_{solar}$ and $\sigma_{demand}$ determine the uncertainty in the forecasts, and the default values are set to 3 \% in both cases.
+This section will describe how the the state of the electric grid is updated in an episode. The reinforcement agent is each hour given a state that represents the system, which includes a forecast for power demand and solar irradiance. Naturally, no forecasts are perfect, so the actual power demand and solar irradiance should deviate from the predicted values. This is done by adding a noise term to the forecasted values. The noise terms for the demand and solar irradiance are assumed to follow a Gaussian distribution with mean 0 and a standard deviation that is proportional to the forecast in that hour. The hyper parameters $\sigma_{solar}$ and $\sigma_{demand}$ determine the uncertainty in the forecasts, and the default values are set to 3 \% in both cases.
 
-
-
-The reinforcement agent evaluates a state $s$ and picks an action $a$ to perform in each hour. The action determines the change in power consumption at the flexible loads in the power grid. The power flow equation are ready to be solved when the power demand resulting from the action is computed. There are no voltage regulating generators in the power grid that is used. Consequently, all the buses in the network are modelled as PQ-buses, except for the external grid (slack bus) where active power $P$ and voltage angle $\delta$ are known. After the power flow calculations have been performed, the reward is calculated and used to evaluate the action of the agent. Finally, the forecasts for demand and solar irradiance are updated and the state $s_{t+1}$ for the next hour is found. This concludes the processes involved in one time step of the reinforcement model. The learning process is summarised in pseudo code in algorithm \ref{problem:algorithm_playing_episode} 
+The reinforcement agent evaluates a state $s$ and picks an action $a$ to perform in each hour. The action determines the change in power consumption at the flexible loads in the power grid. The power flow equations are ready to be solved when the power demand resulting from the action is computed. There are no voltage regulating generators in the CIGRE network. Consequently, all the buses in the network are modelled as PQ-buses, except for the external grid (slack bus) where active power $P$ and voltage angle $\delta$ are known. After the power flow calculations have been performed, the reward is calculated and used to evaluate the action of the agent. Finally, the forecasts for demand and solar irradiance are updated and the state $s_{t+1}$ for the next hour is found. This concludes the processes involved in one time step of the reinforcement model. The learning process is summarised in pseudo code in algorithm \ref{problem:algorithm_playing_episode} 
 
 
 \begin{algorithm}[H]
@@ -330,11 +316,11 @@ Let the reinforcement agent select an action $a_{t}$ based on $s_{t}$
 Set global solar irradiance $r$ based on forecasted solar irradiance $r_{forecast}$
 \begin{equation}
    \begin{aligned}\label{eq:problem:set_solar_irradiance}
-  r = r_{forecast} + \epsilon \cdot r_{forecast}, \;\; \epsilon \sim \mathcal{N}(0,\sigma_{solar})
+  r = r_{forecast}(1 + \epsilon), \;\; \epsilon \sim \mathcal{N}(0,\sigma_{solar})
     \end{aligned} 
 \end{equation}
 
-\For{Static generator 1:S}{
+\For{Static generator 1:G}{
  Update solar production $P_{sun}$ based on nominal value $S_{N}$
 \begin{equation}
    \begin{aligned}\label{eq:problem:set_solar}
@@ -347,13 +333,13 @@ Set global solar irradiance $r$ based on forecasted solar irradiance $r_{forecas
  Set power demand $P$ based on forecasted power demand $P_{forecast}$
 \begin{equation}
    \begin{aligned}\label{eq:problem:set_demand_for}
-  P = P_{forecast} + \epsilon \cdot P_{forecast}, \;\; \epsilon \sim \mathcal{N}(0,\sigma_{demand})
+  P = P_{forecast}(1 + \epsilon), \;\; \epsilon \sim \mathcal{N}(0,\sigma_{demand})
     \end{aligned} 
 \end{equation}
 }
 
 
-\For{Flexible load 1:F}{
+\For{Load 1:F}{
 Update power demand $P$ based on the agent's action $a$ and flexibility $f$
 \begin{equation}
    \begin{aligned}
