@@ -1,4 +1,4 @@
-\documentclass[class=book, crop=false]{standalone}
+\documentclass[class=book, crop=false, 11pt]{standalone}
 \usepackage[subpreambles=true]{standalone}
 \usepackage{import}
 \usepackage[utf8]{inputenc}
@@ -23,7 +23,7 @@ This chapter will introduce the Python libraries \texttt{gym}, \texttt{stable-ba
 
 
 \section{Pandapower}
-The central goal in this thesis is to keep values for current and voltage in an electrical power system within safety margins. It is therefore necessary to have a way to solve the power flow equations (\eqref{eq:theory:power_flow_equation}) and use the results to see if safety margins are violated. The tool for solving the power flow equation in this thesis is the Python package \texttt{pandapower} \cite{pandapower}. They describe themselves in the following way:
+The central goal in this thesis is to keep values for current and voltage in an electrical power system within safety margins. It is therefore necessary to have a way to solve the power flow equations \eqref{eq:theory:power_flow_equation} and use the results to see if safety margins are violated. The tool for solving the power flow equation in this thesis is the Python package \texttt{pandapower} \cite{pandapower}. They describe themselves in the following way:
 
 \begin{displayquote}
 "pandapower builds on the data analysis library pandas and the power system analysis toolbox PYPOWER to create an easy to use network calculation program aimed at automation of analysis and optimization in power systems. What started as a convenience wrapper around PYPOWER has evolved into a stand-alone power systems analysis toolbox with extensive power system model library, an improved power flow solver and many other power systems analysis functions." \cite{pandapower_website}
@@ -31,7 +31,7 @@ The central goal in this thesis is to keep values for current and voltage in an 
 
 Pandapower is a time independent simulation tool that finds steady state solutions to a power flow problem. The power consumption and production at nodes in the power system can easily be updated as desired, and the power flow calculation will give the resulting voltage and current magnitudes.
 
-This section will describe the different electrical elements available in pandapower and how they are physically modelled. In addition, it is shown how to take actions in the power system using the API of pandapower. It should be noted that this thesis uses version 1.6.1 of pandapower, which have some differences compared to the 2.0.1 version available at the current time of writing. For instance, the base power unit in the 1.6.1 is kilowatts, while it for the 2.0.1 is megawatts.
+This section will describe the different electrical elements available in pandapower and how they are physically modelled. In addition, it is shown how to take actions in the power system using the API of pandapower. It should be noted that this thesis uses version 1.6.1 of pandapower, which has some differences compared to the 2.0.1 version available at the current time of writing. For instance, the base power unit in the 1.6.1 is kilowatts, while it for the 2.0.1 is megawatts.
 
 \subsection*{Lines}
 A line element can be added and connected between two buses by using the \texttt{pandapower.create\_line} method. Pandapower offers many standard types lines for both underground cables and overhead transmission lines. Alternatively a line with custom parameters for impedance, line length, line diameter etc. can be specified with the method \texttt{pandapower.create\_line\_from\_parameters}. The lines are modelled using the $\pi$-equivalent model, described in section \ref{section:pi_model}.
@@ -71,7 +71,7 @@ All of the components will have a result table after the power flow calculation 
 
 \begin{figure}[H]
     \includegraphics[height=8cm, width=14cm]{figures/case4g_line_bus_res.PNG}
-    \caption[size = 9]{Result table in pandapower. There are more columns in \texttt{net.res\_line}}
+    \caption[size = 9]{Result table in pandapower. There are more columns in \texttt{net.res\_line} than shown in the plot}
     \label{fig:method:res_line_bus_dataframe}
 \end{figure}
 
@@ -112,9 +112,9 @@ Transformers in a transmission system can have controllable taps that change the
 \section{Gym, stable-baselines and ActiveEnv}
 The Python library \texttt{gym} is a toolkit used for managing environments in a reinforcement learning algorithm \cite{openai_gym}. It is developed by OpenAI and includes thousands of predefined environments of classical video games and control theory tasks such as the cartpole, swinging pendulum etc. In addition, it is possible to construct own environments that easily can be used in reinforcement algorithms. OpenAI also has a toolkit called \texttt{baselines} with implementations of many reinforcements algorithm that can interact with \texttt{gym} environments \cite{openai_baselines}. However, the \texttt{baselines} library is currently lacking a unified code structure between the algorithms and generally have poor documentation. As a result, a fork called \texttt{stable-baseline} has been created by the AI community, that offers a major cleanup of the code, with a scikit-learn like interface \cite{stable_baselines}. Along with this, it supports tensorboard that can be used to monitor the rewards and objective losses during training.
 
-The implementation of the reinforcement algorithm in this thesis is done by using \texttt{gym} and \texttt{stable-baselines}. Specifically, an environment class called \texttt{ActiveEnv} is implemented, that follows the standard \texttt{gym} environment structure. The main job \texttt{ActiveEnv} is to take in an action chosen by a reinforcement algorithm, perform that action, find the consequent state resulting from that action, and calculate the reward. Specifically, \texttt{ActiveEnv} receives an action vector $a$ where each component determines the percentage change in power consumption at each flexible load. First the consumption and production of power at nodes in the net are changed according to the demand forecast and solar forecast, respectively. The action vector is then processed and updates the power production at each load in the \texttt{pandapower} net. The power flow equations for the network are then solved using \texttt{pandapower}. Once the power flow equation have been solved, and the new voltage and current magnitudes in the net are determined, the reward can be calculated. This summarises the steps involved with one action in the reinforcement algorithm. A more detailed description can be found in \ref{chap:problem_description}.   
+The implementation of the reinforcement algorithm in this thesis is done using \texttt{gym} and \texttt{stable-baselines}. Specifically, an environment class called \texttt{ActiveEnv} is implemented, that follows the standard \texttt{gym} environment structure. The main job \texttt{ActiveEnv} is to take in an action chosen by a reinforcement algorithm, perform that action, find the consequent state resulting from that action, and calculate the reward. Specifically, \texttt{ActiveEnv} receives an action vector $a$ where each component determines the percentage change in power consumption at each flexible load. First the consumption and production of power at nodes in the net are changed according to the demand forecast and solar forecast, respectively. The action vector is then processed and updates the power consumption at each load in the \texttt{pandapower} net. The power flow equations for the network are then solved using \texttt{pandapower}. Once the power flow equation have been solved and the new voltage and current magnitudes in the net are determined, the reward can be calculated. This summarises the steps involved with one action in the reinforcement algorithm. A more detailed description can be found in \ref{chap:problem_description}.   
 
-There are many possible ways of constructing the reward function and state space, as discussed in \ref{chap:problem_description}. The \texttt{ActiveEnv} has a set parameter method that can be to specify the setup of the reinforcement learning algorithm, in addition to several parameters. Table \ref{table:implementation:param_description} gives a description of all the parameters together with their default values.  
+There are many possible ways of constructing the reward function and state space, as discussed in \ref{chap:problem_description}. The \texttt{ActiveEnv} class has a method that can be used to specify the setup of the reinforcement learning algorithm, in addition to several parameters. Table \ref{table:implementation:param_description} gives a description of all the parameters together with their default values.  
 
 
 {

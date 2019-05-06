@@ -1,4 +1,4 @@
-\documentclass[class=book, crop=false]{standalone}
+\documentclass[class=book, crop=false, 11pt]{standalone}
 \usepackage[utf8]{inputenc}
 \usepackage[subpreambles=true]{standalone}
 \usepackage{import}
@@ -573,9 +573,6 @@ A transmission line can be electrically modelled by using a $\pi$-equivalent cir
 
 The transmission line is modelled by a resistance and inductance in series. In addition, there are two shunt capacitors connected in parallel at each end of the line. The capacitors are there because the flow of charges will give an associated capacitance that is proportional with the line length. The $\pi$-model splits the admittance $Y$ of the capacitor into two and puts one part on each end of the line. It is this model pandapower uses to solve a given transmission system. 
 
-
-\section{Active network management}
-Active network management (ANM) is a control strategy too avoid that components in a network exceeds its safety margins in stressed situations \cite{active_network_management}. This is specially relevant with the rising installation of solar panels in private households and large wind farms. A transmission system is constructed to produce power at centralised power plants, and the goal of the transmission system operator is to transport this power through the network and to the consumers. However, the role of the consumer has changed with the rising use of solar panels in private households. In sunny days, households with solar panels will become producers of energy, and send a large amount of power to the grid. The transmission grid is evolving from a centralised to a distributed energy system, with many smaller production units. This is called distributed energy resources (DER) and offers new challenges in terms of overloads and congestion in the grid. 
 
 
 \end{document}
