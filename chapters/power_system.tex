@@ -495,10 +495,10 @@ It is now possible to  express the injected current $I_{k}$ as a linear combinat
     \end{aligned} 
 \end{equation}
 
-Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}. For the case when bus \textit{k} does not inject any current, $I_{k} = 0$. The voltages and injected currents at all buses can therefore be expressed compactly as a matrix equation with the bus voltages ordered in vector $U_{bus}  \in{\boldsymbol{\mathbb{C}}^{n}}$
+Equation \eqref{eq:theory:injected_current_sum} is valid for any bus \textit{k}. For the case when bus \textit{k} does not inject any current, $I_{k} = 0$. The voltages and injected currents at all buses can therefore be expressed compactly as a matrix equation with the bus voltages ordered in vector $U_{\textrm{bus}}  \in{\boldsymbol{\mathbb{C}}^{n}}$
 
 \begin{equation}\label{eq:theory:powerflow_busmatrix}
-I_{bus} = Y_{bus}U_{bus}
+I_{\textrm{bus}} = Y_{\textrm{bus}}U_{\textrm{bus}}
 \end{equation}
 where $I_{bus} \in{\boldsymbol{\mathbb{C}}^{n}}$ is a vector whose k-th component is the injected current at bus \textit{k}. $Y_{bus}\in{\boldsymbol{\mathbb{C}}^{nxn}}$ is called the admittance matrix of the network and its elements are given by equation \eqref{eq:theory:admittance_components}. It is more convenient to work with power injection instead of current injection at a bus. The complex conjugate injected apparent power $S^{*}_{k}$ at bus \textit{k} can be found by using \eqref{eq:theory:injected_current_sum}
 
