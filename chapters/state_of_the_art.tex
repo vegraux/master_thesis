@@ -13,6 +13,7 @@
 \addbibresource{reference.bib}
 \usepackage{csquotes}
 \usepackage{pgfplots}
+\usepackage{makecell}
 \pgfplotsset{compat=1.15}
 
 \begin{document}
@@ -49,7 +50,7 @@ Demand response is a subject that is well researched. Vázquez-Canteli and Nagy 
 \begin{tabular}{llll}
 A                        & B                        & C                    & D           \\
 \hline
-"Reinforcement learning" & "Demand-side management" & Heating              & Building*   \\
+"Reinforcement learning" & \makecell[l]{"Demand-side\\management"} & Heating              & Building*   \\
 Q-learning               & "Demand response"        & Cooling              & House*      \\
                          & "Electric vehicle*"      & "Electricity price*" & Residential \\
                          & HVAC                     & Comfort              & Home*       \\

@@ -1,14 +1,58 @@
-\documentclass[class=book, crop=false, 11pt]{standalone}
+\documentclass[11pt]{book}
 \usepackage[subpreambles=true]{standalone}
-%\usepackage[toc,page]{appendix}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[margin=1.2in]{geometry}
+\usepackage[sorting = none,
+            doi = true  %lesedato for url-adresse
+            ]{biblatex} %none gir bibliografi i sitert rekkefølge
+\addbibresource{reference.bib}
+\usepackage{csquotes}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{hyperref}
+\usepackage[toc,page]{appendix}
+\usepackage{makecell}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{float}
  
+\definecolor{codegreen}{rgb}{0,0.604,0.506}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeblue}{rgb}{0,0.663,0.835}
+\definecolor{codered}{rgb}{0.906,0.322,0.267}
+\definecolor{codepurple}{rgb}{0.502,0.29,0.353}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    %backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codered},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codegreen},
+    basicstyle=\footnotesize,
+    emph={self},          % Custom highlighting
+    emphstyle=\color{codepurple},  
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
 
 \begin{document}
+
 \chapter{Python code}
-\section{RLpower}
-something
+The Python code written for this Thesis can be found on GitHub: \url{https://github.com/vegraux/master_thesis}
+\section{ActiveEnv}
+\lstinputlisting[language=Python]{RLpower/active_network_env.py}
+
 
 \section{Simulation}
 \lstinputlisting[language=Python]{RLpower/stable_ddpg_example.py}
