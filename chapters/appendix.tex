@@ -37,7 +37,7 @@ flexibility        & 0.1                                       \\
 forecast\_horizon  & 4                                         \\
 i\_upper           & 90                                        \\
 imbalance\_weight  & 0.0001                                    \\
-reactive\_power    & False                                     \\
+reactive\_power    & True                                     \\
 reward\_terms      & {[}'voltage',  'current',  'imbalance'{]} \\
 solar\_scale       & 0.8                                       \\
 solar\_std         & 0                                         \\
@@ -53,7 +53,7 @@ voltage\_weight    & 1                                         \\
 
 The used implementation of DDPG is \texttt{stable\_baselines.ddpg.ddpg.DDPG}. The agent was trained for 100 000 steps, which took around 1 hour with a 2 core Intel(R) Core(TM) i3-7100U CPU @ 2.40 GHz. The memory limit (size of the experience replay buffer) was also set to 100 000. The rest of the arguments are the same as the default values. 
 
-The model was trained using the policy \texttt{stable\_baselines.ddpg.policies.LnMlpPolicy}, which is 2 hidden layer architecture with 64 neurons and layer normalisation. The noise added to the deterministic policy is \texttt{stable\_baselines.ddpg.noise.OrnsteinUhlenbeckActionNoise} with mean=0, sigma=0.2, theta=0.15.  
+\texttt{stable\_baselines.ddpg.policies.LnMlpPolicy} is the policy that is used for training the model. It is a dense neural network with an architecture of 2 hidden layer, each with 64 neurons and layer normalisation. The exploratory noise added to the deterministic policy is \texttt{stable\_baselines.ddpg.noise.OrnsteinUhlenbeckActionNoise} with standard hyperparameters: mean=0, sigma=0.2, theta=0.15.  
 
 
 \section{Configuration 2}
