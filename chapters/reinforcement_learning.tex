@@ -12,6 +12,8 @@
             ]{biblatex} %none gir bibliografi i sitert rekkefølge
 \addbibresource{reference.bib}
 \usepackage{csquotes}
+\usepackage[font=small,labelfont=bf]{caption}
+
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.15}
 
@@ -347,7 +349,7 @@ L(\theta^{Q})
 \end{equation}
 Notice that the state and action follows the distribution of the behavioural policy $\beta$. The loss is zero if the action value approximator satisfies the Bellman equation in \eqref{eq:theory:bellman_equation}. Therefore, the action-value approximator is encouraged to satisfy the Bellman equation.
 
-There are however some practical problems with the loss definition in equation \eqref{eq:theory:action_value_target_bellman_equation}. The critic target $y_{t}$ is calculated using $Q(s,\mu(s)|\theta^{Q})$, which after each parameter update of $\theta^{Q}$ may change quickly. Therefore, the critic target can fluctuate rapidly during learning. We are changing our network closer to the target, but the target itself is moving. To avoid this, Lillicrap et al. suggests a soft update of the target weights \cite{DBLP:journals/corr/LillicrapHPHETS15}. This is done by creating a copy of the actor $\mu'$ and critic $Q'$ at the beginning of learning that will serve as the target networks. After each parameter update, the original actor and critic networks $\mu,Q$ are updated as before, while the target weights are soft updated by $\theta' \leftarrow \tau\theta + (1-\tau)\theta'$, where $\tau$ is a small positive number ($\tau  \ll 1$). The target network are more locked in place, and will slowly change during training compared to the original networks. This greatly increase the stability during learning. 
+There are however some practical problems with the loss definition in equation \eqref{eq:theory:action_value_target_bellman_equation}. The critic target $y_{t}$ is calculated using $Q(s,\mu(s)|\theta^{Q})$, which after each parameter update of $\theta^{Q}$ may change quickly. Therefore, the critic target can fluctuate rapidly during learning. We are changing our approximator closer to the target, but the target itself is moving. To avoid this, Lillicrap et al. suggests a soft update of the target weights \cite{DBLP:journals/corr/LillicrapHPHETS15}. This is done by creating a copy of the actor $\mu'$ and critic $Q'$ at the beginning of learning that will serve as the target approximators. After each parameter update, the original actor and critic approximator $\mu,Q$ are updated as before, while the target weights are soft updated by $\theta' \leftarrow \tau\theta + (1-\tau)\theta'$, where $\tau$ is a small positive number ($\tau  \ll 1$). The target approximator are more locked in place, and will slowly change during training compared to the original approximators. This greatly increase the stability during learning. 
 
 
 \subsection{Experience replay}
