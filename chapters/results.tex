@@ -29,7 +29,7 @@ It is important to investigate the potential effect demand response has on curre
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/demand_and_solar.png}
-    \caption[size = 9]{Mean hourly power demand curve and solar irradiance}
+    \caption {Mean hourly power demand curve and solar irradiance}
     \label{fig:results:demand_and_solar}
 \end{figure}
 
@@ -39,7 +39,7 @@ As mentioned in chapter \ref{chap:problem_description}, the main challenges for 
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/increase_demand_current.png}
-    \caption[size = 9]{Current capacity in a critical line when increasing the power consumption with 25 \% in all hours and regular situation. The line connecting bus 1 and 2 in figure \ref{fig:problem:cigre_network} is showed}
+    \caption {Current capacity in a critical line when increasing the power consumption with 25 \% in all hours and regular situation. The line connecting bus 1 and 2 in figure \ref{fig:problem:cigre_network} is showed}
     \label{fig:results:increase_demand_current}
 \end{figure}
 
@@ -52,7 +52,7 @@ Figure \ref{fig:results:decrease_demand_voltage} illustrates the effect activati
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/decrease_demand_voltage.png}
-    \caption[size = 9]{Voltage magnitude at critical bus when the power consumption is reduced with 25 \% in all hours and regular situation. Bus bar 9 in \ref{fig:problem:cigre_network} is used}
+    \caption {Voltage magnitude at critical bus when the power consumption is reduced with 25 \% in all hours and regular situation. Bus bar 9 in \ref{fig:problem:cigre_network} is used}
     \label{fig:results:decrease_demand_voltage}
 \end{figure}
 
@@ -119,7 +119,7 @@ Imbalance state & 1  & Total energy imbalance in the net
 \begin{figure}[h]
     \center
     \includegraphics[scale=0.7]{figures/configuration1.png}
-    \caption[size = 9]{Activation of flexibility at the different flexible loads of the trained agent throughout a day. The red line is the solar irradiance during the day, which is the same for all loads. The actions in green is the activation of flexibility. Action = 1 means that the flexible load increases its power consumption with 10 \%, while action = -1 means that it decreases its power consumption with 10 \%. The solar irradiance is unitless, and plotted to show the relation between the action and solar profile.}
+    \caption {Activation of flexibility at the different flexible loads of the trained agent throughout a day. The red line is the solar irradiance during the day, which is the same for all loads. The actions in green is the activation of flexibility. Action = 1 means that the flexible load increases its power consumption with 10 \%, while action = -1 means that it decreases its power consumption with 10 \%. The solar irradiance is unitless, and plotted to show the relation between the action and solar profile.}
     \label{fig:results:configuration1}
 \end{figure}
 
@@ -132,14 +132,14 @@ Figure \ref{fig:results:configuration1} visualises the actions of the trained ag
 \begin{figure}[h]
     \center
 \includegraphics[scale=0.7]{figures/configuration1_follows_sun.png}
-    \caption[size = 9]{Action of the agent at load 12, and solar irradiance during a day. The consumed power is increased in periods with high solar production}
+    \caption {Action of the agent at load 12, and solar irradiance during a day. The consumed power is increased in periods with high solar production}
     \label{fig:results:configuration1_follows_sun}
 \end{figure}
 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/configuration1_negative_actions.png}
-    \caption[size = 9]{Action of the agent at load 8 and solar profile during a day}
+    \caption {Action of the agent at load 8 and solar profile during a day}
     \label{fig:results:configuration1_negative_actions}
 \end{figure}
 
@@ -152,7 +152,7 @@ The plot for \texttt{load 8} is shown alone in figure \ref{fig:results:configura
 \begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/configuration1_imbalance.png}
-    \caption[size = 9]{Total energy imbalance in the system during a 200 hour episode controlled by the trained agent}
+    \caption {Total energy imbalance in the system during a 200 hour episode controlled by the trained agent}
     \label{fig:results:configuration1_energy_imbalance}
 \end{figure}
 
@@ -177,7 +177,7 @@ Figure \ref{fig:results:config1_voltage_boxplot} shows the voltage penalty distr
 \begin{figure}[H]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_voltage_boxplot.png}
-    \caption[size = 9]{Box plot of the voltage penalty distribution of the trained agent and no agent scenario for critical hours where safety margins are violated.}
+    \caption {Box plot of the voltage penalty distribution of the trained agent and no agent scenario for critical hours where safety margins are violated.}
     \label{fig:results:config1_voltage_boxplot}
 \end{figure}
 
@@ -206,7 +206,7 @@ All votlage penalties in the no agent scenario for critical hours are sorted and
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_sorted_voltage.png}
-    \caption[size = 9]{Voltage penalties given to the trained agent and no agent scenario in critical hours. The penalties are sorted for the no agent scenario from least to most severe}
+    \caption {Voltage penalties given to the trained agent and no agent scenario in critical hours. The penalties are sorted for the no agent scenario from least to most severe}
     \label{fig:results:config1_sorted_voltage}
 \end{figure}
 
@@ -216,7 +216,7 @@ Figure \ref{fig:results:config1_improvement_voltage} shows for each hour of a da
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_improvement_voltage.png}
-    \caption[size = 9]{Hourly box plots of the difference in voltage rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
+    \caption {Hourly box plots of the difference in voltage rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
     \label{fig:results:config1_improvement_voltage}
 \end{figure}
 
@@ -243,7 +243,7 @@ The trained agent increases the number of current violations by 5 \% from 1487 t
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_current_boxplot.png}
-    \caption[size = 9]{Box plot of the current penalty for the trained agent and no agent scenario in critical hours}
+    \caption {Box plot of the current penalty for the trained agent and no agent scenario in critical hours}
     \label{fig:results:config1_current_boxplot}
 \end{figure}
 Figure \ref{fig:results:config1_sorted_current} plots the current violations for critical hours in the 500 episode sorted from least to most severe. The hour with the lowest current penalty is the least critical hour. It is clear that the trained agent for the most part aggravates the situation. In fact, it only improves the situation in 9\% of the critical hours, which for the most part are less critical in terms of the size of the current penalty. 
@@ -251,7 +251,7 @@ Figure \ref{fig:results:config1_sorted_current} plots the current violations for
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_sorted_current.png}
-    \caption[size = 9]{Current penalties in critical hours sorted from least to most severe for the trained agent and no agent scenario}
+    \caption {Current penalties in critical hours sorted from least to most severe for the trained agent and no agent scenario}
     \label{fig:results:config1_sorted_current}
 \end{figure}
 
@@ -260,7 +260,7 @@ Figure \ref{fig:results:config1_improvement_current} shows hourly box plots for 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_improvement_current.png}
-    \caption[size = 9]{Hourly box plots of the difference in current rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
+    \caption {Hourly box plots of the difference in current rewards between the trained agent and no agent scenario in critical hours. Positive values means that the trained agent is better}
     \label{fig:results:config1_improvement_current}
 \end{figure}
 
@@ -269,7 +269,7 @@ Figure \ref{fig:results:config1_improvement_current} shows hourly box plots for 
 \begin{figure}[h]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/config1_bad_current.png}
-    \caption[size = 9]{Current reward and solar irradiance profile in a three day period. The agent is not able to prevent current overloads in hours of peak solar irradiance.}
+    \caption {Current reward and solar irradiance profile in a three day period. The agent is not able to prevent current overloads in hours of peak solar irradiance.}
     \label{fig:results:config1_bad_current}
 \end{figure}
 

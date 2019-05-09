@@ -53,7 +53,7 @@ The specific setup in this thesis is based on several assumptions for a hypothet
 \begin{figure}[ht]
     \center
     \includegraphics[height=14cm, width=13.5cm]{figures/cigre_network_mv_der.png}
-    \caption[size = 9]{CIGRE network with solar and wind power that is used in the reinforcement learning algorithm \cite{cigre}}
+    \caption  {CIGRE network with solar and wind power that is used in the reinforcement learning algorithm \cite{cigre}}
     \label{fig:problem:cigre_network}
 \end{figure}
 
@@ -67,7 +67,7 @@ A data set with satellite-derived solar irradiance in central Norway is used as 
 \begin{figure}[ht]
     \center
     \includegraphics[height=9cm, width=13.5cm]{figures/solar_data.png}
-    \caption[size = 9]{The solar irradiance data used in the reinforcement model. The period is 2004-02-11 to 2004-10-03, generated from SoDa \cite{solar_data}. (lon,lat) = (63.395,10.381) }
+    \caption  {The solar irradiance data used in the reinforcement model. The period is 2004-02-11 to 2004-10-03, generated from SoDa \cite{solar_data}. (lon,lat) = (63.395,10.381) }
     \label{fig:problem:solar_data}
 \end{figure}
 
@@ -115,11 +115,11 @@ Let $\mathcal{S}_{\textrm{bus}} \subseteq \mathbb{R}^{4N}$ be the space represen
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:bus_state}
-\mathcal{S}_{\textrm{bus}} = \{|V_{i}|, \delta_{i}, P_{i}, Q_{i} |\; i = 1,...,N\}
+\mathcal{S}_{\textrm{bus}} = \{|U_{i}|, \delta_{i}, P_{i}, Q_{i} |\; i = 1,...,N\}
     \end{aligned} 
 \end{equation}
 
-where $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$ in a $N$-bus system. This could give information to the agent about how stressed the system is. For instance, large values for active power $P_{i}$ and voltage magnitude $|V_{i}|$ indicate a stressed situation at bus $i$ possibly due to high solar production. 
+where $|U_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ respectively are the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$ in a $N$-bus system. This could give information to the agent about how stressed the system is. For instance, large values for active power $P_{i}$ and voltage magnitude $|U_{i}|$ indicate a stressed situation at bus $i$ possibly due to high solar production. 
 
 
 
@@ -152,7 +152,7 @@ where $B_{i}$ is the energy imbalance at flexible load $i$ defined by \eqref{eq:
 
 \begin{table}[ht]
 \centering
-\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $F$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|V_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ are respectively the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ and $B_{i}$ are respectively the commitment stage and energy imbalance of flexible load \textit{i}}
+\caption{State spaces that can be used in the reinforcement algorithm. $H$ is the forecast horizon, i.e the number of hours into the future the agent receives a forecast. $N$ and $F$ are respectively the number of buses and flexible loads in the net. $r_{i}$ and $d_{i}$ are, respectively, the forecasted solar irradiance and power demand $i$ hour in the future. $|U_{i}|,\delta_{i}, P_{i}$ and $Q_{i}$ are respectively the voltage magnitude, voltage phase angle, active power injection and reactive power injection at bus $i$. $c_{i}$ and $B_{i}$ are respectively the commitment stage and energy imbalance of flexible load \textit{i}}
 \label{table:state_spaces}
 \begin{tabular}{l|lll}
 
@@ -163,7 +163,7 @@ Solar forecast      & $\mathcal{S}_{\textrm{sun}}$& H  &  $\{r_{j} |\;j=1,...,H\
 \\ 
 
 Demand forecast    & $\mathcal{S}_{\textrm{demand}}$ &$H\cdot F$ &$\{d_{j,i} |\;j=1,...,H,i=1,...,F\}$  \\ 
-Bus state & $\mathcal{S}_{\textrm{bus}}$ & $4N$ &$\{\delta_{i}, P_{i}, Q_{i}, |V_{i}| |\; i = 1,...,N\}$\\
+Bus state & $\mathcal{S}_{\textrm{bus}}$ & $4N$ &$\{\delta_{i}, P_{i}, Q_{i}, |U_{i}| |\; i = 1,...,N\}$\\
 
 Commitment state &$\mathcal{S}_{\textrm{commitment}}$& $F$  &$\{ c_{i} |\; i = 1,...,F\}$ \\
  
@@ -198,20 +198,20 @@ The reward function is a central element in any reinforcement algorithm. The ter
 
 The reward function should give a signal that is used to reinforce "good" behaviour. The goal of the agent is avoid violations of safety margins for voltage and current in the power grid. Gemine et al. formulate a reward function aimed to safely operate a power grid at a low cost, where they punish the agent proportionally to the violation of safety margins \cite{active_network_management}. There are multiple cost terms that can be included, and this section will present several of these. 
 
-There are safety margins in terms of voltage magnitudes in an electric transmission system. In the Norwegian power system, it is allowed 24 voltage changes over 5 \% during a day for nominal voltage levels between 0.23 and 35 kV \cite{lovdata}. This thesis will assume a symmetric safety region around nominal voltage values, for instance 0.96 and 1.04. In other words, the system tolerates a 4 \% deviation from nominal voltage in each direction. Let $C_{\textrm{voltage},i}$ be the cost for violating voltage margins at bus $i$
+There are safety margins in terms of voltage magnitudes in an electric transmission system. In the Norwegian power system, there are regulations that state that the voltage can vary by +/- 10 \% of nominal levels for voltage levels below 1 kV \cite{lovdata}. This thesis will assume a stricter safety region around nominal voltage values, motivated by the higher voltage level in the CIGRE network (22 kV). The default safety margin for voltage is set to +/- 5 \% deviation from nominal voltage. Let $C_{\textrm{voltage},i}$ be the cost for violating voltage margins at bus $i$
 
 
 \begin{equation}
    \begin{aligned}
    \label{eq:problem:voltage_margins_cost}
-    C_{\textrm{voltage},i} = \max(0,|V_{i}| - V_{\textrm{upper}}) + \max(0,V_{\textrm{lower}}- |V_{i}|)
+    C_{\textrm{voltage},i} = \max(0,|U_{i}| - U_{\textrm{upper}}) + \max(0,U_{\textrm{lower}}- |U_{i}|)
     \end{aligned} 
 \end{equation}
-where $V_{\textrm{upper}}$ and $V_{\textrm{lower}}$ are the upper and lower per-unit voltage limit respectively. The voltage cost for a node in the grid with a safety margin of +/- 4 \%  is visualised in figure \ref{fig:problem:voltage_cost}.
+where $U_{\textrm{upper}}$ and $U_{\textrm{lower}}$ are the upper and lower per-unit voltage limit respectively. The voltage cost for a node in the grid with a safety margin of +/- 5 \%  is visualised in figure \ref{fig:problem:voltage_cost}.
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/voltage_cost.png}
-    \caption[size = 9]{Voltage cost at a bus in the power system where the lower and upper voltage limits respectively are 0.96 pu and 1.04 pu }
+    \caption{Voltage cost at a bus in the power system where the lower and upper voltage limits respectively are 0.95 pu and 1.05 pu }
     \label{fig:problem:voltage_cost}
 \end{figure}
 
@@ -223,15 +223,15 @@ Let $C_{\textrm{current},i}$ be the cost of violating current margins in line $i
     C_{\textrm{current},i} = \max(0,|I_{i}| - I_{\textrm{upper}})
     \end{aligned} 
 \end{equation}
-where $I_{\textrm{upper}}$ is the per unit upper current loading limit in lines. The current loading is the percentage of used capacity in the transmission line. The current cost is plotted in figure  \ref{fig:problem:current_cost} for an upper current loading limit of 90 \%.
+where $I_{\textrm{upper}}$ is the per unit upper current loading limit in lines. Note that the current loading is not measured in ampere, but is the percentage of used capacity in the transmission line. The current cost is therefore weighted by the capacity of a line. The current cost for a line is plotted in figure \ref{fig:problem:current_cost} for an upper current loading limit of 90 \%.
 
 \begin{figure}[ht]
     \center
 \includegraphics[height=8cm, width=12cm]{figures/current_cost.png}
-    \caption[size = 9]{Current cost for a line in the power system where the upper current loading is 90 \%}
+    \caption  {Current cost for a line in the power system where the upper current loading is 90 \%}
     \label{fig:problem:current_cost}
 \end{figure}
-Costumers must be given an incentive to change their consumption pattern in a in a realistic modelling of demand response. In other words, costumers should be economically compensated when their flexibility is activated. Let the activation cost $C_{\textrm{activation},i}$ is defined as
+Costumers must be given an incentive to change their consumption pattern in a in a realistic modelling of a demand response program. In other words, costumers should be economically compensated when their flexibility is activated. Let the activation cost $C_{\textrm{activation},i}$ be defined as
 
 \begin{equation}
    \begin{aligned}
@@ -283,7 +283,7 @@ Cost  & Definition & Comment
 \\ 
 \hline
 Voltage &
-$\max(0,|V_{i}| - V_{\textrm{upper}}) + \max(0,V_{\textrm{lower}}- |V_{i}|)$ &
+$\max(0,|U_{i}| - U_{\textrm{upper}}) + \max(0,U_{\textrm{lower}}- |U_{i}|)$ &
 Violation of voltage margin
 \\
 Current &
