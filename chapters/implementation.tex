@@ -59,21 +59,21 @@ Pandapower stores information about elements in an electric transmission system 
 \begin{figure}[H]
     \center
     \includegraphics[height=6cm, width=12cm]{figures/case4g_show_net.PNG}
-    \caption[size = 9]{Loading an example net in pandapower}
+    \caption {Loading an example net in pandapower}
     \label{fig:method:loading_example_net}
 \end{figure}
 Each of the elements listed have a corresponding pandas DataFrame. The elements without "res" at the beginning are parameter tables and have information about nominal and max/min values for the components. Figure \ref{fig:method:line_bus_dataframe} shows the parameter table for the line and bus.
 
 \begin{figure}[H]
     \includegraphics[height=8cm, width=13.5cm]{figures/case4g_line_bus.PNG}
-    \caption[size = 9]{Parameter table in pandapower. There are more columns in \texttt{net.line}}
+    \caption {Parameter table in pandapower. There are more columns in \texttt{net.line}}
     \label{fig:method:line_bus_dataframe}
 \end{figure}
 All of the components will have a result table after the power flow calculation is performed, using the method \texttt{pandapower.runpp}. Figure \ref{fig:method:res_line_bus_dataframe} shows the result table for the bus and line. Note that values for active and reactive power are from the consumer perspective. In other words, positive values means consumption of power, while negative values means production.
 
 \begin{figure}[H]
     \includegraphics[height=8cm, width=14cm]{figures/case4g_line_bus_res.PNG}
-    \caption[size = 9]{Result table in pandapower. There are more columns in \texttt{net.res\_line} than shown in the plot}
+    \caption {Result table in pandapower. There are more columns in \texttt{net.res\_line} than shown in the plot}
     \label{fig:method:res_line_bus_dataframe}
 \end{figure}
 
@@ -84,7 +84,7 @@ It is important to be able to inspect the resulting state after a reinforcement 
 \begin{figure}[H]
     \center
     \includegraphics[height=15cm, width=12cm]{figures/results_pp_oberrhein.png}
-    \caption[size = 9]{Interactive plot of the results from a power flow calculation on the Oberrhein case power grid using plotly. The grid consists of 179 lines and 180 buses}
+    \caption {Interactive plot of the results from a power flow calculation on the Oberrhein case power grid using plotly. The grid consists of 179 lines and 180 buses}
     \label{fig:method:oberrhein_grid_results_plotly}
 \end{figure}
 
@@ -97,7 +97,7 @@ Reinforcement learning is all about taking actions and getting rewards based on 
 \begin{figure}[H]
     \center
     \includegraphics[height=12cm, width=12cm]{figures/case4g_controll_vm_p_kw.PNG}
-    \caption[size = 9]{How to control the active power and voltage magnitude at a generator. Note that negative values for active power ('p\_kw') means production}
+    \caption {How to control the active power and voltage magnitude at a generator. Note that negative values for active power ('p\_kw') means production}
     \label{fig:method:case4g_controll_vm_p_kw}
 \end{figure}
 
@@ -107,7 +107,7 @@ Transformers in a transmission system can have controllable taps that change the
 \begin{figure}[H]
     \center
     \includegraphics[height=12cm, width=12cm]{figures/control_transformer.PNG}
-    \caption[size = 9]{Code showing how to control the tap position and phase angle for a transformer in pandapower}
+    \caption {Code showing how to control the tap position and phase angle for a transformer in pandapower}
     \label{fig:method:control_transformer}
 \end{figure}
 

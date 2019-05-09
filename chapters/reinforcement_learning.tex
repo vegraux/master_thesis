@@ -33,7 +33,7 @@ Algorithms in machine learning and artificial intelligence are often divided int
 \begin{figure}[ht!]
     \center
     \includegraphics[height=6cm, width=12cm]{figures/supervised_vs_rl.png}
-    \caption[size = 9]{The three main categories of machine learning: supervised, unsupervised and reinforcement learning}
+    \caption  {The three main categories of machine learning: supervised, unsupervised and reinforcement learning}
     \label{fig:theory:supervised_vs_rl}
 \end{figure}
 
@@ -70,7 +70,7 @@ The interaction between the agent and environment is visualised in figure \ref{f
 \begin{figure}[ht!]
     \center
     \includegraphics[height=5cm, width=10cm]{figures/rl_interaction.png}
-    \caption[size = 9]{Interaction in a Markov decision process}
+    \caption  {Interaction in a Markov decision process}
     \label{fig:theory:markov_decision_process}
 \end{figure}
 Formally, a finite Markov decision process $\mathcal{M}$ is a tuple
@@ -181,7 +181,7 @@ An ANN is organised in different layers, where each layer consists of several no
 \begin{figure}[ht!]
     \center
     \includegraphics[height=7cm, width=10cm]{figures/neural_network.png}
-    \caption[size = 9]{Illustration of a neural network with two hidden layers}
+    \caption  {Illustration of a neural network with two hidden layers}
     \label{fig:theory:neural_network}
 \end{figure}
 Once the linear combination $z$ is computed, it is sent through a non-linear activation function $\Phi: \mathbb{R} \to \mathbb{R}$, whose output value will determine the value of the neuron. There are several activation functions that are used, such as the hyperbolic tangent (tanh), the sigmoid function and rectified linear unit (ReLU).  Once all the neurons in a layer are found, the next layer can be calculated with the same process. When an ANN is used as an approximator of the action-value function $Q$, the training process is all about updating the weights and biases such that the output layer gives the true Q-value for different states and actions. An advantage of using an ANN to approximate the Q-value is that the algorithm can evaluate an action in a new and unseen state. This is useful when the state representation is very large, such as for pictures. 
@@ -196,7 +196,7 @@ The second category is called model-free reinforcement learning. As the name sug
 \begin{figure}[ht!]
     \center
     \includegraphics[height=6cm, width=11cm]{figures/rl_model_modelfree.png}
-    \caption[size = 9]{Classes of reinforcement algorithms}
+    \caption  {Classes of reinforcement algorithms}
     \label{fig:theory:rl_model_modelfree}
 \end{figure}
 
@@ -208,7 +208,7 @@ Policy-based methods (also called policy gradient) directly parametrise the poli
 \begin{figure}[ht!]
     \center
     \includegraphics[height=6cm, width=10cm]{figures/Actor-critic.png}
-    \caption[size = 9]{Actor-critic in relation to value-based and policy-based methods}
+    \caption  {Actor-critic in relation to value-based and policy-based methods}
     \label{fig:theory:Actor-critic}
 \end{figure}
 
@@ -420,7 +420,7 @@ Designing the reward for a reinforcement agent is often a challenging and time-c
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/two_bus.tex}
-    \caption[size = 9]
+    \caption  
     {A two bus system connected by a line. \textit{P} and \textit{Q} are the active and reactive power flow, \textit{R} and \textit{X} is the resistance and reactance of the line, \textit{U} is the voltage and \textit{I} is the line current}    \label{fig:theory:two_bus_reinforcement}
 \end{figure}
 
@@ -433,7 +433,7 @@ Consider the two-bus system shown in figure \ref{fig:theory:two_bus_reinforcemen
 \begin{figure}[h]
     \center
     \includegraphics[height=7.5cm, width=10cm]{figures/twobus_load_balance.png}
-    \caption[size = 9]{Received load as a function of production of the two-bus system in figure \ref{fig:theory:two_bus_reinforcement}, and cost given to the agent}
+    \caption  {Received load as a function of production of the two-bus system in figure \ref{fig:theory:two_bus_reinforcement}, and cost given to the agent}
     \label{fig:theory:two_bus_failing}
 \end{figure}
 \end{document}

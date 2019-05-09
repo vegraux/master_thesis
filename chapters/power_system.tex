@@ -85,8 +85,7 @@ There are electrical loads that cause a phase shift between the current and volt
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/circuit_capacitor.tex}
-    \caption[size = 9]
-    {Circuit with a capacitor as load}\label{fig:theory:circuit_capacitor}
+    \caption{Circuit with a capacitor as load}\label{fig:theory:circuit_capacitor}
 \end{figure}
 
 
@@ -136,7 +135,7 @@ I(t) = \frac{U}{X_{c}} \sin(\omega t + \pi/2)
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/circuit_inductor.tex}
-    \caption[size = 9]
+    \caption
     {Circuit with an electromagnetic coil as load}\label{fig:theory:circuit_inductor}
 \end{figure}
 
@@ -171,7 +170,7 @@ For a purely resistive load with no phase shift between current and voltage, the
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/plot_powers.tex}
-    \caption[size = 9]
+    \caption 
     {Instantaneous power transferred to the load in a circuit with a pure resistive, inductive and capacitive load that are equal in size}\label{fig:theory:reactive_powers}
 \end{figure}
 
@@ -182,7 +181,7 @@ Current, voltage, impedance and power are all expressed as complex numbers in an
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/complex_currents_circuit.tex}
-    \caption[size = 9]
+    \caption 
     {Circuit with a resistor and an inductance connected i parallel}\label{fig:theory:complex_current_circuit}
 \end{figure}
 The resistor will draw a current $I_{p}$ that is in phase with the source voltage. The inductor will draw a current $I_{q}$ that lags the voltage by 90 degrees. The resultant current drawn from the source will therefore be a linear combination of two phase shifted sinusoidal signals. The equations for summing phase-shifted sinusoidal signals are complicated, and not not easy to work with. Euler's formula states that a complex number $A$ can be expressed by
@@ -196,7 +195,7 @@ where $e$ is the base of the natural logarithm, $j$ is the imaginary unit, $R$ i
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/phase_currents.tex}
-    \caption[size = 9]
+    \caption 
     {Current as complex numbers. $I_{q}$ is the current drawn by an inductor, and lags the voltage by 90 degrees. $I_{p}$ is the current drawn by a resistive load and is in phase with the voltage. The current \textit{I} is commonly defined to be lagging, so that $I = |I|e^{-j\varphi}$. By this definition, $\varphi$ is a positive real number when the current is lagging the voltage.   }\label{fig:theory:phase_current}
 \end{figure}
 
@@ -244,7 +243,7 @@ The complex notation also works for a circuit with resistive, inductive and capa
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/complex_impedance_series.tex}
-    \caption[size = 9]
+    \caption 
     {AC circuit with a resistor, capacitor and coil connected in series}\label{fig:theory:complex_impedance_series}
 \end{figure}
 
@@ -277,7 +276,7 @@ A conventional electrical power line transfers power in three conductors that ha
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/three_phase.tex}
-    \caption[size = 9]
+    \caption 
     {Three-phase transmission system. Three conductors transfer power to the loads $R_{a}$, $R_{b}$ and $R_{c}$}\label{fig:theory:three_phase}
 \end{figure}
 
@@ -367,7 +366,7 @@ An electrical power system consists of a set of nodes \textbf{N}, commonly refer
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/bus_system.tex}
-    \caption[size = 9]
+    \caption 
     {Example of a network with 5 buses and 7 branches connecting them}\label{fig:theory:bus_system}
 \end{figure}
 A bus is electrically modelled as a point where electrical power is injected. A positive injected power corresponds to generation of power at that bus. This is the case for a bus that is connected to a power plant. A negative power injection corresponds to a consumption of power, as would be the case for a bus connected to a factory producing aluminium. The net effect of power production and consumption determines if the net power injection to that bus. Bus \textit{k} in an electric power system is physically described by four quantities: The voltage magnitude $|U_{k}|$, the voltage angle $\delta_{k}$, the active power injection $P_{k}$ and the reactive power injection $Q_{k}$.
@@ -397,7 +396,7 @@ The voltage magnitude $|U|$ and active power $|P|$ are fixed for the voltage con
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/two_bus.tex}
-    \caption[size = 9]
+    \caption 
     {Simple two bus system connected by a line. \textit{P} and \textit{Q} are the active and reactive power flow, \textit{R} and \textit{X} is the resistance and reactance of the line, \textit{U} is the voltage and \textit{I} is the current flowing}    \label{fig:theory:two_bus}
 \end{figure}
 
@@ -412,7 +411,7 @@ $R$ is the resistance and $X$ is the reactance of the line, $U_{1}$ and $U_{2}$ 
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/two_bus_phasors.tex}
-    \caption[size = 9]{Phasors of current and voltages in a two bus network connected by line with 0 resistance (R=0)}
+    \caption {Phasors of current and voltages in a two bus network connected by line with 0 resistance (R=0)}
     \label{fig:theory:two_bus_phasor}
 \end{figure}
 
@@ -444,7 +443,7 @@ where $|U_{1}|$ and $|U_{2}|$ are the voltage magnitudes at bus 1 and 2, $|Z|$ i
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/plot_active_power_flow.tex}
-    \caption[size = 9]{Active power flow \textit{P} between two buses as a function of voltage angle with no losses ($\alpha=0$) and a typical loss angle $\alpha$ of 0.13. The bus with a leading voltage angle $\delta$ supplies active power, while the lagging bus voltage is receiving.} \label{fig:theory:active_power_flow}
+    \caption {Active power flow \textit{P} between two buses as a function of voltage angle with no losses ($\alpha=0$) and a typical loss angle $\alpha$ of 0.13. The bus with a leading voltage angle $\delta$ supplies active power, while the lagging bus voltage is receiving.} \label{fig:theory:active_power_flow}
 \end{figure}
 
 A similar argument will give that the reactive power flow $Q_{1}$ at bus 1 for a line without resistive losses is given by 
@@ -467,7 +466,7 @@ I_{k} =  U_{k}Y_{k0}
 \begin{figure}[ht!]
     \center
     \subimport{../}{circuits/powerflow_injected_bus.tex}
-    \caption[size = 9]{Electrical model of a bus in a grid consisting of \textit{n} buses}
+    \caption {Electrical model of a bus in a grid consisting of \textit{n} buses}
     \label{fig:theory:powerflow_injected_bus}
 \end{figure}
 
