@@ -15,9 +15,14 @@
 \usepackage{pgfplotstable}
 \usepackage[font=small,labelfont=bf]{caption}
 
-
 \pgfplotsset{compat=1.15}
 
 \begin{document}
 \chapter{Abstract}
+The increasing amount of variable renewable energy sources such as solar and wind power in the power mix brings new challenges to existing power system infrastructure. A fundamental property of an electric power system is that the production of power at all times must be consumed somewhere in the grid. Growing solar production can result in excess power that can break the power capacity in transmission lines and damage the voltage quality in an electric grid. A workaround this problem is that consumers shift their power consumption pattern such that more solar power is consumed locally during daytime. Methods for achieving a change in consumption patters are called demand response programs.
+
+The purpose of this thesis is to make a Python implementation of an automatic and simplified demand response program by using reinforcement learning (RL), a subcategory of machine learning. The RL algorithm is allowed to change the power consumption every hour in an electric grid that has a high amount of local solar production. Decreasing the power consumption can for instance correspond to a collection of electric vehicles postponing the charging to later in the day. Once the RL algorithm has modified the power consumption, the resulting line currents and voltages in grid are calculated. The goal for the algorithm is to learn a behaviour that reduces the number current and voltage violations in the grid.
+
+The trained RL algorithm is found to reduce the number of safety violations in the grid by 13 \%. However, investigating the results reveals that the RL algorithm only avoids safety violations in hours of peak demand, and that it actually produces more violations during hours of peak solar production. The algorithm is better overall because more violations occurs during the afternoon. Further investigation is needed to fine-tune the algorithm such that it behaves well in an entire day.
+
 \end{document}
