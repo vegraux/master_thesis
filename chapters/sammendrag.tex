@@ -20,4 +20,11 @@
 
 \begin{document}
 \chapter{Sammendrag}
+Økt andel uregulerbar fornybar kraftproduksjon som sol- og vindenergi i energimiksen gir utfordringer for eksisterende infrastruktur i et elektriske kraftnett. En grunnleggende egenskap i det elektriske kraftsystemet er at all produsert kraft alltid i sanntid må forbrukes et sted i kraftnettet. Økt andel av lokal kraftproduksjon fra solceller kan gjøre at kapasiteten i kraftledningene brytes og ødelegge spenningskvaliteten i kraftnett. En løsning på dette problemet er at forbrukere forskyver forbruksmønsteret sitt slik at mer solkraft blir konsumert lokalt rundt dagtid, slik at kraften ikke må eksporteres til kraftnettet. Metoder som har som mål å endre forbruksmønsteret kalles program for forbrukerfleksibilitet.
+
+Hovedmålet i denne masteroppgaven er lage en Python-implementasjon av et forenklet program for forbrukerfleksibilitet ved hjelp av forsterkende læring (FL), en underkategori av maskinlæring. FL-algoritmen får lov til å modifisere kraftforbruket hver time i et kraftnett med høy lokal produksjon av solkraft. Å minke kraftforbruket kan for eksempel være å utsette ladningen av flere elbiler til senere. Når FL-algoritmen har modifisert kraftforbruket i nettet, så kalkuleres de påfølgende verdiene for strøm og spenning. Målet til algoritmen er å lære seg en strategi som reduserer antall ganger verdiene for strøm og spenning går utenfor sine respektive sikkerhetsmarginer.
+
+Den trente FL-algoritmen reduserer antall sikkerhetsbrudd i kraftnettet med 13 \%.  Det viser seg imidlertid at algoritmen kun klarer å redusere antallet rundt kveldstid, når forbruket er på sitt høyeste. Algoritmen øker antall sikkerhetsbrudd i timer med høy kraftproduksjon fra solceller. Totalt sett er den trente algoritmen bedre siden det er flere sikkerhetsbrudd i timer med høyt forbruk. Videre undersøkelser trengs for å justere algoritmen slik at den finner en strategi som fungerer hele døgnet. 
+
+
 \end{document}
