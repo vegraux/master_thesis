@@ -557,12 +557,68 @@ def nmbu_palette():
     return palette
 
 
+def play_model(model_name='overnight_full'):
 
+    for reward in ['voltage', 'current', 'imbalance']:
+        length = 5650
+        model, env = load_env(model_name,
+                              seed=9)  # seed 5: heavy sun, 9: weak sun
+        env.set_parameters({'reward_terms': [reward],
+                            'episode_length': length})
+        rewards, t_steps, hues, hours = [], [], [], []
+        env._episode_start_hour = 0
+        env._episode_start_day = 0
+        env.solar_forecasts = env.get_episode_solar_forecast()
+        env.demand_forecasts = env.get_episode_demand_forecast()
+        obs = env.reset(reset_time=False)
+
+        env2 = copy.deepcopy(env)
+        env2.do_action = False
+        sol = env.solar_forecasts
+        demand = env.demand_forecasts[0]
+
+        show_sun, show_demand = True, True
+        for t_step in range(1, length):
+
+            action, _ = model.predict(obs)
+            obs1, reward1, dones1, info1 = env.step(action)
+            obs2, reward2, dones2, info2 = env2.step(action)
+
+            current_step = env._current_step
+            hour = calc_hour(env._episode_start_hour, current_step)
+
+            if current_step == 0:
+                sol = env.solar_forecasts
+                demand = env.demand_forecasts[0]
+
+            rewards.append(reward1)
+            hues.append('Agent')
+            t_steps.append(t_step)
+            hours.append(hour)
+
+            rewards.append(reward2)
+            hues.append('No agent')
+            t_steps.append(t_step)
+            hours.append(hour)
+
+            if show_sun:
+                rewards.append(sol[env._current_step - 1])
+                hues.append('Sun')
+                t_steps.append(t_step)
+                hours.append(hour)
+
+            if show_demand:
+                rewards.append(demand[env._current_step - 1])
+                hues.append('Demand')
+                t_steps.append(t_step)
+                hours.append(hour)
+
+        df = pd.DataFrame()
+        df['Reward'] = rewards
+        df['Hours'] = t_steps
+        df['Hour in the day'] = hours
+        df[''] = hues
+        df.to_csv('data/{}_hour_{}.csv'.format(model_name,reward), index=False)
 
 if __name__ == '__main__':
-    currents = calc_impacts(peak='demand', kind='current', max_flex=False)
-    currents1 = calc_impacts(peak='solar', kind='current', max_flex=False)
-    currents['Peak'] = 'Demand'
-    currents1['Peak'] = 'Solar'
-
-    cs = pd.concat([currents, currents1.reset_index(drop=True)])
+    play_model(model_name='800k_full')

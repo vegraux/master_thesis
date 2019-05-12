@@ -1,29 +1,24 @@
 # -*- coding: utf-8 -*-
 
 """
-environment for active network management for controlling flexible load
-and/or generation control
+Gym environment implementing demand response in a pandapower net.
 """
 import os
 import pickle
-
 import dotenv
-
 from stable_baselines import DDPG
-
 dotenv.load_dotenv()
 import gym
 import matplotlib.pyplot as plt
-from gym import error, spaces, utils
+from gym import spaces
 from gym.utils import seeding
 import numpy as np
-from gym_power.sample_net import simple_two_bus, cigre_network
+from gym_power.sample_net import cigre_network
 from pandapower.networks import create_cigre_network_mv
 import copy
 import pandapower as pp
 from pandapower import ppException
 import pandas as pd
-import enlopy as el
 
 
 
@@ -37,20 +32,21 @@ class ActiveEnv(gym.Env):
               'reward_terms':['voltage','current','imbalance','activation'],
               'voltage_weight':1,
               'current_weight':0.01,
-              'imbalance_weight':1e-4,
+              'imbalance_weight':1e-8,
               'activation_weight':1e-4,
               'forecast_horizon':4,
               'flexibility':0.1,
               'solar_scale':0.8,
               'demand_scale':10,
               'state_space': ['sun','demand','bus','imbalance'],
-              'v_upper':1.04,
-              'v_lower':0.96,
+              'v_upper':1.05,
+              'v_lower':0.95,
               'i_upper':90,
               'demand_std':0.03,
               'solar_std':0.03,
               'total_imbalance':False,
-              'reactive_power':True}
+              'reactive_power':True,
+              'imbalance_change':False}
 
     def set_parameters(self, new_parameters):
         """
@@ -63,7 +59,7 @@ class ActiveEnv(gym.Env):
                         'forecast_horizon', 'activation_weight', 'flexibility',
                         'state_space','solar_scale', 'demand_scale','v_lower',
                         'v_upper','i_upper', 'demand_std','solar_std',
-                        'total_imbalance','reactive_power']
+                        'total_imbalance','reactive_power','imbalance_change']
         non_negative = ['voltage_weight', 'current_weight', 'imbalance_weight',
                         'activation_weight']
         zero_to_one = ['flexibility']
@@ -85,8 +81,6 @@ class ActiveEnv(gym.Env):
             self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                                 shape=self._get_obs().shape,
                                                 dtype=np.float32)
-        #if ('demand_std' in new_parameters) or ('solar_std' in new_parameters):
-        #    self.set_demand_and_solar()
 
         _ = self.reset(reset_time=False)
 
@@ -239,6 +233,8 @@ class ActiveEnv(gym.Env):
         self.demand_forecasts = self.get_episode_demand_forecast()
         self.set_demand_and_solar()
         self._imbalance = self.empty_imbalance()
+        self.resulting_demand = np.zeros(self.params['episode_length'])
+
 
         return self._get_obs()
 
@@ -370,8 +366,8 @@ class ActiveEnv(gym.Env):
     def calc_imbalance(self):
         """
         Calculates how much power the agent ows to the system, i.e the amount
-        of extra energy the loads have received the last 24 hours. Reward function
-        penalises a large balance.
+        of extra energy the loads have received the last 24 hours.
+        Reward function penalises a large balance.
         :return:
 
         """
@@ -430,8 +426,8 @@ class ActiveEnv(gym.Env):
 
     def set_demand_and_solar(self):
         """
-        Updates the demand and solar production according to the forecasts, with
-        some n
+        Updates the demand and solar production according to the forecasts,
+        with some noise.
         """
         net = self.powergrid
         solar_pu = self.get_solar_forecast()[0]
@@ -465,13 +461,17 @@ class ActiveEnv(gym.Env):
 
         if 'imbalance' in self.params['reward_terms']:
             balance = self.calc_imbalance()
-            balance_change = np.abs(balance) - np.abs(old_imbalance)
-            state_loss += balance_change.sum()*self.params['imbalance_weight']
+            weight = self.params['imbalance_weight']
+            if self.params['imbalance_change']:
+                balance_change = np.abs(balance) - np.abs(old_imbalance)
+                state_loss += balance_change.sum()*weight
+            else:
+                state_loss += np.abs(balance).sum()*weight
 
         if 'activation' in self.params['reward_terms']:
             action *= self.params['flexibility'] * self.powergrid.load['p_kw']
             act_loss = np.abs(action).sum()*self.params['activation_weight']
-            state_loss +=  act_loss
+            state_loss += act_loss
 
 
         if include_loss:
@@ -541,18 +541,21 @@ def load_env(model_name='flexible_load_first',seed=9):
     return model, env
 
 
+
 if __name__ == '__main__':
-    env1 = ActiveEnv(seed=3)
-    env1.set_parameters({'episode_length':3000})
-    solar_scale1 = env1.params['solar_scale']
-    demand_scale1 = env1.params['demand_scale']
+    env = ActiveEnv(seed=3)
+    env.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
+                             'reward_terms': ['voltage', 'current',
+                                              'imbalance'],
+                        'episode_length':5650})
+    env._episode_start_hour = 0
+    env._episode_start_day = 0
+    env.solar_forecasts = env.get_episode_solar_forecast()
+    env.demand_forecasts = env.get_episode_demand_forecast()
+    env.set_demand_and_solar()
+    for hour in range():
+        action = env.action_space.sample()
+        ob, reward, episode_over, info = env.step(action)
 
-    env2 = ActiveEnv(seed=3)
-    env2.set_parameters({'solar_scale': solar_scale1 * 2,
-                         'demand_scale': demand_scale1 * 3})
-
-    solar1, solar2 = env1.get_solar_forecast(), env2.get_solar_forecast()
-    demand1, demand2 = env1.get_demand_forecast(), env2.get_demand_forecast()
-
-    assert all(np.linalg.norm(solar1 * 2 == solar2) < 10e-7)
-    assert all(np.linalg.norm(demand1[0] * 3 == demand2[0]) < 10e-7)
+    imbalance = env.calc_imbalance()
+    print('haha')
