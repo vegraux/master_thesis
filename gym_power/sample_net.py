@@ -32,8 +32,8 @@ def cigre_network(with_der='pv_wind',scale_nominal_value=40):
     """
 
     net = pn.create_cigre_network_mv(with_der="pv_wind")
-    net.sgen['sn_kva'] *= scale_nominal_value
-    net.sgen.loc[8, 'sn_kva'] /= scale_nominal_value # undo scaling for wind park
+    net.sgen['sn_mva'] *= scale_nominal_value
+    net.sgen.loc[8, 'sn_mva'] /= scale_nominal_value # undo scaling for wind park
     return net
 
 if __name__ == '__main__':

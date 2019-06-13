@@ -108,7 +108,7 @@ class ActiveEnv(gym.Env):
         self.demand_data = self.load_demand_data()
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forecasts = self.get_episode_demand_forecast()
-        self.set_demand_and_solar()
+        #self.set_demand_and_solar()
         self.force_commitments = force_commitments
         self._commitments = np.zeros(len(self.powergrid.load)) != 0
         self.resulting_demand = np.zeros(self.params['episode_length'])
@@ -142,24 +142,17 @@ class ActiveEnv(gym.Env):
         (same as for default cigre network)
         """
         net = create_cigre_network_mv(with_der="pv_wind")
-        pq_ratio = net.load['q_kvar'] / net.load['p_kw']
+        pq_ratio = net.load['q_mvar'] / net.load['p_mw']
         return pq_ratio
 
     def get_demand_forecast(self):
         """
         Finds the forecasted hourly demand for the next T hours
-        :return: List with T demand for all buses
+        :return: array with T demand for all buses
         """
-        forecasts = []
         t = self._current_step
         horizon = self.params['forecast_horizon']
-        for load in self.demand_forecasts:
-            day_forecast = load[t:t+horizon]
-            forecasts.append(day_forecast)
-
-        return forecasts
-
-
+        return self.demand_forecasts[:,t:t+horizon]
 
 
     def get_solar_forecast(self):
@@ -169,24 +162,24 @@ class ActiveEnv(gym.Env):
         """
         t = self._current_step
         horizon = self.params['forecast_horizon']
-        return self.solar_forecasts[t:t+horizon]
+        return self.solar_forecasts[:,t:t+horizon]
 
     def get_scaled_solar_forecast(self):
         """
         scales each solar panel production with nominal values.
-        :return: Sum of solar production in network (kW)
+        :return: Sum of solar production in network (MW)
         """
         solar_pu = self.solar_forecasts
         scaled_solar = []
         for sol in solar_pu:
-            scaled_solar.append((sol*self.powergrid.sgen['sn_kva']).sum())
+            scaled_solar.append((sol*self.powergrid.sgen['sn_mva']).sum())
         return np.array(scaled_solar)
 
     def get_scaled_demand_forecast(self):
         demand_pu = self.demand_forecasts[0]
         scaled_demand = []
         for demand in demand_pu:
-            scaled_demand.append((demand*self.powergrid.load['sn_kva']).sum())
+            scaled_demand.append((demand*self.powergrid.load['sn_mva']).sum())
         return np.array(scaled_demand)
 
 
@@ -231,7 +224,7 @@ class ActiveEnv(gym.Env):
 
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forecasts = self.get_episode_demand_forecast()
-        self.set_demand_and_solar()
+        #self.set_demand_and_solar(reset_time=reset_time)
         self._imbalance = self.empty_imbalance()
         self.resulting_demand = np.zeros(self.params['episode_length'])
 
@@ -265,7 +258,8 @@ class ActiveEnv(gym.Env):
         start = self._episode_start_hour + self._episode_start_day*24
         nr_hours = episode_length + horizon + 1 #margin of 1
         episode_solar_forecast = self.solar_data[start:start+nr_hours].values
-        return episode_solar_forecast.ravel() *self.params['solar_scale']
+        scaled_solar_forecast = episode_solar_forecast.ravel() *self.params['solar_scale']
+        return scaled_solar_forecast.reshape(1,nr_hours)
 
 
     def get_episode_demand_forecast(self):
@@ -280,7 +274,7 @@ class ActiveEnv(gym.Env):
         start = self._episode_start_hour + self._episode_start_day*24
         nr_hours = episode_length + horizon + 1 #margin of 1
         episode_demand_forecast = self.demand_data[start:start+nr_hours].values
-        return [episode_demand_forecast.ravel() *demand_scale]
+        return (episode_demand_forecast.ravel() *demand_scale).reshape(1,nr_hours)
 
 
     def get_commitment_state(self):
@@ -339,8 +333,8 @@ class ActiveEnv(gym.Env):
         state = []
         if 'demand' in self.params['state_space']:
             demand_forecasts = self.get_demand_forecast()
-            for demand in demand_forecasts:
-                state += list(demand)
+            demand = demand_forecasts.ravel()
+            state += list(demand)
 
         if 'sun' in self.params['state_space']:
             solar_forecasts = self.get_solar_forecast()
@@ -390,7 +384,7 @@ class ActiveEnv(gym.Env):
         its actions
 
         """
-        loads = self.powergrid.load['p_kw']
+        loads = self.powergrid.load['p_mw']
         self.resulting_demand[self._current_step] = loads.sum()
 
 
@@ -399,8 +393,8 @@ class ActiveEnv(gym.Env):
         Takes the action vector, scales it and modifies the flexible loads
         :return:
         """
-        nominal_load = self.powergrid.load['sn_kva']
-        forecasted_load = nominal_load*self.get_demand_forecast()[0][0]
+        nominal_load = self.powergrid.load['sn_mva']
+        forecasted_load = nominal_load*self.get_demand_forecast()[:,0]
 
         action *= self.params['flexibility'] * forecasted_load
         if self.force_commitments:
@@ -408,8 +402,8 @@ class ActiveEnv(gym.Env):
 
         self._imbalance[:,self._current_step] = action
 
-        p_index = self.load_dict['p_kw']
-        q_index = self.load_dict['q_kvar']
+        p_index = self.load_dict['p_mw']
+        q_index = self.load_dict['q_mvar']
 
         self.powergrid.load.iloc[self.flexible_load_indices, p_index] += action
         if self.params['reactive_power']:
@@ -424,21 +418,23 @@ class ActiveEnv(gym.Env):
         except ppException:
             return True
 
-    def set_demand_and_solar(self):
+    def set_demand_and_solar(self,reset_time=True):
         """
         Updates the demand and solar production according to the forecasts,
         with some noise.
         """
         net = self.powergrid
-        solar_pu = self.get_solar_forecast()[0]
-        solar_pu += solar_pu*self.params['solar_std']*self.np_random.randn()
+        solar_pu = copy.copy(self.get_solar_forecast()[:,0])
+        if reset_time:
+            solar_pu += solar_pu*self.params['solar_std']*self.np_random.randn()
 
-        demand_pu = self.get_demand_forecast()[0][0]
-        demand_pu += demand_pu*self.params['demand_std']*self.np_random.randn()
+        demand_pu = copy.copy(self.get_demand_forecast()[:,0])
+        if reset_time:
+            demand_pu += demand_pu*self.params['demand_std']*self.np_random.randn()
 
-        net.sgen['p_kw'] = - solar_pu * net.sgen['sn_kva']
-        net.load['p_kw'] = demand_pu * net.load['sn_kva']
-        net.load['q_kvar'] = net.load['p_kw'] * self.pq_ratio
+        net.sgen['p_mw'] = - solar_pu * net.sgen['sn_mva']
+        net.load['p_mw'] = demand_pu * net.load['sn_mva']
+        net.load['q_mvar'] = net.load['p_mw'] * self.pq_ratio
 
 
 
@@ -469,13 +465,13 @@ class ActiveEnv(gym.Env):
                 state_loss += np.abs(balance).sum()*weight
 
         if 'activation' in self.params['reward_terms']:
-            action *= self.params['flexibility'] * self.powergrid.load['p_kw']
+            action *= self.params['flexibility'] * self.powergrid.load['p_mw']
             act_loss = np.abs(action).sum()*self.params['activation_weight']
             state_loss += act_loss
 
 
         if include_loss:
-            i_loss = sum(self.powergrid.res_line['pl_kw'])
+            i_loss = sum(self.powergrid.res_line['pl_mw'])
             state_loss += i_loss
 
         return -state_loss
@@ -526,7 +522,7 @@ class ActiveEnv(gym.Env):
 
 
 
-
+"""
 def load_env(model_name='flexible_load_first',seed=9):
 #flexible_load_first, overnight, larger_margin_cost, discount_06, flex50
     location = 'C:\\Users\\vegar\\Dropbox\\Master\\thesis.git\\RLpower\\models\\'
@@ -540,9 +536,80 @@ def load_env(model_name='flexible_load_first',seed=9):
     model.set_env(env)
     return model, env
 
+"""
+def calc_hour(start_hour,time_step):
+    return (start_hour + time_step) % 24
+
+def run_model():
+    reward = 'voltage'
+    period = 100000
+    env = ActiveEnv()
+    env.set_parameters({'reward_terms': [reward],
+                        'demand_std': 0.03,
+                        'solar_std': 0.03,
+                        'reactive_power': True,
+                        'state_space': ['sun', 'demand', 'imbalance']})
+    rewards, t_steps, hues, hours = [], [], [], []
+    obs = env.reset()
+
+    env2 = copy.deepcopy(env)
+    env2.do_action = False
+    sol = env.solar_forecasts
+    demand = env.demand_forecasts[0]
+
+    show_sun, show_demand = True, True
+    for t_step in range(1, period):
+
+        action = np.ones(18)
+        obs1, reward1, dones1, info1 = env.step(action)
+        obs2, reward2, dones2, info2 = env2.step(action)
+
+        current_step = env._current_step
+        hour = calc_hour(env._episode_start_hour, current_step)
+
+        if current_step == 198:
+            print('noe')
+
+        if current_step == 0:
+            sol = env.solar_forecasts
+            demand = env.demand_forecasts[0]
+
+        rewards.append(reward1)
+        hues.append('Agent')
+        t_steps.append(t_step)
+        hours.append(hour)
+
+        rewards.append(reward2)
+        hues.append('No agent')
+        t_steps.append(t_step)
+        hours.append(hour)
+
+        if show_sun:
+            rewards.append(sol[env._current_step - 1])
+            hues.append('Sun')
+            t_steps.append(t_step)
+            hours.append(hour)
+
+        if show_demand:
+            rewards.append(demand[env._current_step - 1])
+            hues.append('Demand')
+            t_steps.append(t_step)
+            hours.append(hour)
+
 
 
 if __name__ == '__main__':
+
+    env1 = ActiveEnv(seed=3)
+    env2 = ActiveEnv(seed=3)
+    env2.set_parameters({'forecast_horizon': 10})
+
+    for _ in range(10):
+        action = env1.action_space.sample()
+        ob1, reward1, episode_over1, info1 = env1.step(action)
+        ob2, reward2, episode_over2, info2 = env2.step(action)
+
+    run_model()
     env = ActiveEnv(seed=3)
     env.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
                              'reward_terms': ['voltage', 'current',
@@ -553,7 +620,7 @@ if __name__ == '__main__':
     env.solar_forecasts = env.get_episode_solar_forecast()
     env.demand_forecasts = env.get_episode_demand_forecast()
     env.set_demand_and_solar()
-    for hour in range():
+    for hour in range(10):
         action = env.action_space.sample()
         ob, reward, episode_over, info = env.step(action)
 

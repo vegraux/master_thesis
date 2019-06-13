@@ -50,7 +50,7 @@ class TestForecasts:
         horizon = ENV.params['forecast_horizon']
         episode_length = ENV.params['episode_length']
 
-        assert len(episode_solar_forecasts) - episode_length> horizon
+        assert episode_solar_forecasts.shape[1] - episode_length> horizon
 
     def test_daily_solar_forecast(self):
         """
@@ -59,25 +59,8 @@ class TestForecasts:
         daily_solar_forecast = ENV.get_solar_forecast()
         horizon = ENV.params['forecast_horizon']
 
-        assert len(daily_solar_forecast) == horizon
+        assert daily_solar_forecast.shape[1] == horizon
 
-
-    def test_initial_state(self):
-        """
-        Checks that initial demand is equal to the forecast at the each bus
-        (arbitrary definition)
-        :return:
-        """
-        env = ActiveEnv()
-        env.set_parameters({'demand_std':0})
-        loads = env.powergrid.load['p_kw']
-        demand_forecast = []
-        for load in env.demand_forecasts:
-            demand_forecast.append(load[0])
-        demand_forecast = np.array(demand_forecast)
-        demand_forecast *= env.powergrid.load['sn_kva']
-
-        assert norm(demand_forecast - loads) < 10e-6
 
     def test_forecast_shift(self):
         """
@@ -93,35 +76,22 @@ class TestForecasts:
 
 class TestState:
 
-    def test_initial_loads(self):
-        """
-        Checks that set_demand_and_solar is called and updates the loads of
-        the grid when instantiated. Also checks that demand is not altered
-        if set_demand_and_solar is called when timestep is the same.
-        """
-        env = ActiveEnv()
-        env.set_parameters({'demand_std':0})
-        initial_loads = copy.copy(env.powergrid.load)
-        env.set_demand_and_solar()
-        loads = env.powergrid.load
-        assert norm(initial_loads['p_kw'] - loads['p_kw']) < 10e-4
-        assert norm(initial_loads['q_kvar'] - loads['q_kvar']) < 10e-4
 
     def test_error_term_solar(self):
         """
         Checks that the forecast values for solar irradiance deviates from
         the actual values
         """
-        env = ActiveEnv()
-        env.set_parameters({'solar_std': 0.1})
-        while env.get_solar_forecast()[0] < 0.01: # to avoid night (no sun)
+        env = ActiveEnv(seed=3)
+        env.set_parameters({'solar_std': 0.5})
+        while env.get_solar_forecast()[0,0] < 0.01: # to avoid night (no sun)
             action = env.action_space.sample()
             env.step(action)
 
-        nominal_sun = env.powergrid.sgen['sn_kva']
-        solar_forecast = nominal_sun*env.get_solar_forecast()[0]
-        solar = -env.powergrid.sgen['p_kw']
-        assert norm(solar_forecast- solar) > 0.1
+        nominal_sun = env.powergrid.sgen['sn_mva']
+        solar_forecast = nominal_sun*env.get_solar_forecast()[:,0]
+        solar = -env.powergrid.sgen['p_mw']
+        assert norm(solar_forecast- solar) > 0.01
 
     def test_error_term_demand(self):
         """
@@ -130,9 +100,13 @@ class TestState:
         """
         env = ActiveEnv()
         env.set_parameters({'demand_std': 0.1})
-        nominal_load = env.powergrid.load['sn_kva']
+        while env.get_demand_forecast()[:,0] < 0.1: # to avoid night (no demand)
+            action = env.action_space.sample()
+            env.step(action)
+
+        nominal_load = env.powergrid.load['sn_mva']
         demand_forecast = nominal_load*env.get_demand_forecast()[0][0]
-        demand = env.powergrid.load['p_kw']
+        demand = env.powergrid.load['p_mw']
         assert norm(demand - demand_forecast) > 0.1
 
 
@@ -171,21 +145,21 @@ class TestActions:
         env.set_parameters({'flexibility':flex,
                             'demand_std':0})
         env.set_demand_and_solar()
-        demand = copy.copy(env.powergrid.load['p_kw'].values)
+        demand = copy.copy(env.powergrid.load['p_mw'].values)
         action1 = np.ones_like(env.last_action)
         action1 = env.action_space.sample()
-        scaled_action1 = flex * action1 * env.powergrid.load['p_kw']
+        scaled_action1 = flex * action1 * env.powergrid.load['p_mw']
 
         env._take_action(action1)
 
-        assert norm(env.powergrid.load['p_kw'].values - (
+        assert norm(env.powergrid.load['p_mw'].values - (
                     demand + scaled_action1)) < 10e-4
         action2 = env.action_space.sample()
         env._take_action(action2)
 
         # action2 should by modified to cancel effect of action1
         assert norm(env.last_action + scaled_action1) < 10e-4
-        assert norm(env.powergrid.load['p_kw'].values - demand) < 10e-4
+        assert norm(env.powergrid.load['p_mw'].values - demand) < 10e-4
 
     def test_set_solar(self):
         """
@@ -199,8 +173,8 @@ class TestActions:
         for hour in range(4):
             action = env.action_space.sample()
             ob, reward, episode_over, info = env.step(action)
-            load_pu = -env.powergrid.sgen['p_kw'] / env.powergrid.sgen['sn_kva']
-            assert norm(load_pu - solar_forecast[hour]) < 10e-7
+            load_pu = -env.powergrid.sgen['p_mw'] / env.powergrid.sgen['sn_mva']
+            assert norm(load_pu - solar_forecast[:,hour]) < 10e-7
 
 
     def test_constant_consumption(self):
@@ -233,7 +207,7 @@ class TestReset:
 
         net = copy.copy(env.powergrid)
         env.reset()
-        vars = ['p_kw', 'q_kvar']
+        vars = ['p_mw', 'q_mvar']
         assert np.linalg.norm(
             net.load.loc[:, vars] - env.powergrid.load.loc[:, vars]) > 0.001
         assert np.linalg.norm(
@@ -275,14 +249,14 @@ class TestSeeding:
         solar1 = env1.get_episode_solar_forecast()
         solar2 = env2.get_episode_solar_forecast()
         solar3 = env3.get_episode_solar_forecast()
-        assert all(solar1 == solar2)
-        assert any(solar1 != solar3)
+        assert norm(solar1-solar2) < 10e-5
+        assert norm(solar1-solar3) > 10e-3
 
         demand1 = env1.get_episode_demand_forecast()
         demand2 = env2.get_episode_demand_forecast()
         demand3 = env3.get_episode_demand_forecast()
-        assert all(demand1[0] == demand2[0])
-        assert any(demand1[0] != demand3[0])
+        assert norm(demand1 - demand2) < 10e-5
+        assert norm(demand1 - demand3) > 10e-3
 
     def test_set_params(self):
         """
@@ -303,6 +277,31 @@ class TestSeeding:
 
         assert norm(solar1 * 2 - solar2) < 10e-7
         assert norm(demand1[0] * 3 - demand2[0]) < 10e-7
+
+
+    def test_equal_loads(self):
+        """
+        Cheks that same seed gives the same loads when set_parameters have been used
+        """
+        env1 = ActiveEnv(seed=3)
+        env2 = ActiveEnv(seed=3)
+        env2.set_parameters({'forecast_horizon':10})
+
+
+        for _ in range(5):
+            load1 = env1.powergrid.load['p_mw']
+            load2 = env2.powergrid.load['p_mw']
+            assert norm(load1-load2) < 10e-5 #e
+
+            action = env1.action_space.sample()
+            ob1, reward1, episode_over1, info1 = env1.step(action)
+            ob2, reward2, episode_over2, info2 = env2.step(action)
+
+            assert  reward1 == reward2
+
+
+
+
 
 
 
