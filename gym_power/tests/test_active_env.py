@@ -35,7 +35,6 @@ class TestForecasts:
         """
         Checks that daily forecast exists for all loads, and that there are 24
         hours for each load.
-        :return:
         """
         daily_demand_forecast = ENV.get_demand_forecast()
         assert len(daily_demand_forecast) == 1#len(ENV.powergrid.load)
@@ -119,7 +118,6 @@ class TestComitments:
         """
         checks that actions of commited loads are overwritten and that commitments
         are updated correctly
-        :return:
         """
         env = ActiveEnv(force_commitments=True)
         env._commitments[0] = True
@@ -138,7 +136,6 @@ class TestActions:
         """
         Checks that action is taken and updates the network, but only if
         load is not commited
-        :return:
         """
         flex = 0.1
         env = ActiveEnv(force_commitments=True)
@@ -165,7 +162,6 @@ class TestActions:
         """
         Checks that the the solar power production updates in every step,
         and follows the solar forecast
-        :return:
         """
         env = ActiveEnv()
         env.set_parameters({'solar_std':0})
@@ -198,7 +194,6 @@ class TestReset:
     def test_reset_after_steps(self):
         """
         Checks that loads and solar production is reset.
-        :return:
         """
         env = ActiveEnv()
         for hour in range(10):
@@ -216,7 +211,6 @@ class TestReset:
     def test_reset_forecasts(self):
         """
         Checks that episode forecasts is reset
-        :return:
         """
         env = ActiveEnv()
         start_env = copy.deepcopy(env)
@@ -229,7 +223,6 @@ class TestReset:
     def test_reset_episode_start_hour(self):
         """
         checks that _episode_start_hour is reset
-        :return:
         """
         env = ActiveEnv()
         env._episode_start_hour = 100
@@ -281,11 +274,13 @@ class TestSeeding:
 
     def test_equal_loads(self):
         """
-        Cheks that same seed gives the same loads when set_parameters have been used
+        Cheks that same seed gives the same loads, solar production
+        and rewards when set_parameters have been used
         """
         env1 = ActiveEnv(seed=3)
         env2 = ActiveEnv(seed=3)
-        env2.set_parameters({'forecast_horizon':10})
+        env2.set_parameters({'forecast_horizon':10,
+                             'state_space': ['sun', 'demand', 'imbalance']})
 
 
         for _ in range(5):
@@ -293,18 +288,35 @@ class TestSeeding:
             load2 = env2.powergrid.load['p_mw']
             assert norm(load1-load2) < 10e-5 #e
 
+            sun1 = env1.powergrid.sgen['p_mw']
+            sun2 = env2.powergrid.sgen['p_mw']
+            assert norm(sun1-sun2) < 10e-5
+
+
             action = env1.action_space.sample()
             ob1, reward1, episode_over1, info1 = env1.step(action)
             ob2, reward2, episode_over2, info2 = env2.step(action)
 
-            assert  reward1 == reward2
+            assert reward1 == reward2
 
+    def test_reset_seed(self):
+        """
+        Checks that same seeds give same environment when
+        an episode resets
+        """
+        env1 = ActiveEnv(seed=7)
+        env2 = ActiveEnv(seed=7)
 
+        env1.set_parameters({'episode_length': 3})
+        env2.set_parameters({'episode_length': 3})
+        for _ in range(4):
+            action = env1.action_space.sample()
+            ob1, reward1, episode_over1, info1 = env1.step(action)
+            ob2, reward2, episode_over2, info2 = env2.step(action)
 
-
-
-
-
+        load1 = env1.powergrid.load['p_mw']
+        load2 = env2.powergrid.load['p_mw']
+        assert norm(load1 - load2) < 10e-5  # e
 
 
 class TestParameters:

@@ -338,7 +338,7 @@ class ActiveEnv(gym.Env):
 
         if 'sun' in self.params['state_space']:
             solar_forecasts = self.get_solar_forecast()
-            state += list(solar_forecasts)
+            state += list(solar_forecasts.ravel())
 
         if 'bus' in self.params['state_space']:
             bus_state = self.get_bus_state()
@@ -600,14 +600,6 @@ def run_model():
 
 if __name__ == '__main__':
 
-    env1 = ActiveEnv(seed=3)
-    env2 = ActiveEnv(seed=3)
-    env2.set_parameters({'forecast_horizon': 10})
-
-    for _ in range(10):
-        action = env1.action_space.sample()
-        ob1, reward1, episode_over1, info1 = env1.step(action)
-        ob2, reward2, episode_over2, info2 = env2.step(action)
 
     run_model()
     env = ActiveEnv(seed=3)
