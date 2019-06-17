@@ -7,6 +7,7 @@ import os
 import pickle
 import dotenv
 from stable_baselines import DDPG
+
 dotenv.load_dotenv()
 import gym
 import matplotlib.pyplot as plt
@@ -20,33 +21,32 @@ import pandapower as pp
 from pandapower import ppException
 import pandas as pd
 
-
-
 __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'
 DATA_PATH = os.getenv('DATA_PATH')
 
-class ActiveEnv(gym.Env):
 
+class ActiveEnv(gym.Env):
     params = {'episode_length': 200,
-              'reward_terms':['voltage','current','imbalance','activation'],
-              'voltage_weight':1,
-              'current_weight':0.01,
-              'imbalance_weight':1e-8,
-              'activation_weight':1e-4,
-              'forecast_horizon':4,
-              'flexibility':0.1,
-              'solar_scale':0.8,
-              'demand_scale':10,
-              'state_space': ['sun','demand','bus','imbalance'],
-              'v_upper':1.05,
-              'v_lower':0.95,
-              'i_upper':90,
-              'demand_std':0.03,
-              'solar_std':0.03,
-              'total_imbalance':False,
-              'reactive_power':True,
-              'imbalance_change':False}
+              'reward_terms': ['voltage', 'current', 'imbalance', 'activation'],
+              'voltage_weight': 1,
+              'current_weight': 0.01,
+              'imbalance_weight': 1e-8,
+              'activation_weight': 1e-4,
+              'forecast_horizon': 4,
+              'flexibility': 0.1,
+              'solar_scale': 0.8,
+              'demand_scale': 10,
+              'state_space': ['sun', 'demand', 'bus', 'imbalance'],
+              'v_upper': 1.05,
+              'v_lower': 0.95,
+              'i_upper': 90,
+              'demand_std': 0.03,
+              'solar_std': 0.03,
+              'total_imbalance': False,
+              'reactive_power': True,
+              'imbalance_change': False,
+              'one_action':False}
 
     def set_parameters(self, new_parameters):
         """
@@ -57,9 +57,10 @@ class ActiveEnv(gym.Env):
         allowed_keys = ['episode_length', 'reward_terms', 'voltage_weight',
                         'current_weight', 'imbalance_weight',
                         'forecast_horizon', 'activation_weight', 'flexibility',
-                        'state_space','solar_scale', 'demand_scale','v_lower',
-                        'v_upper','i_upper', 'demand_std','solar_std',
-                        'total_imbalance','reactive_power','imbalance_change']
+                        'state_space', 'solar_scale', 'demand_scale', 'v_lower',
+                        'v_upper', 'i_upper', 'demand_std', 'solar_std',
+                        'total_imbalance', 'reactive_power', 'imbalance_change',
+                        'one_action']
         non_negative = ['voltage_weight', 'current_weight', 'imbalance_weight',
                         'activation_weight']
         zero_to_one = ['flexibility']
@@ -74,27 +75,23 @@ class ActiveEnv(gym.Env):
                 raise ValueError('Invalid parameter value, value must be'
                                  ' between 0 and 1: ' + key)
 
-
         self.params = {**self.params, **new_parameters}
 
         if ('state_space' in new_parameters) or ('total_imbalance' in new_parameters):
             self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                                 shape=self._get_obs().shape,
                                                 dtype=np.float32)
+        if 'one_action' in new_parameters:
+            self.action_space = self.create_action_space()
 
         _ = self.reset(reset_time=False)
 
-    def __init__(self,do_action=True, force_commitments=False, seed=None):
+    def __init__(self, do_action=True, force_commitments=False, seed=None):
         self.np_random = None
         self._seed = self.seed(seed)
-        #time attributes
-        self._current_step = 0
-        self._episode_start_hour = self.select_start_hour()
-        self._episode_start_day = self.select_start_day()
-
         self.do_action = do_action
 
-        #power grid
+        # power grid
         self.base_powergrid = cigre_network()
         pp.runpp(self.base_powergrid)
         self.powergrid = copy.deepcopy(self.base_powergrid)
@@ -102,38 +99,48 @@ class ActiveEnv(gym.Env):
         self.last_action = np.zeros_like(self.flexible_load_indices)
         self.pq_ratio = self.calc_pq_ratio()
 
-
-        #state variables, forecast + commitment
+        # state variables, forecast + commitment
         self.solar_data = self.load_solar_data()
         self.demand_data = self.load_demand_data()
+        # time attributes
+        self._current_step = 0
+        self._episode_start_hour = self.select_start_hour()
+        self._episode_start_day = self.select_start_day()
+
+
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forecasts = self.get_episode_demand_forecast()
-        #self.set_demand_and_solar()
+
+
+
+
+        # self.set_demand_and_solar()
         self.force_commitments = force_commitments
         self._commitments = np.zeros(len(self.powergrid.load)) != 0
         self.resulting_demand = np.zeros(self.params['episode_length'])
         self._imbalance = self.empty_imbalance()
 
-
-
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                             shape=self._get_obs().shape,
                                             dtype=np.float32)
-        self.action_space = spaces.Box(-1., 1., shape=self.last_action.shape,
-                                       dtype=np.float32)
-
+        self.action_space = self.create_action_space()
 
         self.load_dict = self.get_load_dict()
-
-
-
-
 
     def get_load_dict(self):
         """
         :return: dictionary mapping columns name to index
         """
         return {col: index for (index, col) in enumerate(self.powergrid.load)}
+
+    def create_action_space(self):
+        if self.params['one_action']:
+            action_space = spaces.Box(-1., 1., shape=(1,),
+                       dtype=np.float32)
+        else:
+            action_space = spaces.Box(-1., 1., shape=self.last_action.shape,
+                       dtype=np.float32)
+        return action_space
 
     def calc_pq_ratio(self):
         """
@@ -152,8 +159,7 @@ class ActiveEnv(gym.Env):
         """
         t = self._current_step
         horizon = self.params['forecast_horizon']
-        return self.demand_forecasts[:,t:t+horizon]
-
+        return self.demand_forecasts[:, t:t + horizon]
 
     def get_solar_forecast(self):
         """
@@ -162,27 +168,18 @@ class ActiveEnv(gym.Env):
         """
         t = self._current_step
         horizon = self.params['forecast_horizon']
-        return self.solar_forecasts[:,t:t+horizon]
+        return self.solar_forecasts[:, t:t + horizon]
 
     def get_scaled_solar_forecast(self):
         """
         scales each solar panel production with nominal values.
         :return: Sum of solar production in network (MW)
         """
-        solar_pu = self.solar_forecasts
-        scaled_solar = []
-        for sol in solar_pu:
-            scaled_solar.append((sol*self.powergrid.sgen['sn_mva']).sum())
-        return np.array(scaled_solar)
+        return self.solar_forecasts*self.powergrid.sgen['sn_mva'].sum()
+
 
     def get_scaled_demand_forecast(self):
-        demand_pu = self.demand_forecasts[0]
-        scaled_demand = []
-        for demand in demand_pu:
-            scaled_demand.append((demand*self.powergrid.load['sn_mva']).sum())
-        return np.array(scaled_demand)
-
-
+        return self.demand_forecasts*self.powergrid.load['sn_mva'].sum()
 
 
 
@@ -205,16 +202,14 @@ class ActiveEnv(gym.Env):
 
         demand_days = (demand_data.index[-1] - demand_data.index[0])
         demand_days = demand_days.days
-        episode_days = (self.params['episode_length'] // 24) + 1 #margin
+        episode_days = (self.params['episode_length'] // 24) + 1  # margin
         return self.np_random.choice(demand_days - episode_days)
-
-
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def reset(self,reset_time=True):
+    def reset(self, reset_time=True):
         self._current_step = 0
 
         self.powergrid = copy.deepcopy(self.base_powergrid)
@@ -224,10 +219,9 @@ class ActiveEnv(gym.Env):
 
         self.solar_forecasts = self.get_episode_solar_forecast()
         self.demand_forecasts = self.get_episode_demand_forecast()
-        #self.set_demand_and_solar(reset_time=reset_time)
+        # self.set_demand_and_solar(reset_time=reset_time)
         self._imbalance = self.empty_imbalance()
         self.resulting_demand = np.zeros(self.params['episode_length'])
-
 
         return self._get_obs()
 
@@ -238,7 +232,7 @@ class ActiveEnv(gym.Env):
         """
         nr_loads = len(self.flexible_load_indices)
         episode_length = self.params['episode_length']
-        return np.zeros((nr_loads,episode_length))
+        return np.zeros((nr_loads, episode_length))
 
     def get_bus_state(self):
         """
@@ -248,19 +242,17 @@ class ActiveEnv(gym.Env):
 
         return self.powergrid.res_bus.values.flatten()
 
-
     def get_episode_solar_forecast(self):
         """
         Method that returns the solar_forecast for the entire episode
         """
         episode_length = self.params['episode_length']
         horizon = self.params['forecast_horizon']
-        start = self._episode_start_hour + self._episode_start_day*24
-        nr_hours = episode_length + horizon + 1 #margin of 1
-        episode_solar_forecast = self.solar_data[start:start+nr_hours].values
-        scaled_solar_forecast = episode_solar_forecast.ravel() *self.params['solar_scale']
-        return scaled_solar_forecast.reshape(1,nr_hours)
-
+        start = self._episode_start_hour + self._episode_start_day * 24
+        nr_hours = episode_length + horizon + 1  # margin of 1
+        episode_solar_forecast = self.solar_data[start:start + nr_hours].values
+        scaled_solar_forecast = episode_solar_forecast.ravel() * self.params['solar_scale']
+        return scaled_solar_forecast.reshape(1, nr_hours)
 
     def get_episode_demand_forecast(self):
         """
@@ -271,11 +263,10 @@ class ActiveEnv(gym.Env):
         horizon = self.params['forecast_horizon']
         demand_scale = self.params['demand_scale']
 
-        start = self._episode_start_hour + self._episode_start_day*24
-        nr_hours = episode_length + horizon + 1 #margin of 1
-        episode_demand_forecast = self.demand_data[start:start+nr_hours].values
-        return (episode_demand_forecast.ravel() *demand_scale).reshape(1,nr_hours)
-
+        start = self._episode_start_hour + self._episode_start_day * 24
+        nr_hours = episode_length + horizon + 1  # margin of 1
+        episode_demand_forecast = self.demand_data[start:start + nr_hours].values
+        return (episode_demand_forecast.ravel() * demand_scale).reshape(1, nr_hours)
 
     def get_commitment_state(self):
         """
@@ -286,9 +277,8 @@ class ActiveEnv(gym.Env):
         commitments[self._commitments] = 1
         return commitments
 
-
     def load_solar_data(self):
-        solar_path = os.path.join(DATA_PATH,'hourly_solar_data.csv')
+        solar_path = os.path.join(DATA_PATH, 'hourly_solar_data.csv')
         solar = pd.read_csv(solar_path)
         solar.index = pd.to_datetime(solar.iloc[:, 0])
         solar.index.name = 'time'
@@ -297,14 +287,13 @@ class ActiveEnv(gym.Env):
         return solar
 
     def load_demand_data(self):
-        demand_path = os.path.join(DATA_PATH,'hourly_demand_data.csv')
+        demand_path = os.path.join(DATA_PATH, 'hourly_demand_data.csv')
         demand = pd.read_csv(demand_path)
         demand.index = pd.to_datetime(demand.iloc[:, 0])
         demand.index.name = 'time'
         demand = demand.iloc[:, [1]]
 
         return demand
-
 
     def _check_commitment(self, action):
         """
@@ -322,8 +311,6 @@ class ActiveEnv(gym.Env):
             return action
         else:
             return action
-
-
 
     def _get_obs(self):
         """
@@ -353,7 +340,7 @@ class ActiveEnv(gym.Env):
             if self.params['total_imbalance']:
                 state += [balance.sum()]
             else:
-                state +=list(balance)
+                state += list(balance)
 
         return np.array(state)
 
@@ -367,16 +354,15 @@ class ActiveEnv(gym.Env):
         """
         t = self._current_step
         if t > 24:
-            modifications = self._imbalance[:,t - 24:t]
+            modifications = self._imbalance[:, t - 24:t]
 
-        elif t>0:
-            modifications = self._imbalance[:,:t]
+        elif t > 0:
+            modifications = self._imbalance[:, :t]
 
         else:
-            modifications = np.zeros((len(self.flexible_load_indices),1))
+            modifications = np.zeros((len(self.flexible_load_indices), 1))
 
         return modifications.sum(axis=1)
-
 
     def log_resulting_demand(self):
         """
@@ -387,20 +373,19 @@ class ActiveEnv(gym.Env):
         loads = self.powergrid.load['p_mw']
         self.resulting_demand[self._current_step] = loads.sum()
 
-
     def _take_action(self, action):
         """
         Takes the action vector, scales it and modifies the flexible loads
         :return:
         """
         nominal_load = self.powergrid.load['sn_mva']
-        forecasted_load = nominal_load*self.get_demand_forecast()[:,0]
+        forecasted_load = nominal_load * self.get_demand_forecast()[:, 0]
 
         action *= self.params['flexibility'] * forecasted_load
         if self.force_commitments:
             action = self._check_commitment(action)
 
-        self._imbalance[:,self._current_step] = action
+        self._imbalance[:, self._current_step] = action
 
         p_index = self.load_dict['p_mw']
         q_index = self.load_dict['q_mvar']
@@ -408,7 +393,7 @@ class ActiveEnv(gym.Env):
         self.powergrid.load.iloc[self.flexible_load_indices, p_index] += action
         if self.params['reactive_power']:
             self.powergrid.load.iloc[
-                self.flexible_load_indices, q_index] += action*self.pq_ratio
+                self.flexible_load_indices, q_index] += action * self.pq_ratio
 
         try:
             pp.runpp(self.powergrid)
@@ -418,35 +403,33 @@ class ActiveEnv(gym.Env):
         except ppException:
             return True
 
-    def set_demand_and_solar(self,reset_time=True):
+    def set_demand_and_solar(self, reset_time=True):
         """
         Updates the demand and solar production according to the forecasts,
         with some noise.
         """
         net = self.powergrid
-        solar_pu = copy.copy(self.get_solar_forecast()[:,0])
+        solar_pu = copy.copy(self.get_solar_forecast()[:, 0])
         if reset_time:
-            solar_pu += solar_pu*self.params['solar_std']*self.np_random.randn()
+            solar_pu += solar_pu * self.params['solar_std'] * self.np_random.randn()
 
-        demand_pu = copy.copy(self.get_demand_forecast()[:,0])
+        demand_pu = copy.copy(self.get_demand_forecast()[:, 0])
         if reset_time:
-            demand_pu += demand_pu*self.params['demand_std']*self.np_random.randn()
+            demand_pu += demand_pu * self.params['demand_std'] * self.np_random.randn()
 
         net.sgen['p_mw'] = - solar_pu * net.sgen['sn_mva']
         net.load['p_mw'] = demand_pu * net.load['sn_mva']
         net.load['q_mvar'] = net.load['p_mw'] * self.pq_ratio
 
-
-
-    def calc_reward(self, old_imbalance,action,include_loss=False):
+    def calc_reward(self, old_imbalance, action, include_loss=False):
 
         state_loss = 0
         if 'voltage' in self.params['reward_terms']:
             v = self.powergrid.res_bus['vm_pu']
             v_min = self.params['v_lower']
             v_max = self.params['v_upper']
-            v_lower = sum(v_min - v[v < v_min])*self.params['voltage_weight']
-            v_over =  sum(v[v > v_max] - v_max)*self.params['voltage_weight']
+            v_lower = sum(v_min - v[v < v_min]) * self.params['voltage_weight']
+            v_over = sum(v[v > v_max] - v_max) * self.params['voltage_weight']
             state_loss += (v_lower + v_over)
 
         if 'current' in self.params['reward_terms']:
@@ -460,15 +443,14 @@ class ActiveEnv(gym.Env):
             weight = self.params['imbalance_weight']
             if self.params['imbalance_change']:
                 balance_change = np.abs(balance) - np.abs(old_imbalance)
-                state_loss += balance_change.sum()*weight
+                state_loss += balance_change.sum() * weight
             else:
-                state_loss += np.abs(balance).sum()*weight
+                state_loss += np.abs(balance).sum() * weight
 
         if 'activation' in self.params['reward_terms']:
             action *= self.params['flexibility'] * self.powergrid.load['p_mw']
-            act_loss = np.abs(action).sum()*self.params['activation_weight']
+            act_loss = np.abs(action).sum() * self.params['activation_weight']
             state_loss += act_loss
-
 
         if include_loss:
             i_loss = sum(self.powergrid.res_line['pl_mw'])
@@ -486,14 +468,11 @@ class ActiveEnv(gym.Env):
         sol = self.get_scaled_solar_forecast()
         resulting_demand = self.resulting_demand
         fig, ax = plt.subplots()
-        plt.plot(sol[:hours], axes=ax)
-        plt.plot(load[:hours], axes=ax)
+        plt.plot(sol[0,:hours], axes=ax)
+        plt.plot(load[0,:hours], axes=ax)
         plt.plot(resulting_demand[:hours], axes=ax)
-        plt.legend(['solar','demand','modified'])
+        plt.legend(['solar', 'demand', 'modified'])
         plt.show()
-
-
-
 
     def step(self, action):
         self.set_demand_and_solar()
@@ -514,18 +493,14 @@ class ActiveEnv(gym.Env):
 
         return ob, reward, episode_over, {}
 
-
     def render(self, mode='human', close=False):
         pass
-
-
-
 
 
 """
 def load_env(model_name='flexible_load_first',seed=9):
 #flexible_load_first, overnight, larger_margin_cost, discount_06, flex50
-    location = 'C:\\Users\\vegar\\Dropbox\\Master\\thesis.git\\RLpower\\models\\'
+    location = 'C:\\Users\\vegar\\Dropbox\\Master\\thesis.git\\rl_power\\models\\'
     params_name = model_name +'_params.p'
     model = DDPG.load(location + model_name)
     env = ActiveEnv(seed=seed)
@@ -537,8 +512,11 @@ def load_env(model_name='flexible_load_first',seed=9):
     return model, env
 
 """
-def calc_hour(start_hour,time_step):
+
+
+def calc_hour(start_hour, time_step):
     return (start_hour + time_step) % 24
+
 
 def run_model():
     reward = 'voltage'
@@ -597,24 +575,17 @@ def run_model():
             hours.append(hour)
 
 
-
 if __name__ == '__main__':
 
-
-    run_model()
-    env = ActiveEnv(seed=3)
-    env.set_parameters({'state_space': ['sun', 'demand', 'imbalance'],
-                             'reward_terms': ['voltage', 'current',
-                                              'imbalance'],
-                        'episode_length':5650})
-    env._episode_start_hour = 0
-    env._episode_start_day = 0
-    env.solar_forecasts = env.get_episode_solar_forecast()
-    env.demand_forecasts = env.get_episode_demand_forecast()
-    env.set_demand_and_solar()
-    for hour in range(10):
-        action = env.action_space.sample()
+    env = ActiveEnv(force_commitments=False)
+    env.set_parameters({'demand_std': 0})
+    hours = 100
+    for hour in range(hours):
+        action = 1 * np.ones(len(env.powergrid.load))
         ob, reward, episode_over, info = env.step(action)
 
-    imbalance = env.calc_imbalance()
+    total_demand = env.get_scaled_demand_forecast()[:hours].sum()
+    total_modified_demand = env.resulting_demand[:hours].sum()
+    assert np.abs(total_demand - total_modified_demand) < 10e-6
+
     print('haha')
