@@ -37,6 +37,6 @@ model = PPO2(MlpPolicy, env, verbose=1)
 model.learn(total_timesteps=100000)
 ```
 
-See more in the [notebook tutorials]() (Coming soon)
+See more in the [notebook tutorials](https://github.com/vegraux/master_thesis/blob/master/tutorials/active_env_tutorial.ipynb)
 
 
