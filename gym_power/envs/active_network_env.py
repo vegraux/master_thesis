@@ -8,7 +8,7 @@ import pickle
 import dotenv
 from stable_baselines import DDPG
 
-dotenv.load_dotenv()
+dotenv.load_dotenv(dotenv.find_dotenv())
 import gym
 import matplotlib.pyplot as plt
 from gym import spaces
@@ -76,8 +76,8 @@ class ActiveEnv(gym.Env):
                                  ' between 0 and 1: ' + key)
 
         self.params = {**self.params, **new_parameters}
-
-        if ('state_space' in new_parameters) or ('total_imbalance' in new_parameters):
+        state_vars = ['state_space','total_imbalance','forecast_horizon']
+        if any([var in new_parameters for var in state_vars]):
             self.observation_space = spaces.Box(low=-np.inf, high=np.inf,
                                                 shape=self._get_obs().shape,
                                                 dtype=np.float32)
@@ -497,7 +497,6 @@ class ActiveEnv(gym.Env):
         pass
 
 
-"""
 def load_env(model_name='flexible_load_first',seed=9):
 #flexible_load_first, overnight, larger_margin_cost, discount_06, flex50
     location = 'C:\\Users\\vegar\\Dropbox\\Master\\thesis.git\\rl_power\\models\\'
@@ -511,7 +510,7 @@ def load_env(model_name='flexible_load_first',seed=9):
     model.set_env(env)
     return model, env
 
-"""
+
 
 
 def calc_hour(start_hour, time_step):
