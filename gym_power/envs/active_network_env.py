@@ -31,8 +31,8 @@ class ActiveEnv(gym.Env):
               'reward_terms': ['voltage', 'current', 'imbalance', 'activation'],
               'voltage_weight': 1,
               'current_weight': 0.01,
-              'imbalance_weight': 1e-8,
-              'activation_weight': 1e-4,
+              'imbalance_weight': 1e-5,
+              'activation_weight': 1e-1,
               'forecast_horizon': 4,
               'flexibility': 0.1,
               'solar_scale': 0.8,
@@ -336,11 +336,12 @@ class ActiveEnv(gym.Env):
             state += list(commitment_state)
 
         if 'imbalance' in self.params['state_space']:
-            balance = self.calc_imbalance() / 30000
+            net_load = self.powergrid.load['sn_mva'].sum()
+            imbalance = self.calc_imbalance() / net_load
             if self.params['total_imbalance']:
-                state += [balance.sum()]
+                state += [imbalance.sum()]
             else:
-                state += list(balance)
+                state += list(imbalance)
 
         return np.array(state)
 
