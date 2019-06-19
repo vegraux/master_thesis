@@ -69,7 +69,8 @@ class TestForecasts:
         action = env.action_space.sample()
         ob, reward, episode_over, info = env.step(action)
         assert norm(env.get_solar_forecast()[:-1] - start_solar[1:]) < 10e-5
-        assert norm(env.get_demand_forecast()[0][:-1] - start_demand[0][1:]) < 10e-5
+        assert norm(
+            env.get_demand_forecast()[0][:-1] - start_demand[0][1:]) < 10e-5
 
 
 class TestState:
@@ -97,7 +98,8 @@ class TestState:
         """
         env = ActiveEnv()
         env.set_parameters({'demand_std': 0.1})
-        while env.get_demand_forecast()[:, 0] < 0.1:  # to avoid night (no demand)
+        while env.get_demand_forecast()[:,
+              0] < 0.1:  # to avoid night (no demand)
             action = env.action_space.sample()
             env.step(action)
 
@@ -164,7 +166,8 @@ class TestActions:
         for hour in range(4):
             action = env.action_space.sample()
             ob, reward, episode_over, info = env.step(action)
-            load_pu = -env.powergrid.sgen['p_mw'] / env.powergrid.sgen['sn_mva']
+            load_pu = -env.powergrid.sgen['p_mw'] / env.powergrid.sgen[
+                'sn_mva']
             assert norm(load_pu - solar_forecast[:, hour]) < 10e-7
 
     def test_constant_consumption(self):
@@ -175,21 +178,38 @@ class TestActions:
         """
         env = ActiveEnv(force_commitments=True)
         env.set_parameters({'demand_std': 0})
-        hours = 100
+        hours = 24
         for hour in range(hours):
             action = 1 * np.ones(len(env.powergrid.load))
             ob, reward, episode_over, info = env.step(action)
 
-        total_demand = env.get_scaled_demand_forecast()[:hours].sum()
+        total_demand = env.get_scaled_demand_forecast()[:, :hours].sum()
         total_modified_demand = env.resulting_demand[:hours].sum()
         assert np.abs(total_demand - total_modified_demand) < 10e-6
 
-    def test_one_action(self):
+    def test_action_effect(self):
         """
-        Checks that global action for entire system ('one_action=True')
-        works
+        Checks that action updates the demand situation in the desired way
         """
-        pass
+        flex = 0.3
+        env = ActiveEnv(seed=3)
+        env.set_parameters({'demand_std': 0,
+                            'flexibility':flex})
+        forecast = env.demand_forecasts[:, 0]
+
+        a = np.ones(env.action_space.shape) #max increase in consumption
+        a = env.action_space.sample()
+        env.step(a)
+
+        net = env.powergrid
+        consumption = net.res_load['p_mw'] / net.load['sn_mva']
+        load_ratio = consumption / forecast
+        assert norm(load_ratio - (1+a*flex)) < 10e-6
+
+
+
+
+
 
     def test_no_action(self):
         """
@@ -212,7 +232,6 @@ class TestActions:
             solar = - env.powergrid.sgen['p_mw'] / env.powergrid.sgen['sn_mva']
             assert norm(demand - demand_forecast) < 10e-5
             assert norm(solar - solar_forecast) < 10e-5
-
 
 
 class TestReset:
@@ -243,7 +262,9 @@ class TestReset:
         env.reset()
 
         assert norm(start_env.solar_forecasts - env.solar_forecasts) > 0.001
-        assert norm(start_env.demand_forecasts[0][:24] - env.demand_forecasts[0][:24]) > 0.001
+        assert norm(
+            start_env.demand_forecasts[0][:24] - env.demand_forecasts[0][
+                                                 :24]) > 0.001
 
     def test_reset_episode_start_hour(self):
         """
@@ -329,8 +350,10 @@ class TestSeeding:
         env1 = ActiveEnv(seed=7)
         env2 = ActiveEnv(seed=7)
 
-        env1.set_parameters({'episode_length': 3})
-        env2.set_parameters({'episode_length': 3})
+        env1.set_parameters({'episode_length': 3,
+                             'forecast_horizon': 1})
+        env2.set_parameters({'episode_length': 3,
+                             'forecast_horizon': 1})
         for _ in range(4):
             action = env1.action_space.sample()
             ob1, reward1, episode_over1, info1 = env1.step(action)
@@ -349,7 +372,8 @@ class TestParameters:
         are updated
         """
         env = ActiveEnv()
-        env.set_parameters({'state_space': ['sun', 'demand', 'imbalance', 'bus']})
+        env.set_parameters(
+            {'state_space': ['sun', 'demand', 'imbalance', 'bus']})
         state0 = env.observation_space.shape[0]
         env.set_parameters({'state_space': ['sun', 'demand', 'imbalance']})
         state1 = env.observation_space.shape[0]
@@ -370,3 +394,22 @@ class TestParameters:
             ob2, reward2, episode_over2, info2 = env2.step(action)
 
         assert reward1 != reward2
+
+    def test_raises_error(self):
+        """
+        Checks that ValueError is raised when forecast_horizon is longer than
+        episode_length. In principle this should not be a problem, but
+        with the current implementation the state space will be wrong.
+        """
+        with pytest.raises(ValueError):
+            ENV.set_parameters({'forecast_horizon': 100,
+                                'episode_length': 50})
+
+        with pytest.raises(ValueError):
+            ENV.set_parameters({'flexibility':-0.1})
+
+        with pytest.raises(ValueError):
+            ENV.set_parameters({'activation_weight': -0.1})
+
+        with pytest.raises(KeyError):
+            ENV.set_parameters({'invalid_parameter': 1337})

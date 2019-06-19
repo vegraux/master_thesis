@@ -15,7 +15,7 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 from gym_power.sample_net import cigre_network
-from pandapower.networks import create_cigre_network_mv
+from pandapower.networks import create_cigre_network_mv, mv_oberrhein
 import copy
 import pandapower as pp
 from pandapower import ppException
@@ -74,6 +74,10 @@ class ActiveEnv(gym.Env):
                     new_parameters[key] < 0 or new_parameters[key] > 1):
                 raise ValueError('Invalid parameter value, value must be'
                                  ' between 0 and 1: ' + key)
+        updated_params = {**self.params, **new_parameters}
+        if updated_params['episode_length'] < updated_params['forecast_horizon']:
+            raise ValueError('`forecast_horizon`must be shorter than'
+                             '`episode_length`')
 
         self.params = {**self.params, **new_parameters}
         state_vars = ['state_space','total_imbalance','forecast_horizon']
@@ -86,13 +90,14 @@ class ActiveEnv(gym.Env):
 
         _ = self.reset(reset_time=False)
 
-    def __init__(self, do_action=True, force_commitments=False, seed=None):
+    def __init__(self, base_net=None, do_action=True, force_commitments=False, seed=None):
         self.np_random = None
         self._seed = self.seed(seed)
         self.do_action = do_action
 
         # power grid
-        self.base_powergrid = cigre_network()
+
+        self.base_powergrid = self.create_basenet(base_net)
         pp.runpp(self.base_powergrid)
         self.powergrid = copy.deepcopy(self.base_powergrid)
         self.flexible_load_indices = np.arange(len(self.powergrid.load))
@@ -126,6 +131,29 @@ class ActiveEnv(gym.Env):
         self.action_space = self.create_action_space()
 
         self.load_dict = self.get_load_dict()
+
+    def create_basenet(self, base_net):
+        """
+        Sets the pandapower net to use. If nominal values for consumption/
+        production are unspecified, they are set to default values when the
+        net is loaded. Scaling is set to 1
+        :param base_net:
+        :return:
+        """
+        if base_net is None:
+            return cigre_network()
+
+        else:
+            for df in [base_net.load,base_net.sgen]:
+                df['scaling'] = 1
+                if df['sn_mva'].isnull().all():
+                    df['sn_mva'] = df['p_mw']
+
+            base_net.load
+            return base_net
+
+
+
 
     def get_load_dict(self):
         """
@@ -576,16 +604,20 @@ def run_model():
 
 
 if __name__ == '__main__':
+    flex = 0.3
+    net = mv_oberrhein()
+    env = ActiveEnv(base_net=net,seed=3)
+    env.set_parameters({'demand_std': 0,
+                        'flexibility': flex})
+    forecast = env.demand_forecasts[:, 0]
 
-    env = ActiveEnv(force_commitments=False)
-    env.set_parameters({'demand_std': 0})
-    hours = 100
-    for hour in range(hours):
-        action = 1 * np.ones(len(env.powergrid.load))
-        ob, reward, episode_over, info = env.step(action)
+    a = np.ones(env.action_space.shape)  # max increase in consumption
+    #a = env.action_space.sample()
+    env.step(a)
 
-    total_demand = env.get_scaled_demand_forecast()[:hours].sum()
-    total_modified_demand = env.resulting_demand[:hours].sum()
-    assert np.abs(total_demand - total_modified_demand) < 10e-6
+    net = env.powergrid
+    consumption = net.res_load['p_mw'] / net.load['sn_mva']
+    load_ratio = consumption / forecast
+    assert np.linalg.norm(load_ratio - (1 + a * flex)) < 10e-6
 
     print('haha')
