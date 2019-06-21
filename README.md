@@ -1,5 +1,5 @@
-# rl_power
-`rl_power` is a Python toolkit that applies
+# power_env
+`power_env` is a Python toolkit that applies
 reinforcement learning algorithms in an electric power system. The project was
 originally a master thesis written in partnership with Statnett,
 the Norwegian Transmission system operator.
@@ -19,7 +19,7 @@ for power flow calculations and
 
 ## Installation
 ### Prerequisites
-`rl_power` inherits the prerequisites from `stable-baselines` and `pandapower`.
+`power_env` inherits the prerequisites from `stable-baselines` and `pandapower`.
  You need python >=3.5. You can find installation guides here:
 - [stable-baseline installation](https://stable-baselines.readthedocs.io/en/master/guide/install.html#prerequisites)
 - [pandapower installation](http://www.pandapower.org/start/)
@@ -40,7 +40,7 @@ model = PPO2(MlpPolicy, env, verbose=1)
 model.learn(total_timesteps=100000)
 ```
 ## Tutorial
-`rl_power` has a custom gym environment called `ActiveEnv` that can interact
+`power_env` has a custom gym environment called `ActiveEnv` that can interact
 with reinforcement algorithms in `stable-baselines`. Check out the
 [notebook tutorial](https://github.com/vegraux/master_thesis/blob/master/tutorials/active_env_tutorial.ipynb)
 for an introduction to the environment, and its functionality.
