@@ -194,22 +194,17 @@ class TestActions:
         flex = 0.3
         env = ActiveEnv(seed=3)
         env.set_parameters({'demand_std': 0,
-                            'flexibility':flex})
+                            'flexibility': flex})
         forecast = env.demand_forecasts[:, 0]
 
-        a = np.ones(env.action_space.shape) #max increase in consumption
+        a = np.ones(env.action_space.shape)  # max increase in consumption
         a = env.action_space.sample()
         env.step(a)
 
         net = env.powergrid
         consumption = net.res_load['p_mw'] / net.load['sn_mva']
         load_ratio = consumption / forecast
-        assert norm(load_ratio - (1+a*flex)) < 10e-6
-
-
-
-
-
+        assert norm(load_ratio - (1 + a * flex)) < 10e-6
 
     def test_no_action(self):
         """
@@ -232,6 +227,8 @@ class TestActions:
             solar = - env.powergrid.sgen['p_mw'] / env.powergrid.sgen['sn_mva']
             assert norm(demand - demand_forecast) < 10e-5
             assert norm(solar - solar_forecast) < 10e-5
+
+
 
 
 class TestReset:
@@ -366,7 +363,7 @@ class TestSeeding:
 
 class TestParameters:
 
-    def test_set_parameters(self):
+    def test_state_change(self):
         """
         Checks that observation space is updated if state_space parameters
         are updated
@@ -406,10 +403,19 @@ class TestParameters:
                                 'episode_length': 50})
 
         with pytest.raises(ValueError):
-            ENV.set_parameters({'flexibility':-0.1})
+            ENV.set_parameters({'flexibility': -0.1})
 
         with pytest.raises(ValueError):
             ENV.set_parameters({'activation_weight': -0.1})
 
         with pytest.raises(KeyError):
             ENV.set_parameters({'invalid_parameter': 1337})
+
+    def test_one_action(self):
+        """
+        Checks that the size of the action space is 1 when one_action is True
+        """
+        env = ActiveEnv()
+        env.set_parameters({'one_action': True})
+        assert env.action_space.shape == (1,)
+

@@ -15,7 +15,7 @@ from gym import spaces
 from gym.utils import seeding
 import numpy as np
 from gym_power.sample_net import cigre_network
-from pandapower.networks import create_cigre_network_mv, mv_oberrhein
+from pandapower.networks import create_cigre_network_mv, mv_oberrhein, iceland
 import copy
 import pandapower as pp
 from pandapower import ppException
@@ -27,26 +27,29 @@ DATA_PATH = os.getenv('DATA_PATH')
 
 
 class ActiveEnv(gym.Env):
-    params = {'episode_length': 200,
-              'reward_terms': ['voltage', 'current', 'imbalance', 'activation'],
-              'voltage_weight': 1,
-              'current_weight': 0.01,
-              'imbalance_weight': 1e-5,
-              'activation_weight': 1e-1,
-              'forecast_horizon': 4,
-              'flexibility': 0.1,
-              'solar_scale': 0.8,
-              'demand_scale': 10,
-              'state_space': ['sun', 'demand', 'bus', 'imbalance'],
-              'v_upper': 1.05,
-              'v_lower': 0.95,
-              'i_upper': 90,
-              'demand_std': 0.03,
-              'solar_std': 0.03,
-              'total_imbalance': False,
-              'reactive_power': True,
-              'imbalance_change': False,
-              'one_action':False}
+    params = {
+    'episode_length': 200,
+    'reward_terms': ['voltage', 'current', 'imbalance', 'activation',
+                     'line_loss'],
+    'voltage_weight': 1,
+    'current_weight': 0.01,
+    'imbalance_weight': 1e-5,
+    'activation_weight': 1e-1,
+    'forecast_horizon': 4,
+    'flexibility': 0.1,
+    'solar_scale': 0.8,
+    'demand_scale': 10,
+    'state_space': ['sun', 'demand', 'bus', 'imbalance'],
+    'v_upper': 1.05,
+    'v_lower': 0.95,
+    'i_upper': 90,
+    'demand_std': 0.03,
+    'solar_std': 0.03,
+    'total_imbalance': False,
+    'reactive_power': True,
+    'imbalance_change': False,
+    'one_action':False
+    }
 
     def set_parameters(self, new_parameters):
         """
@@ -451,7 +454,12 @@ class ActiveEnv(gym.Env):
         net.load['q_mvar'] = net.load['p_mw'] * self.pq_ratio
 
     def calc_reward(self, old_imbalance, action, include_loss=False):
-
+        """
+        Calculates the reward after an action is performed-
+        :param old_imbalance: Energy imbalance in the last step
+        :param action: action vector given to step()
+        :return: Transition reward
+        """
         state_loss = 0
         if 'voltage' in self.params['reward_terms']:
             v = self.powergrid.res_bus['vm_pu']
@@ -481,7 +489,7 @@ class ActiveEnv(gym.Env):
             act_loss = np.abs(action).sum() * self.params['activation_weight']
             state_loss += act_loss
 
-        if include_loss:
+        if 'line_loss' in self.params['reward_terms']:
             i_loss = sum(self.powergrid.res_line['pl_mw'])
             state_loss += i_loss
 
@@ -605,14 +613,14 @@ def run_model():
 
 if __name__ == '__main__':
     flex = 0.3
-    net = mv_oberrhein()
+    net = iceland()
     env = ActiveEnv(base_net=net,seed=3)
     env.set_parameters({'demand_std': 0,
                         'flexibility': flex})
     forecast = env.demand_forecasts[:, 0]
 
-    a = np.ones(env.action_space.shape)  # max increase in consumption
-    #a = env.action_space.sample()
+    a = - np.ones(env.action_space.shape)  # max decrease in consumption
+    a = env.action_space.sample()
     env.step(a)
 
     net = env.powergrid
