@@ -9,7 +9,7 @@ __email__ = 'vegard.ulriksen.solberg@nmbu.no'
 import sys
 import baselines.run as run
 
-import power_env
+import active_env
 
 MODEL_PATH = '\\PycharmProjects\\highway-powergrid\\scripts\\models\\latest'
 

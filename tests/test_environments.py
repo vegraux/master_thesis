@@ -2,7 +2,7 @@
 import pytest
 import pandas as pd
 import pandapower as pp
-from power_env.envs.twobus_env import PowerEnvOld
+from active_env.envs.twobus_env import PowerEnvOld
 """
 
 """

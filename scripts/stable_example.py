@@ -26,7 +26,7 @@ from stable_baselines import A2C
 from stable_baselines.her import HER
 from stable_baselines.common.vec_env import DummyVecEnv
 
-from power_env.envs import TwoBusEnv
+from active_env.envs import TwoBusEnv
 
 #MountainCarContinuous-v0
 

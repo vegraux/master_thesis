@@ -19,8 +19,8 @@ from keras.layers.normalization import BatchNormalization
 from rl.agents import DDPGAgent
 from rl.memory import SequentialMemory
 from rl.random import OrnsteinUhlenbeckProcess
-from power_env.envs.twobus_env import TwoBusEnv, PowerEnvOld, PowerEnvOldNormalized
-from power_env.envs.active_network_env import ActiveEnv
+from active_env.envs.twobus_env import TwoBusEnv, PowerEnvOld, PowerEnvOldNormalized
+from active_env.envs.active_network_env import ActiveEnv
 
 ENV_NAME = 'Pendulum-v0'
 

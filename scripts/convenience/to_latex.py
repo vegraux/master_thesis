@@ -6,7 +6,7 @@ Training the reinforcement agent using stable baselines
 __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'
 
-from power_env.envs.active_network_env import ActiveEnv
+from active_env.envs.active_network_env import ActiveEnv
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines.ddpg.policies import LnMlpPolicy
 from stable_baselines.ddpg.noise import OrnsteinUhlenbeckActionNoise

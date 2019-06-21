@@ -6,9 +6,10 @@
 import copy
 
 import pytest
+import copy
 import numpy as np
 from numpy.linalg import norm
-from power_env.envs.active_network_env import ActiveEnv
+from active_env.envs.active_network_env import ActiveEnv
 
 __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'
@@ -23,10 +24,11 @@ class TestForecasts:
         Checks that there are forecasts for every load, and that there always
         exist forecasts k hours in the future for all time steps.
         """
-        episode_load_forecasts = ENV.get_episode_demand_forecast()
+        env = copy.deepcopy(ENV)
+        episode_load_forecasts = env.get_episode_demand_forecast()
         assert len(episode_load_forecasts) == 1  # len(ENV.powergrid.load)
-        horizon = ENV.params['forecast_horizon']
-        episode_length = ENV.params['episode_length']
+        horizon = env.params['forecast_horizon']
+        episode_length = env.params['episode_length']
         for load in episode_load_forecasts:
             assert load.shape[0] - episode_length >= horizon
 
@@ -35,18 +37,20 @@ class TestForecasts:
         Checks that daily forecast exists for all loads, and that there are 24
         hours for each load.
         """
-        daily_demand_forecast = ENV.get_demand_forecast()
+        env = copy.deepcopy(ENV)
+        daily_demand_forecast = env.get_demand_forecast()
         assert len(daily_demand_forecast) == 1  # len(ENV.powergrid.load)
-        horizon = ENV.params['forecast_horizon']
+        horizon = env.params['forecast_horizon']
 
         for load in daily_demand_forecast:
             assert load.shape[0] == horizon
 
     def test_episode_solar_forecast(self):
         """Checks that end of the episode at least has a 24 hour forecast"""
-        episode_solar_forecasts = ENV.get_episode_solar_forecast()
-        horizon = ENV.params['forecast_horizon']
-        episode_length = ENV.params['episode_length']
+        env = copy.deepcopy(ENV)
+        episode_solar_forecasts = env.get_episode_solar_forecast()
+        horizon = env.params['forecast_horizon']
+        episode_length = env.params['episode_length']
 
         assert episode_solar_forecasts.shape[1] - episode_length > horizon
 
@@ -54,8 +58,9 @@ class TestForecasts:
         """
         checks that daily_solar_forecast is forecast_horizon hours
         """
-        daily_solar_forecast = ENV.get_solar_forecast()
-        horizon = ENV.params['forecast_horizon']
+        env = copy.deepcopy(ENV)
+        daily_solar_forecast = env.get_solar_forecast()
+        horizon = env.params['forecast_horizon']
 
         assert daily_solar_forecast.shape[1] == horizon
 
@@ -63,7 +68,7 @@ class TestForecasts:
         """
         Checks that the forecast is shifted 1 timestep when step is called
         """
-        env = ActiveEnv()
+        env = copy.deepcopy(ENV)
         start_solar = env.get_solar_forecast()
         start_demand = env.get_demand_forecast()
         action = env.action_space.sample()
@@ -96,7 +101,7 @@ class TestState:
         Checks that the forecast values for solar irradiance deviates from
         the actual values
         """
-        env = ActiveEnv()
+        env = copy.deepcopy(ENV)
         env.set_parameters({'demand_std': 0.1})
         while env.get_demand_forecast()[:,
               0] < 0.1:  # to avoid night (no demand)
@@ -160,7 +165,7 @@ class TestActions:
         Checks that the the solar power production updates in every step,
         and follows the solar forecast
         """
-        env = ActiveEnv()
+        env = copy.deepcopy(ENV)
         env.set_parameters({'solar_std': 0})
         solar_forecast = env.get_solar_forecast()
         for hour in range(4):
@@ -192,7 +197,7 @@ class TestActions:
         Checks that action updates the demand situation in the desired way
         """
         flex = 0.3
-        env = ActiveEnv(seed=3)
+        env = copy.deepcopy(ENV)
         env.set_parameters({'demand_std': 0,
                             'flexibility': flex})
         forecast = env.demand_forecasts[:, 0]
@@ -212,7 +217,7 @@ class TestActions:
         forecasts perfectly
         :return:
         """
-        env = ActiveEnv(seed=2)
+        env = copy.deepcopy(ENV)
         env.set_parameters({'solar_std': 0, 'demand_std': 0,
                             'flexibility': 0.1})
         env.do_action = False
@@ -237,7 +242,7 @@ class TestReset:
         """
         Checks that loads and solar production is reset.
         """
-        env = ActiveEnv()
+        env = copy.deepcopy(ENV)
         for hour in range(10):
             action = env.action_space.sample()
             ob, reward, episode_over, info = env.step(action)
@@ -267,7 +272,7 @@ class TestReset:
         """
         checks that _episode_start_hour is reset
         """
-        env = ActiveEnv()
+        env = copy.deepcopy(ENV)
         env._episode_start_hour = 100
         env.reset()
         assert env._episode_start_hour != 100
@@ -316,7 +321,7 @@ class TestSeeding:
 
     def test_equal_loads(self):
         """
-        Cheks that same seed gives the same loads, solar production
+        Checks that same seed gives the same loads, solar production
         and rewards when set_parameters have been used
         """
         env1 = ActiveEnv(seed=3)
@@ -368,7 +373,7 @@ class TestParameters:
         Checks that observation space is updated if state_space parameters
         are updated
         """
-        env = ActiveEnv()
+        env = copy.deepcopy(ENV)
         env.set_parameters(
             {'state_space': ['sun', 'demand', 'imbalance', 'bus']})
         state0 = env.observation_space.shape[0]
@@ -398,24 +403,25 @@ class TestParameters:
         episode_length. In principle this should not be a problem, but
         with the current implementation the state space will be wrong.
         """
+        env = copy.deepcopy(ENV)
         with pytest.raises(ValueError):
-            ENV.set_parameters({'forecast_horizon': 100,
+            env.set_parameters({'forecast_horizon': 100,
                                 'episode_length': 50})
 
         with pytest.raises(ValueError):
-            ENV.set_parameters({'flexibility': -0.1})
+            env.set_parameters({'flexibility': -0.1})
 
         with pytest.raises(ValueError):
-            ENV.set_parameters({'activation_weight': -0.1})
+            env.set_parameters({'activation_weight': -0.1})
 
         with pytest.raises(KeyError):
-            ENV.set_parameters({'invalid_parameter': 1337})
+            env.set_parameters({'invalid_parameter': 1337})
 
     def test_one_action(self):
         """
         Checks that the size of the action space is 1 when one_action is True
         """
-        env = ActiveEnv()
+        env = copy.deepcopy(ENV)
         env.set_parameters({'one_action': True})
         assert env.action_space.shape == (1,)
 

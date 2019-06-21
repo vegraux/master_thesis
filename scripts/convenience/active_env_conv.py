@@ -3,7 +3,7 @@
 """
 
 """
-from power_env.envs.active_network_env import ActiveEnv
+from active_env.envs.active_network_env import ActiveEnv
 import matplotlib.pyplot as plt
 __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'

@@ -3,7 +3,7 @@
 """
 
 """
-from power_env.envs.twobus_env import TwoBusEnv
+from active_env.envs.twobus_env import TwoBusEnv
 from gym import error, spaces, utils
 import numpy as np
 

@@ -7,7 +7,7 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
-from power_env.sample_net import simple_two_bus
+from active_env.sample_net import simple_two_bus
 import pandapower as pp
 from pandapower import ppException
 import pandas as pd

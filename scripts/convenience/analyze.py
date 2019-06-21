@@ -18,7 +18,7 @@ from stable_baselines import DDPG, PPO1
 import sys
 import copy
 import dotenv
-from  power_env.envs.active_network_env import ActiveEnv
+from  active_env.envs.active_network_env import ActiveEnv
 import seaborn as sns
 __author__ = 'Vegard Solberg'
 __email__ = 'vegard.ulriksen.solberg@nmbu.no'

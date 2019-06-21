@@ -11,7 +11,7 @@ __email__ = 'vegard.ulriksen.solberg@nmbu.no'
 import os
 import dotenv
 dotenv.load_dotenv()
-from power_env.envs.active_network_env import ActiveEnv
+from active_env.envs.active_network_env import ActiveEnv
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines.ddpg.policies import MlpPolicy, LnMlpPolicy
 from stable_baselines.ddpg.noise import OrnsteinUhlenbeckActionNoise

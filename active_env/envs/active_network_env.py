@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from gym import spaces
 from gym.utils import seeding
 import numpy as np
-from power_env.sample_net import cigre_network
+from active_env.sample_net import cigre_network
 from pandapower.networks import create_cigre_network_mv, mv_oberrhein, iceland
 import copy
 import pandapower as pp

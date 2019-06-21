@@ -11,20 +11,20 @@ __email__ = 'vegard.ulriksen.solberg@nmbu.no'
 
 register(
     id='active_env-v0',
-    entry_point='power_env.envs:ActiveEnv'
+    entry_point='active_env.envs:ActiveEnv'
 )
 
 register(
     id='twobus_env-v0',
-    entry_point='power_env.envs:TwoBusEnv',
+    entry_point='active_env.envs:TwoBusEnv',
 )
 register(
     id='twobus_sparse_env-v0',
-    entry_point='power_env.envs:TwoBusSparseEnv',
+    entry_point='active_env.envs:TwoBusSparseEnv',
 )
 register(
     id='twobus_goal_env-v0',
-    entry_point='power_env.envs:TwoBusGoalEnv',
+    entry_point='active_env.envs:TwoBusGoalEnv',
     tags={'wrapper_config.TimeLimit.max_episode_steps': 20}
 
 )
