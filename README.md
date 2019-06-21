@@ -39,8 +39,13 @@ env = DummyVecEnv([lambda: env])
 model = PPO2(MlpPolicy, env, verbose=1)
 model.learn(total_timesteps=100000)
 ```
+## Tutorial
+`rl_power` has a custom gym environment called `ActiveEnv` that can interact
+with reinforcement algorithms in `stable-baselines`. Check out the
+[notebook tutorial](https://github.com/vegraux/master_thesis/blob/master/tutorials/active_env_tutorial.ipynb)
+for an introduction to the environment, and its functionality.
 
-See more in the [notebook tutorials](https://github.com/vegraux/master_thesis/blob/master/tutorials/active_env_tutorial.ipynb)
-The master thesis is can be found in the [solberg2019](https://github.com/vegraux/master_thesis/tree/master/tutorials)
+The master thesis can be found [here](https://github.com/vegraux/master_thesis/tree/master/tutorials)
+in the file solberg2019.pdf
 
 
