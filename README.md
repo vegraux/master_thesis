@@ -32,7 +32,7 @@ for power flow calculations and
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines import PPO2
 from stable_baselines.common.policies import MlpPolicy
-from gym_power.envs.active_network_env import ActiveEnv
+from active_env.envs.active_network_env import ActiveEnv
 
 env = ActiveEnv()
 env = DummyVecEnv([lambda: env])
