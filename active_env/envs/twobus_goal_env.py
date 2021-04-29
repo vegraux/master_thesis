@@ -9,7 +9,7 @@ from active_env.envs import TwoBusEnv
 """
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 
 class TwoBusGoalEnv(GoalEnv, TwoBusEnv):

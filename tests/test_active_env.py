@@ -12,7 +12,7 @@ from numpy.linalg import norm
 from active_env.envs.active_network_env import ActiveEnv
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 ENV = ActiveEnv()
 

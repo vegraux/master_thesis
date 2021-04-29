@@ -6,7 +6,7 @@
 from gym.envs.registration import register
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 
 register(

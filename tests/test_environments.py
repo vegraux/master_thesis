@@ -8,7 +8,7 @@ from active_env.envs.twobus_env import PowerEnvOld
 """
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 
 class TestPowerEnv:

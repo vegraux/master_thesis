@@ -15,7 +15,7 @@ import pandas as pd
 import copy
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 
 class TwoBusEnv(gym.Env):

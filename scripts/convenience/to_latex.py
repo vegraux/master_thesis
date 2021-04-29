@@ -4,7 +4,7 @@
 Training the reinforcement agent using stable baselines
 """
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 from active_env.envs.active_network_env import ActiveEnv
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv

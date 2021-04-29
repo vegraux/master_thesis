@@ -6,7 +6,7 @@
 import pandapower.networks as pn
 import pandapower as pp
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 
 def simple_two_bus():

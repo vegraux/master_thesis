@@ -5,7 +5,7 @@
 """
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 import sys
 import baselines.run as run
 

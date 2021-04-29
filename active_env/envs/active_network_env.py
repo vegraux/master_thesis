@@ -22,7 +22,7 @@ from pandapower import ppException
 import pandas as pd
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 DATA_PATH = os.getenv('DATA_PATH')
 
 

@@ -10,7 +10,7 @@ import numpy as np
 
 
 __author__ = 'Vegard Solberg'
-__email__ = 'vegard.ulriksen.solberg@nmbu.no'
+__email__ = 'vegardsolberg@hotmail.com'
 
 
 class TwoBusSparseEnv(TwoBusEnv):
